@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Open-IW5</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            background: #2D2D2D;
+            font-family: "Segoe UI Light", "Segoe UI", "Lucida Sans", Arial, sans-serif;
+            font-style: normal;
+            font-weight: lighter;
+            width: 100%;
+            height: 100%;
+        }
+
+        a {
+            color: #2D2D2D;
+            font-size: 16px;
+            background-color: #74af05;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 2px;
+            margin-left: 10px;
+            margin-right: 10px;
+            transition: all 0.15s linear;
+            box-shadow: 0px 2px 5px 2px rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+        }
+
+        a:hover {
+            box-shadow: 0px 2px 5px 2px rgba(0, 0, 0, 0.0);
+        }
+
+        .content {
+            margin: auto;
+            text-align: center;
+            width: 100%;
+            min-height: calc(100% - 100px);
+            max-height: calc(100% - 100px);
+            height: calc(100% - 100px);
+
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+
+        }
+
+        .navigation,
+        .footer {
+            background-color: rgb(31, 31, 31);
+            width: 100%;
+            height: 50px;
+        }
+
+        .box {
+            display: inline-block;
+            /*border: 1px solid rgba(255, 255, 255, 0.1);*/
+            background-color: rgb(31, 31, 31);
+            margin-left: 50px;
+            margin-right: 50px;
+            width: 250px;
+            height: 250px;
+            border-radius: 2px;
+            text-align: center;
+        }
+
+        .box>img {
+            width: 130px;
+            height: 130px;
+            display: block;
+            margin: auto;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            transition: all 0.1s linear;
+            border-radius: 2px;
+        }
+
+        .box>img:hover {
+            transform: scale(1.05);
+        }
+
+        .box>a {
+            position: relative;
+            bottom: 0;
+        }
+
+        .footer {
+            bottom: 0;
+            position: absolute;
+        }
+
+        h1 {
+            font-style: normal;
+            font-weight: lighter;
+            color: white;
+            font-size: 8em;
+        }
+
+        .overlay {
+            position: fixed;
+            background-color: rgb(31, 31, 31);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+
+            opacity: 0;
+            animation-name: fadeout;
+            animation-duration: 2s;
+            pointer-events: none;
+            user-select: none;
+            cursor: default;
+        }
+
+        @keyframes fadeout {
+            0% {
+                opacity: 1;
+                pointer-events: all;
+            }
+
+            60% {
+                opacity: 1;
+                pointer-events: all;
+            }
+
+            99% {
+                opacity: 0;
+                pointer-events: all;
+            }
+
+            100% {
+                opacity: 0;
+                pointer-events: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navigation">
+
+    </div>
+
+    <div class="content">
+        <div class="container">
+            <div class="box">
+                <img src="iw5.png" />
+                <a href="steam://install/42750">Download MW3</a>
+            </div>
+            <div class="box">
+                <img src="open-iw5.png" />
+                <a href="#">Download Client</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+
+    </div>
+
+    <div class="overlay">
+        <h1>Open-IW5</h1>
+    </div>
+</body>
+
+</html>
