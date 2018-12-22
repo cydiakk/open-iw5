@@ -6,7 +6,8 @@
 
 #include <map>
 #include <vector>
+#include <mutex>
 
 #pragma warning(disable: 4100)
 
-#include "steam\Steam.hpp"
+#include "steam\steam.hpp"

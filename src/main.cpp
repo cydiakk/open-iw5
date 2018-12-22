@@ -13,13 +13,13 @@ namespace main
 	}
 }
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE, DWORD call_reason, LPVOID)
 {
-	if (ul_reason_for_call == DLL_PROCESS_ATTACH)
+	if (call_reason == DLL_PROCESS_ATTACH)
 	{
 		main::initialize();
 	}
-	else if (ul_reason_for_call == DLL_PROCESS_DETACH)
+	else if (call_reason == DLL_PROCESS_DETACH)
 	{
 		main::uninitialize();
 	}
