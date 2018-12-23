@@ -17,6 +17,15 @@ workspace "open-mw3"
 	staticruntime "On"
 	warnings "Extra"
 
+	flags {
+		"StaticRuntime",
+		"NoIncrementalLink",
+		"NoEditAndContinue",
+		"NoMinimalRebuild",
+		"MultiProcessorCompile",
+		"No64BitChecks"
+	}
+
 	configuration "windows"
 		defines {
 			"_WINDOWS",
@@ -31,7 +40,6 @@ workspace "open-mw3"
 		}
 
 		flags {
-			"MultiProcessorCompile",
 			"LinkTimeOptimization",
 			"FatalCompileWarnings",
 		}
@@ -44,10 +52,6 @@ workspace "open-mw3"
 			"_DEBUG",
 		}
 
-		flags {
-			"MultiProcessorCompile",
-		}
-
 	configuration {}
 
 	project "open-mw3"
@@ -56,6 +60,10 @@ workspace "open-mw3"
 
 		pchheader "std_include.hpp"
 		pchsource "src/std_include.cpp"
+		
+		linkoptions "/IGNORE:4254 /DYNAMICBASE:NO /SAFESEH:NO /LARGEADDRESSAWARE"
+		linkoptions "/LAST:.zdata"
+
 
 		files {
 			"./src/**.rc",

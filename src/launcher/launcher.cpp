@@ -111,7 +111,7 @@ void launcher::paint() const
 	EndPaint(this->window_, &ps);
 }
 
-void launcher::mouse_move(LPARAM l_param)
+void launcher::mouse_move(const LPARAM l_param)
 {
 	this->mouse_.x = GET_X_LPARAM(l_param);
 	this->mouse_.y = GET_Y_LPARAM(l_param);

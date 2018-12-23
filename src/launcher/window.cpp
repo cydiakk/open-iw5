@@ -17,7 +17,7 @@ window::window(const std::string& title, const int width, const int height)
 	this->wc_.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	this->wc_.hIcon = LoadIcon(handle, MAKEINTRESOURCE(102));
 	this->wc_.hIconSm = this->wc_.hIcon;
-	this->wc_.hbrBackground = CreateSolidBrush(RGB(35, 35, 35)); //HBRUSH(COLOR_WINDOW);
+	this->wc_.hbrBackground = CreateSolidBrush(RGB(35, 35, 35));
 	this->wc_.lpszClassName = L"omw3_window";
 	RegisterClassEx(&this->wc_);
 

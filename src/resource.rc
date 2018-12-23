@@ -86,9 +86,11 @@ END
 // Binary Data
 //
 
-102      ICON   "resources/icon.ico"
-IMAGE_SP BITMAP "resources/singleplayer.bmp"
-IMAGE_MP BITMAP "resources/multiplayer.bmp"
+102       ICON   "resources/icon.ico"
+IMAGE_SP  BITMAP "resources/singleplayer.bmp"
+IMAGE_MP  BITMAP "resources/multiplayer.bmp"
+BINARY_SP RCDATA "resources/iw5sp.exe"
+BINARY_MP RCDATA "resources/iw5mp.exe"
 
 
 #endif    // English (United States) resources
