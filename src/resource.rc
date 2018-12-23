@@ -8,6 +8,7 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "windows.h"
+#include "resource.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -79,6 +80,15 @@ BEGIN
         VALUE "Translation", 0x409, 1200
     END
 END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Binary Data
+//
+
+IMAGE_SP BITMAP "resources/singleplayer.bmp"
+IMAGE_MP BITMAP "resources/multiplayer.bmp"
+
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
