@@ -70,8 +70,8 @@ BEGIN
             VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "Open-IW5"
             VALUE "LegalCopyright", "All rights reserved."
-            VALUE "OriginalFilename", "oiw5.exe"
-            VALUE "ProductName", "oiw5"
+            VALUE "OriginalFilename", "open-iw5.exe"
+            VALUE "ProductName", "open-iw5"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END

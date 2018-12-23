@@ -1,4 +1,10 @@
-workspace "open-mw3"
+newoption {
+	trigger = "copy-to",
+	description = "Optional, copy the EXE to a custom folder after build, define the path here if wanted.",
+	value = "PATH"
+}
+
+workspace "open-iw5"
 	location "./build"
 	objdir "%{wks.location}/obj"
 	targetdir "%{wks.location}/bin/%{cfg.platform}/%{cfg.buildcfg}"
@@ -15,12 +21,11 @@ workspace "open-mw3"
 	systemversion "latest"
 	symbols "On"
 	staticruntime "On"
+	editandcontinue "Off"
 	warnings "Extra"
 
 	flags {
-		"StaticRuntime",
 		"NoIncrementalLink",
-		"NoEditAndContinue",
 		"NoMinimalRebuild",
 		"MultiProcessorCompile",
 		"No64BitChecks"
@@ -54,7 +59,7 @@ workspace "open-mw3"
 
 	configuration {}
 
-	project "open-mw3"
+	project "open-iw5"
 		kind "WindowedApp"
 		language "C++"
 
@@ -78,3 +83,9 @@ workspace "open-mw3"
 		resincludedirs {
 			"$(ProjectDir)src"
 		}
+
+		if _OPTIONS["copy-to"] then
+			postbuildcommands {
+				"copy /y \"$(TargetDir)*.exe\" \"" .. _OPTIONS["copy-to"] .. "\""
+			}
+		end
