@@ -86,6 +86,7 @@ END
 // Binary Data
 //
 
+102      ICON   "resources/icon.ico"
 IMAGE_SP BITMAP "resources/singleplayer.bmp"
 IMAGE_MP BITMAP "resources/multiplayer.bmp"
 
