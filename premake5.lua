@@ -51,7 +51,7 @@ workspace "open-mw3"
 	configuration {}
 
 	project "open-mw3"
-		kind "SharedLib"
+		kind "WindowedApp"
 		language "C++"
 
 		pchheader "std_include.hpp"

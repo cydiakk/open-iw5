@@ -7,7 +7,10 @@
 #include <map>
 #include <vector>
 #include <mutex>
+#include <thread>
+
+using namespace std::literals;
 
 #pragma warning(disable: 4100)
 
-#include "steam\steam.hpp"
+#include "steam/steam.hpp"

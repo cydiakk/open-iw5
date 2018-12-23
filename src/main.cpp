@@ -1,28 +1,8 @@
 #include <std_include.hpp>
+#include "launcher/launcher.hpp"
 
-namespace main
+int CALLBACK WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
 {
-	void initialize()
-	{
-
-	}
-
-	void uninitialize()
-	{
-
-	}
-}
-
-BOOL APIENTRY DllMain(HMODULE, DWORD call_reason, LPVOID)
-{
-	if (call_reason == DLL_PROCESS_ATTACH)
-	{
-		main::initialize();
-	}
-	else if (call_reason == DLL_PROCESS_DETACH)
-	{
-		main::uninitialize();
-	}
-
-	return TRUE;
+	launcher launcher;
+	launcher.run();
 }

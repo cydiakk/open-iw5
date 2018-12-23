@@ -69,7 +69,7 @@ BEGIN
             VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "Open-IW5"
             VALUE "LegalCopyright", "All rights reserved."
-            VALUE "OriginalFilename", "oiw5.dll"
+            VALUE "OriginalFilename", "oiw5.exe"
             VALUE "ProductName", "oiw5"
             VALUE "ProductVersion", "1.0.0.0"
         END
