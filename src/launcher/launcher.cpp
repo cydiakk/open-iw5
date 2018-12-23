@@ -1,10 +1,10 @@
 #include <std_include.hpp>
 #include "launcher.hpp"
 
-launcher::launcher() : window_("Open-IW5", 265, 432), image_sp_(IMAGE_SP), image_mp_(IMAGE_MP)
+launcher::launcher() : window_("Open-IW5", 615, 300), image_sp_(IMAGE_SP), image_mp_(IMAGE_MP)
 {
-	this->image_sp_.set_position({75, 50});
-	this->image_mp_.set_position({75, 252});
+	this->image_sp_.set_position({100, 90});
+	this->image_mp_.set_position({401, 90});
 
 	this->image_sp_.set_size({100, 100});
 	this->image_mp_.set_size({100, 100});
@@ -62,13 +62,24 @@ void launcher::draw_text(const HDC hdc)
 	Gdiplus::Graphics graphics(hdc);
 	Gdiplus::SolidBrush color(Gdiplus::Color(255, 150, 150, 150));
 	Gdiplus::FontFamily font_family(L"Segoe UI");
-	Gdiplus::Font font(&font_family, 18, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
+	Gdiplus::Font font(&font_family, 20, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
+	const auto stringformat = Gdiplus::StringFormat::GenericTypographic();
 
-	graphics.DrawString(L"Singleplayer", -1, &font, {75, 20}, &color);
-	graphics.DrawString(L"Multiplayer", -1, &font, {75, 222}, &color);
+	std::wstring sp(L"Singleplayer");
+	std::wstring mp(L"Multiplayer");
 
-	Gdiplus::Pen pen(Gdiplus::Color(50, 255, 255, 255), 2);
-	graphics.DrawLine(&pen, 0, 200, 500, 200);
+	Gdiplus::RectF rect{};
+	graphics.MeasureString(sp.data(), -1, &font, rect, stringformat, &rect);
+
+	Gdiplus::PointF pos{150 - (rect.Width / 2 + 2), 45};
+	graphics.DrawString(sp.data(), -1, &font, pos, &color);
+
+	rect = {};
+	graphics.MeasureString(mp.data(), -1, &font, rect, stringformat, &rect);
+	graphics.DrawString(mp.data(), -1, &font, {451 - (rect.Width / 2 + 4), 45}, &color);
+
+	Gdiplus::Pen pen(Gdiplus::Color(50, 255, 255, 255), 1);
+	graphics.DrawLine(&pen, 300, 0, 300, 600);
 }
 
 void launcher::paint() const

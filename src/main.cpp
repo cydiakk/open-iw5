@@ -16,7 +16,7 @@ int CALLBACK WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR
 	}
 	else if(mode == launcher::mode::MULTIPLAYER)
 	{
-		OutputDebugStringA("\n\nMULTIPLAYER\n\n");
+		MessageBoxA(nullptr, "Multiplayer not supported yet!", "ERROR", MB_ICONEXCLAMATION);
 	}
 
 	return 0;

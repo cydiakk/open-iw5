@@ -35,7 +35,7 @@ void image::paint(const HDC hdc, const POINT& mouse) const
 	const auto dc = CreateCompatibleDC(hdc);
 	SelectObject(dc, this->bitmap_);
 
-	const LONG modifier = 1;
+	const LONG modifier = 2;
 	LONG size_offset = 0;
 	LONG position_offset = 0;
 	if (this->is_hovered(mouse))
