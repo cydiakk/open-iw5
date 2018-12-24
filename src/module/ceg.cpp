@@ -8,6 +8,11 @@ class ceg final : public module
 public:
 	void post_load() override
 	{
+		if(game::is_dedi()) return;
+
+		// Remove improper quit check
+		utils::hook::nop(SELECT_VALUE(0x53444A, 0x5CCDC0, 0), 9);
+
 		// Only SP has CEG
 		// CEG in MP has accidentally been removed due to CVE-2018-10718
 		if(!game::is_sp()) return;
