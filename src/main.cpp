@@ -2,6 +2,7 @@
 #include "launcher/launcher.hpp"
 #include "loader/loader.hpp"
 #include "loader/module_loader.hpp"
+#include "game/game.hpp"
 
 void exit_hook(const int code)
 {
@@ -16,8 +17,6 @@ int CALLBACK WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR
 	{
 		launcher launcher;
 		const auto mode = launcher.run();
-
-		module_loader::set_mode(mode);
 
 		if (mode == launcher::mode::NONE) return 0;
 
@@ -39,6 +38,7 @@ int CALLBACK WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR
 		entry_point = loader.load({});
 		if (!entry_point) return 1;
 
+		game::initialize(mode);
 		module_loader::post_load();
 	}
 

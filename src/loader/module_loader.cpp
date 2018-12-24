@@ -1,7 +1,6 @@
 #include <std_include.hpp>
 #include "module_loader.hpp"
 
-launcher::mode module_loader::mode_ = launcher::mode::NONE;
 std::vector<std::unique_ptr<module>>* module_loader::modules_ = nullptr;
 
 void module_loader::register_module(std::unique_ptr<module>&& module_)
@@ -37,16 +36,6 @@ void module_loader::pre_destroy()
 	{
 		module_->pre_destroy();
 	}
-}
-
-launcher::mode module_loader::get_mode()
-{
-	return module_loader::mode_;
-}
-
-void module_loader::set_mode(const launcher::mode mode)
-{
-	module_loader::mode_ = mode;
 }
 
 void module_loader::destroy_modules()

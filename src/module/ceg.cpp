@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "loader/module_loader.hpp"
 #include "utils/hook.hpp"
+#include "game/game.hpp"
 
 class ceg final : public module
 {
@@ -9,7 +10,7 @@ public:
 	{
 		// Only SP has CEG
 		// CEG in MP has accidentally been removed due to CVE-2018-10718
-		if(module_loader::get_mode() != launcher::mode::SINGLEPLAYER) return;
+		if(!game::is_sp()) return;
 
 		utils::hook::signature signature(0x401000, 0x3E1000);
 

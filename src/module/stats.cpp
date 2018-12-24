@@ -1,13 +1,14 @@
 #include <std_include.hpp>
 #include "loader/module_loader.hpp"
 #include "utils/hook.hpp"
+#include "game/game.hpp"
 
 class stats final : public module
 {
 public:
 	void post_load() override
 	{
-		if (module_loader::get_mode() != launcher::mode::SINGLEPLAYER) return;
+		if (!game::is_sp()) return;
 
 		// Disable remote storage
 		utils::hook::set<BYTE>(0x663B5A, 0xEB);

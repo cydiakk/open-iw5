@@ -10,6 +10,7 @@ public:
 		NONE,
 		SINGLEPLAYER,
 		MULTIPLAYER,
+		SERVER,
 	};
 
 	launcher();

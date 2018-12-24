@@ -21,11 +21,7 @@ public:
 	static void post_load();
 	static void pre_destroy();
 
-	static launcher::mode get_mode();
-	static void set_mode(launcher::mode mode);
-
 private:
-	static launcher::mode mode_;
 	static std::vector<std::unique_ptr<module>>* modules_;
 
 	static void destroy_modules();
