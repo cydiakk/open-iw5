@@ -45,7 +45,6 @@ workspace "open-iw5"
 		}
 
 		flags {
-			"LinkTimeOptimization",
 			"FatalCompileWarnings",
 		}
 
