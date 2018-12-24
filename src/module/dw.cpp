@@ -6,12 +6,7 @@ class dw final : public module
 public:
 	dw()
 	{
-		OutputDebugStringA("+ DW\n");
-	}
-
-	~dw()
-	{
-		OutputDebugStringA("- DW\n");
+		// TODO Patch DW
 	}
 };
 
