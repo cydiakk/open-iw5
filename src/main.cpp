@@ -1,6 +1,13 @@
 #include <std_include.hpp>
 #include "launcher/launcher.hpp"
 #include "loader/loader.hpp"
+#include "loader/module_loader.hpp"
+
+void exit_hook(const int code)
+{
+	module_loader::pre_destroy();
+	exit(code);
+}
 
 int CALLBACK WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
 {
@@ -9,6 +16,8 @@ int CALLBACK WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR
 	{
 		launcher launcher;
 		const auto mode = launcher.run();
+
+		module_loader::set_mode(mode);
 
 		if (mode == launcher::mode::NONE) return 0;
 
@@ -21,7 +30,7 @@ int CALLBACK WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR
 			}
 			else if (function == "ExitProcess")
 			{
-				return FARPROC(exit);
+				return FARPROC(exit_hook);
 			}
 
 			return nullptr;
@@ -30,7 +39,7 @@ int CALLBACK WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR
 		entry_point = loader.load({});
 		if (!entry_point) return 1;
 
-		loader.patch();
+		module_loader::post_load();
 	}
 
 	return entry_point();

@@ -7,7 +7,6 @@ class loader final
 public:
 	explicit loader(launcher::mode mode);
 
-	void patch();
 	FARPROC load(const utils::nt::module& module) const;
 
 	void set_import_resolver(const std::function<FARPROC(const std::string&, const std::string&)>& resolver);

@@ -5,10 +5,6 @@ loader::loader(const launcher::mode mode) : mode_(mode)
 {
 }
 
-void loader::patch()
-{
-}
-
 FARPROC loader::load(const utils::nt::module& module) const
 {
 	const auto buffer = this->load_binary();
