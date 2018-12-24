@@ -1,8 +1,9 @@
 #include <std_include.hpp>
+#include "steam/steam.hpp"
 
 namespace steam
 {
-	HMODULE overlay = nullptr;
+	::utils::nt::module overlay(nullptr);
 
 	uint64_t callbacks::call_id_ = 0;
 	std::recursive_mutex callbacks::mutex_;
@@ -13,52 +14,52 @@ namespace steam
 
 	uint64_t callbacks::register_call()
 	{
-		std::lock_guard _(callbacks::mutex_);
-		callbacks::calls_[++callbacks::call_id_] = false;
-		return callbacks::call_id_;
+		std::lock_guard _(mutex_);
+		calls_[++call_id_] = false;
+		return call_id_;
 	}
 
-	void callbacks::register_callback(callbacks::base* handler, const int callback)
+	void callbacks::register_callback(base* handler, const int callback)
 	{
-		std::lock_guard _(callbacks::mutex_);
+		std::lock_guard _(mutex_);
 		handler->set_i_callback(callback);
-		callbacks::callback_list_.push_back(handler);
+		callback_list_.push_back(handler);
 	}
 
-	void callbacks::register_call_result(const uint64_t call, callbacks::base* result)
+	void callbacks::register_call_result(const uint64_t call, base* result)
 	{
-		std::lock_guard _(callbacks::mutex_);
-		callbacks::result_handlers_[call] = result;
+		std::lock_guard _(mutex_);
+		result_handlers_[call] = result;
 	}
 
 	void callbacks::return_call(void* data, const int size, const int type, const uint64_t call)
 	{
-		std::lock_guard _(callbacks::mutex_);
+		std::lock_guard _(mutex_);
 
-		callbacks::result result;
+		result result{};
 
 		result.call = call;
 		result.data = data;
 		result.size = size;
 		result.type = type;
 
-		callbacks::calls_[call] = true;
+		calls_[call] = true;
 
-		callbacks::results_.push_back(result);
+		results_.push_back(result);
 	}
 
 	void callbacks::run_callbacks()
 	{
-		std::lock_guard _(callbacks::mutex_);
+		std::lock_guard _(mutex_);
 
-		for (auto result : callbacks::results_)
+		for (auto result : results_)
 		{
-			if (callbacks::result_handlers_.find(result.call) != callbacks::result_handlers_.end())
+			if (result_handlers_.find(result.call) != result_handlers_.end())
 			{
-				callbacks::result_handlers_[result.call]->run(result.data, false, result.call);
+				result_handlers_[result.call]->run(result.data, false, result.call);
 			}
 
-			for (auto callback : callbacks::callback_list_)
+			for (auto callback : callback_list_)
 			{
 				if (callback && callback->get_i_callback() == result.type)
 				{
@@ -72,7 +73,7 @@ namespace steam
 			}
 		}
 
-		callbacks::results_.clear();
+		results_.clear();
 	}
 
 	extern "C"
@@ -84,7 +85,7 @@ namespace steam
 
 		bool SteamAPI_Init()
 		{
-			overlay = GetModuleHandleA("gameoverlayrenderer.dll");
+			overlay = ::utils::nt::module("gameoverlayrenderer.dll");
 
 			if (!overlay)
 			{
@@ -96,11 +97,14 @@ namespace steam
 					RegQueryValueExA(reg_key, "InstallPath", nullptr, nullptr, reinterpret_cast<BYTE*>(steam_path), &length);
 					RegCloseKey(reg_key);
 
-					SetDllDirectoryA(steam_path);
+					std::string overlay_path = steam_path;
+					if(overlay_path.back() != '\\' && overlay_path.back() != '/')
+					{
+						overlay_path.push_back('\\');
+					}
 
-					strcat_s(steam_path, "gameoverlayrenderer.dll");
-
-					overlay = LoadLibraryA(steam_path);
+					overlay_path.append("gameoverlayrenderer.dll");
+					overlay = ::utils::nt::module::load(overlay_path);
 				}
 			}
 
@@ -149,69 +153,69 @@ namespace steam
 		}
 
 
-		steam::friends* SteamFriends()
+		friends* SteamFriends()
 		{
-			static steam::friends friends;
+			static friends friends;
 			return &friends;
 		}
 
-		steam::matchmaking* SteamMatchmaking()
+		matchmaking* SteamMatchmaking()
 		{
-			static steam::matchmaking matchmaking;
+			static matchmaking matchmaking;
 			return &matchmaking;
 		}
 
-		steam::matchmaking_servers* SteamMatchmakingServers()
+		matchmaking_servers* SteamMatchmakingServers()
 		{
-			static steam::matchmaking_servers matchmaking_servers;
+			static matchmaking_servers matchmaking_servers;
 			return &matchmaking_servers;
 		}
 
-		steam::game_server* SteamGameServer()
+		game_server* SteamGameServer()
 		{
-			static steam::game_server game_server;
+			static game_server game_server;
 			return &game_server;
 		}
 
-		steam::master_server_updater* SteamMasterServerUpdater()
+		master_server_updater* SteamMasterServerUpdater()
 		{
-			static steam::master_server_updater master_server_updater;
+			static master_server_updater master_server_updater;
 			return &master_server_updater;
 		}
 
-		steam::networking* SteamNetworking()
+		networking* SteamNetworking()
 		{
-			static steam::networking networking;
+			static networking networking;
 			return &networking;
 		}
 
-		steam::remote_storage* SteamRemoteStorage()
+		remote_storage* SteamRemoteStorage()
 		{
-			static steam::remote_storage remote_storage;
+			static remote_storage remote_storage;
 			return &remote_storage;
 		}
 
-		steam::user* SteamUser()
+		user* SteamUser()
 		{
-			static steam::user user;
+			static user user;
 			return &user;
 		}
 
-		steam::utils* SteamUtils()
+		utils* SteamUtils()
 		{
-			static steam::utils utils;
+			static utils utils;
 			return &utils;
 		}
 
-		steam::apps* SteamApps()
+		apps* SteamApps()
 		{
-			static steam::apps apps;
+			static apps apps;
 			return &apps;
 		}
 
-		steam::user_stats* SteamUserStats()
+		user_stats* SteamUserStats()
 		{
-			static steam::user_stats user_stats;
+			static user_stats user_stats;
 			return &user_stats;
 		}
 	}

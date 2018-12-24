@@ -12,19 +12,19 @@ window::window(const std::string& title, const int width, const int height)
 
 	this->wc_.cbSize = sizeof(this->wc_);
 	this->wc_.style = CS_HREDRAW | CS_VREDRAW;
-	this->wc_.lpfnWndProc = window::static_processor;
+	this->wc_.lpfnWndProc = static_processor;
 	this->wc_.hInstance = handle;
 	this->wc_.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	this->wc_.hIcon = LoadIcon(handle, MAKEINTRESOURCE(102));
 	this->wc_.hIconSm = this->wc_.hIcon;
 	this->wc_.hbrBackground = CreateSolidBrush(RGB(35, 35, 35));
-	this->wc_.lpszClassName = L"omw3_window";
+	this->wc_.lpszClassName = L"lul_window";
 	RegisterClassEx(&this->wc_);
 
 	const auto x = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
 	const auto y = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
 
-	this->handle_ = CreateWindowExA(NULL, "omw3_window", title.data(),
+	this->handle_ = CreateWindowExA(NULL, "lul_window", title.data(),
 	                                (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~(WS_THICKFRAME | WS_MAXIMIZEBOX), x, y, width,
 	                                height, nullptr, nullptr, handle, nullptr);
 

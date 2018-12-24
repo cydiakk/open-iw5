@@ -1,6 +1,7 @@
 #pragma once
 
 #define STEAM_EXPORT extern "C" __declspec(dllexport)
+#include "utils/nt.hpp"
 
 struct raw_steam_id final
 {
@@ -16,17 +17,17 @@ typedef union
 	unsigned long long bits;
 } steam_id;
 
-#include "interfaces/SteamApps.hpp"
-#include "interfaces/SteamUser.hpp"
-#include "interfaces/SteamUtils.hpp"
-#include "interfaces/SteamFriends.hpp"
-#include "interfaces/SteamUserStats.hpp"
-#include "interfaces/SteamGameServer.hpp"
-#include "interfaces/SteamNetworking.hpp"
-#include "interfaces/SteamMatchmaking.hpp"
-#include "interfaces/SteamRemoteStorage.hpp"
-#include "interfaces/SteamMatchmakingServers.hpp"
-#include "interfaces/SteamMasterServerUpdater.hpp"
+#include "interfaces/apps.hpp"
+#include "interfaces/user.hpp"
+#include "interfaces/utils.hpp"
+#include "interfaces/friends.hpp"
+#include "interfaces/user_stats.hpp"
+#include "interfaces/game_server.hpp"
+#include "interfaces/networking.hpp"
+#include "interfaces/matchmaking.hpp"
+#include "interfaces/remote_storage.hpp"
+#include "interfaces/matchmaking_servers.hpp"
+#include "interfaces/master_server_updater.hpp"
 
 namespace steam
 {
@@ -86,17 +87,17 @@ namespace steam
 	STEAM_EXPORT void SteamGameServer_RunCallbacks();
 	STEAM_EXPORT void SteamGameServer_Shutdown();
 
-	STEAM_EXPORT steam::friends* SteamFriends();
-	STEAM_EXPORT steam::matchmaking* SteamMatchmaking();
-	STEAM_EXPORT steam::matchmaking_servers* SteamMatchmakingServers();
-	STEAM_EXPORT steam::game_server* SteamGameServer();
-	STEAM_EXPORT steam::master_server_updater* SteamMasterServerUpdater();
-	STEAM_EXPORT steam::networking* SteamNetworking();
-	STEAM_EXPORT steam::remote_storage* SteamRemoteStorage();
-	STEAM_EXPORT steam::user* SteamUser();
-	STEAM_EXPORT steam::utils* SteamUtils();
-	STEAM_EXPORT steam::apps* SteamApps();
-	STEAM_EXPORT steam::user_stats* SteamUserStats();
+	STEAM_EXPORT friends* SteamFriends();
+	STEAM_EXPORT matchmaking* SteamMatchmaking();
+	STEAM_EXPORT matchmaking_servers* SteamMatchmakingServers();
+	STEAM_EXPORT game_server* SteamGameServer();
+	STEAM_EXPORT master_server_updater* SteamMasterServerUpdater();
+	STEAM_EXPORT networking* SteamNetworking();
+	STEAM_EXPORT remote_storage* SteamRemoteStorage();
+	STEAM_EXPORT user* SteamUser();
+	STEAM_EXPORT utils* SteamUtils();
+	STEAM_EXPORT apps* SteamApps();
+	STEAM_EXPORT user_stats* SteamUserStats();
 
-	extern HMODULE overlay;
+	extern ::utils::nt::module overlay;
 }

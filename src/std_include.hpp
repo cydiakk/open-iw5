@@ -28,5 +28,3 @@ using namespace std::literals;
 #pragma warning(disable: 4100)
 
 #include "resource.hpp"
-
-#include "steam/steam.hpp"

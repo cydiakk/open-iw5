@@ -1,4 +1,5 @@
 #include <std_include.hpp>
+#include "steam/steam.hpp"
 
 namespace steam
 {
@@ -54,14 +55,9 @@ namespace steam
 
 	void utils::SetOverlayNotificationPosition(int eNotificationPosition)
 	{
-		if (steam::overlay)
+		if (overlay)
 		{
-			const auto set_position = GetProcAddress(steam::overlay, "SetNotificationPosition");
-
-			if (set_position)
-			{
-				reinterpret_cast<void(*)(int)>(set_position)(eNotificationPosition);
-			}
+			overlay.invoke<void>("SetNotificationPosition", eNotificationPosition);
 		}
 	}
 

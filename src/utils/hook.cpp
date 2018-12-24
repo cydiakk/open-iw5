@@ -37,9 +37,9 @@ namespace utils
 		}
 	}
 
-	void hook::signature::add(const hook::signature::container& container)
+	void hook::signature::add(const container& container)
 	{
-		hook::signature::signatures_.push_back(container);
+		signatures_.push_back(container);
 	}
 
 	hook::~hook()
@@ -103,9 +103,9 @@ namespace utils
 
 	void hook::quick()
 	{
-		if (hook::installed_)
+		if (this->installed_)
 		{
-			hook::installed_ = false;
+			this->installed_ = false;
 		}
 	}
 

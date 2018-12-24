@@ -40,6 +40,9 @@ namespace utils
 		hook(const DWORD place, const DWORD stub, const bool use_jump = true) : hook(reinterpret_cast<void*>(place), reinterpret_cast<void*>(stub), use_jump) {}
 		hook(const DWORD place, void(*stub)(), const bool use_jump = true) : hook(reinterpret_cast<void*>(place), reinterpret_cast<void*>(stub), use_jump) {}
 
+		hook(const hook&) = delete;
+		hook(const hook&&) = delete;
+
 		~hook();
 
 		hook* initialize(void* place, void* stub, bool use_jump = true);
