@@ -11,7 +11,7 @@ public:
 		// CEG in MP has accidentally been removed due to CVE-2018-10718
 		if(module_loader::get_mode() != launcher::mode::SINGLEPLAYER) return;
 
-		utils::hook::signature signature;
+		utils::hook::signature signature(0x401000, 0x3E1000);
 
 		signature.add({ "\x56\xE8\x00\x00\x00\x00\x8B\xF0\xE8\x00\x00\x00\x00\x50\x56\xE8", "xx????xxx????xxx", [](char* address)
 		{
