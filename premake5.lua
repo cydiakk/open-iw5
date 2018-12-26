@@ -1,8 +1,40 @@
+dependencies = {
+	basePath = "./deps"
+}
+
+function dependencies.load()
+	dir = path.join(dependencies.basePath, "premake/*.lua")
+	deps = os.matchfiles(dir)
+
+	for i, dep in pairs(deps) do
+		dep = dep:gsub(".lua", "")
+		require(dep)
+	end
+end
+
+function dependencies.imports()
+	for i, proj in pairs(dependencies) do
+		if type(i) == 'number' then
+			proj.import()
+		end
+	end
+end
+
+function dependencies.projects()
+	for i, proj in pairs(dependencies) do
+		if type(i) == 'number' then
+			proj.project()
+		end
+	end
+end
+
 newoption {
 	trigger = "copy-to",
 	description = "Optional, copy the EXE to a custom folder after build, define the path here if wanted.",
 	value = "PATH"
 }
+
+dependencies.load()
 
 workspace "open-iw5"
 	location "./build"
@@ -88,3 +120,8 @@ workspace "open-iw5"
 				"copy /y \"$(TargetDir)*.exe\" \"" .. _OPTIONS["copy-to"] .. "\""
 			}
 		end
+
+		dependencies.imports()
+
+	group "Dependencies"
+		dependencies.projects()
