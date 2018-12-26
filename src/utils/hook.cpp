@@ -23,7 +23,7 @@ namespace utils
 				unsigned int j;
 				for (j = 0; j < strlen(container->mask); ++j)
 				{
-					if (container->mask[j] != '?' &&container->signature[j] != address[j])
+					if (container->mask[j] != '?' && container->signature[j] != address[j])
 					{
 						break;
 					}
@@ -50,7 +50,7 @@ namespace utils
 		}
 	}
 
-	hook* hook::initialize(const DWORD place, void(*stub)(), const bool use_jump)
+	hook* hook::initialize(const DWORD place, void (*stub)(), const bool use_jump)
 	{
 		return this->initialize(place, reinterpret_cast<void*>(stub), use_jump);
 	}
@@ -69,7 +69,8 @@ namespace utils
 		this->place_ = place;
 		this->stub_ = stub;
 
-		this->original_ = static_cast<char*>(this->place_) + 5 + *reinterpret_cast<DWORD*>((static_cast<char*>(this->place_) + 1));
+		this->original_ = static_cast<char*>(this->place_) + 5 + *reinterpret_cast<DWORD*>((static_cast<char*>(this->
+			place_) + 1));
 
 		return this;
 	}
@@ -92,9 +93,11 @@ namespace utils
 
 		*code = static_cast<char>(this->use_jump_ ? 0xE9 : 0xE8);
 
-		*reinterpret_cast<size_t*>(code + 1) = reinterpret_cast<size_t>(this->stub_) - (reinterpret_cast<size_t>(this->place_) + 5);
+		*reinterpret_cast<size_t*>(code + 1) = reinterpret_cast<size_t>(this->stub_) - (reinterpret_cast<size_t>(this->
+			place_) + 5);
 
-		if (unprotect && !keep_unprotected) VirtualProtect(this->place_, sizeof(this->buffer_), this->protection_, &this->protection_);
+		if (unprotect && !keep_unprotected) VirtualProtect(this->place_, sizeof(this->buffer_), this->protection_,
+		                                                   &this->protection_);
 
 		FlushInstructionCache(GetCurrentProcess(), this->place_, sizeof(this->buffer_));
 

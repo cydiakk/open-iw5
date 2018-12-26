@@ -12,12 +12,26 @@
 #include <objidl.h>
 #include <gdiplus.h>
 
+// min and max is required by gdi, therefore NOMINMAX won't work
+#ifdef max
+#undef max
+#endif
+
+#ifdef min
+#undef min
+#endif
+
 #include <map>
 #include <vector>
 #include <mutex>
 #include <thread>
 #include <fstream>
 #include <filesystem>
+
+#include <zlib.h>
+#include <diff.h>
+#include <patch.h>
+#include <tomcrypt.h>
 
 #pragma warning(pop)
 

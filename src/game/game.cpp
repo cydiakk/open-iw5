@@ -9,21 +9,21 @@ namespace game
 	}
 
 
-	launcher::mode mode = launcher::mode::NONE;
+	launcher::mode mode = launcher::mode::none;
 
 	bool is_mp()
 	{
-		return mode == launcher::mode::MULTIPLAYER;
+		return mode == launcher::mode::multiplayer;
 	}
 
 	bool is_sp()
 	{
-		return mode == launcher::mode::SINGLEPLAYER;
+		return mode == launcher::mode::singleplayer;
 	}
 
 	bool is_dedi()
 	{
-		return mode == launcher::mode::SERVER;
+		return mode == launcher::mode::server;
 	}
 
 	void initialize(const launcher::mode _mode)

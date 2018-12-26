@@ -18,9 +18,17 @@ namespace utils
 				std::function<void(char*)> callback;
 			};
 
-			signature(void* start, const size_t length) : start_(start), length_(length) {}
-			signature(const DWORD start, const size_t length) : signature(reinterpret_cast<void*>(start), length) {}
-			signature() : signature(0x400000, 0x800000) {}
+			signature(void* start, const size_t length) : start_(start), length_(length)
+			{
+			}
+
+			signature(const DWORD start, const size_t length) : signature(reinterpret_cast<void*>(start), length)
+			{
+			}
+
+			signature() : signature(0x400000, 0x800000)
+			{
+			}
 
 			void process();
 			void add(const container& container);
@@ -31,14 +39,33 @@ namespace utils
 			std::vector<container> signatures_;
 		};
 
-		hook() : initialized_(false), installed_(false), place_(nullptr), stub_(nullptr), original_(nullptr), use_jump_(false), protection_(0) { ZeroMemory(this->buffer_, sizeof(this->buffer_)); }
+		hook() : initialized_(false), installed_(false), place_(nullptr), stub_(nullptr), original_(nullptr),
+		         use_jump_(false), protection_(0)
+		{
+			ZeroMemory(this->buffer_, sizeof(this->buffer_));
+		}
 
 		hook(void* place, void* stub, const bool use_jump = true) : hook() { this->initialize(place, stub, use_jump); }
-		hook(void* place, void(*stub)(), const bool use_jump = true) : hook(place, reinterpret_cast<void*>(stub), use_jump) {}
 
-		hook(const DWORD place, void* stub, const bool use_jump = true) : hook(reinterpret_cast<void*>(place), stub, use_jump) {}
-		hook(const DWORD place, const DWORD stub, const bool use_jump = true) : hook(reinterpret_cast<void*>(place), reinterpret_cast<void*>(stub), use_jump) {}
-		hook(const DWORD place, void(*stub)(), const bool use_jump = true) : hook(reinterpret_cast<void*>(place), reinterpret_cast<void*>(stub), use_jump) {}
+		hook(void* place, void (*stub)(), const bool use_jump = true) : hook(
+			place, reinterpret_cast<void*>(stub), use_jump)
+		{
+		}
+
+		hook(const DWORD place, void* stub, const bool use_jump = true) : hook(
+			reinterpret_cast<void*>(place), stub, use_jump)
+		{
+		}
+
+		hook(const DWORD place, const DWORD stub, const bool use_jump = true) : hook(
+			reinterpret_cast<void*>(place), reinterpret_cast<void*>(stub), use_jump)
+		{
+		}
+
+		hook(const DWORD place, void (*stub)(), const bool use_jump = true) : hook(
+			reinterpret_cast<void*>(place), reinterpret_cast<void*>(stub), use_jump)
+		{
+		}
 
 		hook(const hook&) = delete;
 		hook(const hook&&) = delete;
@@ -47,7 +74,7 @@ namespace utils
 
 		hook* initialize(void* place, void* stub, bool use_jump = true);
 		hook* initialize(DWORD place, void* stub, bool use_jump = true);
-		hook* initialize(DWORD place, void(*stub)(), bool use_jump = true); // For lambdas
+		hook* initialize(DWORD place, void (*stub)(), bool use_jump = true); // For lambdas
 		hook* install(bool unprotect = true, bool keep_unprotected = false);
 		hook* uninstall(bool unprotect = true);
 
@@ -57,7 +84,8 @@ namespace utils
 		static void nop(void* place, size_t length);
 		static void nop(DWORD place, size_t length);
 
-		template <typename T> static void set(void* place, T value)
+		template <typename T>
+		static void set(void* place, T value)
 		{
 			DWORD old_protect;
 			VirtualProtect(place, sizeof(T), PAGE_EXECUTE_READWRITE, &old_protect);
@@ -68,7 +96,8 @@ namespace utils
 			FlushInstructionCache(GetCurrentProcess(), place, sizeof(T));
 		}
 
-		template <typename T> static void set(const DWORD place, T value)
+		template <typename T>
+		static void set(const DWORD place, T value)
 		{
 			return set<T>(reinterpret_cast<void*>(place), value);
 		}

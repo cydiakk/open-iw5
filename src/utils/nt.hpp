@@ -14,10 +14,12 @@ namespace utils
 			explicit module(const std::string& name);
 			explicit module(HMODULE handle);
 
-			module(const module& a) : module_(a.module_) {}
+			module(const module& a) : module_(a.module_)
+			{
+			}
 
-			bool operator!=(const module &obj) const { return !(*this == obj); };
-			bool operator==(const module &obj) const;
+			bool operator!=(const module& obj) const { return !(*this == obj); };
+			bool operator==(const module& obj) const;
 
 			operator bool() const;
 			operator HMODULE() const;
@@ -48,26 +50,26 @@ namespace utils
 				return reinterpret_cast<T*>(this->get_proc<void*>(process));
 			}
 
-			template<typename T, typename... Args>
-			T invoke(const std::string& process, Args... args)
+			template <typename T, typename... Args>
+			T invoke(const std::string& process, Args ... args)
 			{
-				auto method = this->get<T(__cdecl)(Args...)>(process);
+				auto method = this->get<T(__cdecl)(Args ...)>(process);
 				if (method) return method(args...);
 				return T();
 			}
 
-			template<typename T, typename... Args>
-			T invoke_pascal(const std::string& process, Args... args)
+			template <typename T, typename... Args>
+			T invoke_pascal(const std::string& process, Args ... args)
 			{
-				auto method = this->get<T(__stdcall)(Args...)>(process);
+				auto method = this->get<T(__stdcall)(Args ...)>(process);
 				if (method) return method(args...);
 				return T();
 			}
 
-			template<typename T, typename... Args>
-			T invoke_this(const std::string& process, void* thisPtr, Args... args)
+			template <typename T, typename... Args>
+			T invoke_this(const std::string& process, void* thisPtr, Args ... args)
 			{
-				auto method = this->get<T(__thiscall)(void*,Args...)>(thisPtr, process);
+				auto method = this->get<T(__thiscall)(void*, Args ...)>(thisPtr, process);
 				if (method) return method(args...);
 				return T();
 			}

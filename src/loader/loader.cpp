@@ -1,13 +1,16 @@
 #include <std_include.hpp>
 #include "loader.hpp"
+#include "binary_loader.hpp"
+#include "utils/string.hpp"
 
 loader::loader(const launcher::mode mode) : mode_(mode)
 {
+
 }
 
 FARPROC loader::load(const utils::nt::module& module) const
 {
-	const auto buffer = this->load_binary();
+	const auto buffer = binary_loader::load(this->mode_);
 	if (buffer.empty()) return nullptr;
 
 	utils::nt::module source(HMODULE(buffer.data()));
@@ -33,7 +36,7 @@ FARPROC loader::load(const utils::nt::module& module) const
 		VirtualProtect(PVOID(target_tls->StartAddressOfRawData),
 		               source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData, PAGE_READWRITE, &old_protect);
 
-		const LPVOID tls_base = *reinterpret_cast<LPVOID*>(__readfsdword(0x2C));
+		const auto tls_base = *reinterpret_cast<LPVOID*>(__readfsdword(0x2C));
 		std::memmove(tls_base, PVOID(source_tls->StartAddressOfRawData),
 		             source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData);
 		std::memmove(PVOID(target_tls->StartAddressOfRawData), PVOID(source_tls->StartAddressOfRawData),
@@ -58,32 +61,6 @@ void loader::set_import_resolver(const std::function<FARPROC(const std::string&,
 	this->import_resolver_ = resolver;
 }
 
-std::string loader::load_binary() const
-{
-	if (this->mode_ == launcher::mode::SINGLEPLAYER)
-	{
-		return loader::load_resource(BINARY_SP);
-	}
-
-	if (this->mode_ == launcher::mode::MULTIPLAYER)
-	{
-		return loader::load_resource(BINARY_MP);
-	}
-
-	return {};
-}
-
-std::string loader::load_resource(const int id)
-{
-	const auto res = FindResource(::utils::nt::module(), MAKEINTRESOURCE(id), RT_RCDATA);
-	if (!res) return {};
-
-	const auto handle = LoadResource(nullptr, res);
-	if (!handle) return {};
-
-	return std::string(LPSTR(LockResource(handle)), SizeofResource(nullptr, res));
-}
-
 void loader::load_section(const utils::nt::module& target, const utils::nt::module& source,
                           IMAGE_SECTION_HEADER* section)
 {
@@ -92,13 +69,12 @@ void loader::load_section(const utils::nt::module& target, const utils::nt::modu
 
 	if (PBYTE(target_ptr) >= (target.get_ptr() + BINARY_PAYLOAD_SIZE))
 	{
-		MessageBoxA(nullptr, "Section exceeds the binary payload size, please increase it!", nullptr, MB_ICONERROR);
-		TerminateProcess(GetCurrentProcess(), 1);
+		throw std::runtime_error("Section exceeds the binary payload size, please increase it!");
 	}
 
 	if (section->SizeOfRawData > 0)
 	{
-		const auto size_of_data = min(section->SizeOfRawData, section->Misc.VirtualSize);
+		const auto size_of_data = std::min(section->SizeOfRawData, section->Misc.VirtualSize);
 		std::memmove(target_ptr, source_ptr, size_of_data);
 
 		DWORD old_protect;
@@ -166,10 +142,7 @@ void loader::load_imports(const utils::nt::module& target, const utils::nt::modu
 
 			if (!function)
 			{
-				auto error = "Unable to load import '"s + function_name + "' from module '"s + name + "'"s;
-
-				MessageBoxA(nullptr, error.data(), nullptr, MB_ICONERROR);
-				TerminateProcess(GetCurrentProcess(), 1);
+				throw std::runtime_error(utils::string::va("Unable to load import '%s' from module '%s'", function_name.data(), name.data()));
 			}
 
 			*address_table_entry = reinterpret_cast<uintptr_t>(function);

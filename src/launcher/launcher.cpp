@@ -9,8 +9,8 @@ launcher::launcher() : window_("Open-IW5", 615, 300), image_sp_(IMAGE_SP), image
 	this->image_sp_.set_size({100, 100});
 	this->image_mp_.set_size({100, 100});
 
-	this->image_sp_.set_click_listener(std::bind(&launcher::select_mode, this, mode::SINGLEPLAYER));
-	this->image_mp_.set_click_listener(std::bind(&launcher::select_mode, this, mode::MULTIPLAYER));
+	this->image_sp_.set_click_listener(std::bind(&launcher::select_mode, this, mode::singleplayer));
+	this->image_mp_.set_click_listener(std::bind(&launcher::select_mode, this, mode::multiplayer));
 
 	this->window_.set_callback(std::bind(&launcher::handler, this, std::placeholders::_1, std::placeholders::_2,
 	                                     std::placeholders::_3));

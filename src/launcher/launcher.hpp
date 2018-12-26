@@ -7,10 +7,10 @@ class launcher final
 public:
 	enum mode
 	{
-		NONE,
-		SINGLEPLAYER,
-		MULTIPLAYER,
-		SERVER,
+		none,
+		singleplayer,
+		multiplayer,
+		server,
 	};
 
 	launcher();
@@ -18,7 +18,7 @@ public:
 	mode run() const;
 
 private:
-	mode mode_ = NONE;
+	mode mode_ = none;
 
 	window window_;
 

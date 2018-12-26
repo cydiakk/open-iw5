@@ -32,7 +32,7 @@ namespace utils
 			this->module_ = handle;
 		}
 
-		bool module::operator==(const module &obj) const
+		bool module::operator==(const module& obj) const
 		{
 			return this->module_ == obj.module_;
 		}
@@ -90,7 +90,8 @@ namespace utils
 			if (!this->is_valid()) return;
 
 			DWORD protection;
-			VirtualProtect(this->get_ptr(), this->get_optional_header()->SizeOfImage, PAGE_EXECUTE_READWRITE, &protection);
+			VirtualProtect(this->get_ptr(), this->get_optional_header()->SizeOfImage, PAGE_EXECUTE_READWRITE,
+			               &protection);
 		}
 
 		size_t module::get_relative_entry_point() const
@@ -125,7 +126,7 @@ namespace utils
 		{
 			if (!this->is_valid()) return "";
 
-			char name[MAX_PATH] = { 0 };
+			char name[MAX_PATH] = {0};
 			GetModuleFileNameA(this->module_, name, sizeof name);
 
 			return name;
@@ -158,22 +159,26 @@ namespace utils
 			auto* header = this->get_optional_header();
 			if (!header) return nullptr;
 
-			auto* import_descriptor = reinterpret_cast<PIMAGE_IMPORT_DESCRIPTOR>(this->get_ptr() + header->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
+			auto* import_descriptor = reinterpret_cast<PIMAGE_IMPORT_DESCRIPTOR>(this->get_ptr() + header->DataDirectory
+				[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
 
 			while (import_descriptor->Name)
 			{
 				if (!_stricmp(reinterpret_cast<char*>(this->get_ptr() + import_descriptor->Name), module_name.data()))
 				{
-					auto* original_thunk_data = reinterpret_cast<PIMAGE_THUNK_DATA>(import_descriptor->OriginalFirstThunk + this->get_ptr());
-					auto* thunk_data = reinterpret_cast<PIMAGE_THUNK_DATA>(import_descriptor->FirstThunk + this->get_ptr());
+					auto* original_thunk_data = reinterpret_cast<PIMAGE_THUNK_DATA>(import_descriptor->
+						OriginalFirstThunk + this->get_ptr());
+					auto* thunk_data = reinterpret_cast<PIMAGE_THUNK_DATA>(import_descriptor->FirstThunk + this->
+						get_ptr());
 
-					while(original_thunk_data->u1.AddressOfData)
+					while (original_thunk_data->u1.AddressOfData)
 					{
 						const size_t ordinal_number = original_thunk_data->u1.AddressOfData & 0xFFFFFFF;
 
 						if (ordinal_number > 0xFFFF) continue;
 
-						if (GetProcAddress(other_module.module_, reinterpret_cast<char*>(ordinal_number)) == target_function)
+						if (GetProcAddress(other_module.module_, reinterpret_cast<char*>(ordinal_number)) ==
+							target_function)
 						{
 							return reinterpret_cast<void**>(&thunk_data->u1.Function);
 						}

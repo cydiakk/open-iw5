@@ -13,7 +13,7 @@ end
 function libHDiffPatch.includes()
 	includedirs {
 		path.join(libHDiffPatch.source, "HDiff"),
-		path.join(libHDiffPatch.source, "HDiff"),
+		path.join(libHDiffPatch.source, "HPatch"),
 	}
 end
 
