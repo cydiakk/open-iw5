@@ -5,7 +5,7 @@ class module_loader final
 {
 public:
 	template <typename T>
-	class installer
+	class installer final
 	{
 		static_assert(std::is_base_of<module, T>::value, "Module has invalid base class");
 

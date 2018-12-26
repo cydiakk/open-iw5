@@ -8,17 +8,22 @@ namespace steam
 		return 0;
 	}
 
-	bool matchmaking::GetFavoriteGame(int iGame, unsigned int *pnAppID, unsigned int *pnIP, unsigned short *pnConnPort, unsigned short *pnQueryPort, unsigned int *punFlags, unsigned int *pRTime32LastPlayedOnServer)
+	bool matchmaking::GetFavoriteGame(int iGame, unsigned int* pnAppID, unsigned int* pnIP, unsigned short* pnConnPort,
+	                                  unsigned short* pnQueryPort, unsigned int* punFlags,
+	                                  unsigned int* pRTime32LastPlayedOnServer)
 	{
 		return false;
 	}
 
-	int matchmaking::AddFavoriteGame(unsigned int nAppID, unsigned int nIP, unsigned short nConnPort, unsigned short nQueryPort, unsigned int unFlags, unsigned int rTime32LastPlayedOnServer)
+	int matchmaking::AddFavoriteGame(unsigned int nAppID, unsigned int nIP, unsigned short nConnPort,
+	                                 unsigned short nQueryPort, unsigned int unFlags,
+	                                 unsigned int rTime32LastPlayedOnServer)
 	{
 		return 0;
 	}
 
-	bool matchmaking::RemoveFavoriteGame(unsigned int nAppID, unsigned int nIP, unsigned short nConnPort, unsigned short nQueryPort, unsigned int unFlags)
+	bool matchmaking::RemoveFavoriteGame(unsigned int nAppID, unsigned int nIP, unsigned short nConnPort,
+	                                     unsigned short nQueryPort, unsigned int unFlags)
 	{
 		return false;
 	}
@@ -28,15 +33,17 @@ namespace steam
 		return 0;
 	}
 
-	void matchmaking::AddRequestLobbyListStringFilter(const char *pchKeyToMatch, const char *pchValueToMatch, int eComparisonType)
+	void matchmaking::AddRequestLobbyListStringFilter(const char* pchKeyToMatch, const char* pchValueToMatch,
+	                                                  int eComparisonType)
 	{
 	}
 
-	void matchmaking::AddRequestLobbyListNumericalFilter(const char *pchKeyToMatch, int nValueToMatch, int eComparisonType)
+	void matchmaking::AddRequestLobbyListNumericalFilter(const char* pchKeyToMatch, int nValueToMatch,
+	                                                     int eComparisonType)
 	{
 	}
 
-	void matchmaking::AddRequestLobbyListNearValueFilter(const char *pchKeyToMatch, int nValueToBeCloseTo)
+	void matchmaking::AddRequestLobbyListNearValueFilter(const char* pchKeyToMatch, int nValueToBeCloseTo)
 	{
 	}
 
@@ -60,9 +67,10 @@ namespace steam
 	unsigned __int64 matchmaking::CreateLobby(int eLobbyType, int cMaxMembers)
 	{
 		const auto result = callbacks::register_call();
-		auto retvals = static_cast<lobby_created*>(calloc(1, sizeof(lobby_created)));//::Utils::Memory::AllocateArray<LobbyCreated>();
+		auto retvals = static_cast<lobby_created*>(calloc(1, sizeof(lobby_created)));
+		//::Utils::Memory::AllocateArray<LobbyCreated>();
 		steam_id id;
-		
+
 		id.raw.account_id = 1337132;
 		id.raw.universe = 1;
 		id.raw.account_type = 8;
@@ -81,7 +89,8 @@ namespace steam
 	unsigned __int64 matchmaking::JoinLobby(steam_id steamIDLobby)
 	{
 		const auto result = callbacks::register_call();
-		auto* retvals = static_cast<lobby_enter*>(calloc(1, sizeof(lobby_enter)));//::Utils::Memory::AllocateArray<LobbyEnter>();
+		auto* retvals = static_cast<lobby_enter*>(calloc(1, sizeof(lobby_enter)));
+		//::Utils::Memory::AllocateArray<LobbyEnter>();
 		retvals->m_b_locked = false;
 		retvals->m_e_chat_room_enter_response = 1;
 		retvals->m_rgf_chat_permissions = 0xFFFFFFFF;
@@ -112,12 +121,12 @@ namespace steam
 		return SteamUser()->GetSteamID();
 	}
 
-	const char *matchmaking::GetLobbyData(steam_id steamIDLobby, const char *pchKey)
+	const char* matchmaking::GetLobbyData(steam_id steamIDLobby, const char* pchKey)
 	{
-		return "212";//Components::Party::GetLobbyInfo(steamIDLobby, pchKey);
+		return "212"; //Components::Party::GetLobbyInfo(steamIDLobby, pchKey);
 	}
 
-	bool matchmaking::SetLobbyData(steam_id steamIDLobby, const char *pchKey, const char *pchValue)
+	bool matchmaking::SetLobbyData(steam_id steamIDLobby, const char* pchKey, const char* pchValue)
 	{
 		return true;
 	}
@@ -127,31 +136,33 @@ namespace steam
 		return 0;
 	}
 
-	bool matchmaking::GetLobbyDataByIndex(steam_id steamIDLobby, int iLobbyData, char *pchKey, int cchKeyBufferSize, char *pchValue, int cchValueBufferSize)
+	bool matchmaking::GetLobbyDataByIndex(steam_id steamIDLobby, int iLobbyData, char* pchKey, int cchKeyBufferSize,
+	                                      char* pchValue, int cchValueBufferSize)
 	{
 		return false;
 	}
 
-	bool matchmaking::DeleteLobbyData(steam_id steamIDLobby, const char *pchKey)
+	bool matchmaking::DeleteLobbyData(steam_id steamIDLobby, const char* pchKey)
 	{
 		return false;
 	}
 
-	const char *matchmaking::GetLobbyMemberData(steam_id steamIDLobby, steam_id steamIDUser, const char *pchKey)
+	const char* matchmaking::GetLobbyMemberData(steam_id steamIDLobby, steam_id steamIDUser, const char* pchKey)
 	{
 		return "";
 	}
 
-	void matchmaking::SetLobbyMemberData(steam_id steamIDLobby, const char *pchKey, const char *pchValue)
+	void matchmaking::SetLobbyMemberData(steam_id steamIDLobby, const char* pchKey, const char* pchValue)
 	{
 	}
 
-	bool matchmaking::SendLobbyChatMsg(steam_id steamIDLobby, const void *pvMsgBody, int cubMsgBody)
+	bool matchmaking::SendLobbyChatMsg(steam_id steamIDLobby, const void* pvMsgBody, int cubMsgBody)
 	{
 		return true;
 	}
 
-	int matchmaking::GetLobbyChatEntry(steam_id steamIDLobby, int iChatID, steam_id *pSteamIDUser, void *pvData, int cubData, int *peChatEntryType)
+	int matchmaking::GetLobbyChatEntry(steam_id steamIDLobby, int iChatID, steam_id* pSteamIDUser, void* pvData,
+	                                   int cubData, int* peChatEntryType)
 	{
 		return 0;
 	}
@@ -161,11 +172,13 @@ namespace steam
 		return false;
 	}
 
-	void matchmaking::SetLobbyGameServer(steam_id steamIDLobby, unsigned int unGameServerIP, unsigned short unGameServerPort, steam_id steamIDGameServer)
+	void matchmaking::SetLobbyGameServer(steam_id steamIDLobby, unsigned int unGameServerIP,
+	                                     unsigned short unGameServerPort, steam_id steamIDGameServer)
 	{
 	}
 
-	bool matchmaking::GetLobbyGameServer(steam_id steamIDLobby, unsigned int *punGameServerIP, unsigned short *punGameServerPort, steam_id *psteamIDGameServer)
+	bool matchmaking::GetLobbyGameServer(steam_id steamIDLobby, unsigned int* punGameServerIP,
+	                                     unsigned short* punGameServerPort, steam_id* psteamIDGameServer)
 	{
 		return false;
 	}

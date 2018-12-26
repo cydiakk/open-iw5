@@ -8,7 +8,7 @@ struct raw_steam_id final
 	unsigned int account_id : 32;
 	unsigned int account_instance : 20;
 	unsigned int account_type : 4;
-	int          universe : 8;
+	int universe : 8;
 };
 
 typedef union
@@ -37,10 +37,12 @@ namespace steam
 		class base
 		{
 		public:
-			base() : flags_(0), callback_(0) {};
+			base() : flags_(0), callback_(0)
+			{
+			}
 
-			virtual void run(void *pv_param) = 0;
-			virtual void run(void *pv_param, bool failure, uint64_t handle) = 0;
+			virtual void run(void* pv_param) = 0;
+			virtual void run(void* pv_param, bool failure, uint64_t handle) = 0;
 			virtual int get_callback_size_bytes() = 0;
 
 			int get_i_callback() const { return callback_; }

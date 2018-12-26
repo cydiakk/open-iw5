@@ -3,14 +3,13 @@
 
 namespace steam
 {
-	const char *friends::GetPersonaName()
+	const char* friends::GetPersonaName()
 	{
 		return "GlaDos";
 	}
 
-	void friends::SetPersonaName(const char *pchPersonaName)
+	void friends::SetPersonaName(const char* pchPersonaName)
 	{
-
 	}
 
 	int friends::GetPersonaState()
@@ -38,17 +37,17 @@ namespace steam
 		return 0;
 	}
 
-	const char *friends::GetFriendPersonaName(steam_id steamIDFriend)
+	const char* friends::GetFriendPersonaName(steam_id steamIDFriend)
 	{
 		return "";
 	}
 
-	bool friends::GetFriendGamePlayed(steam_id steamIDFriend, void *pFriendGameInfo)
+	bool friends::GetFriendGamePlayed(steam_id steamIDFriend, void* pFriendGameInfo)
 	{
 		return false;
 	}
 
-	const char *friends::GetFriendPersonaNameHistory(steam_id steamIDFriend, int iPersonaName)
+	const char* friends::GetFriendPersonaNameHistory(steam_id steamIDFriend, int iPersonaName)
 	{
 		return "";
 	}
@@ -68,12 +67,12 @@ namespace steam
 		return steam_id();
 	}
 
-	const char *friends::GetClanName(steam_id steamIDClan)
+	const char* friends::GetClanName(steam_id steamIDClan)
 	{
 		return "3arc";
 	}
 
-	const char *friends::GetClanTag(steam_id steamIDClan)
+	const char* friends::GetClanTag(steam_id steamIDClan)
 	{
 		return this->GetClanName(steamIDClan);
 	}
@@ -97,15 +96,15 @@ namespace steam
 	{
 	}
 
-	void friends::ActivateGameOverlay(const char *pchDialog)
+	void friends::ActivateGameOverlay(const char* pchDialog)
 	{
 	}
 
-	void friends::ActivateGameOverlayToUser(const char *pchDialog, steam_id steamID)
+	void friends::ActivateGameOverlayToUser(const char* pchDialog, steam_id steamID)
 	{
 	}
 
-	void friends::ActivateGameOverlayToWebPage(const char *pchURL)
+	void friends::ActivateGameOverlayToWebPage(const char* pchURL)
 	{
 	}
 
@@ -167,7 +166,7 @@ namespace steam
 		return 0;
 	}
 
-	bool friends::SetRichPresence(const char *pchKey, const char *pchValue)
+	bool friends::SetRichPresence(const char* pchKey, const char* pchValue)
 	{
 		return true;
 	}
@@ -176,7 +175,7 @@ namespace steam
 	{
 	}
 
-	const char *friends::GetFriendRichPresence(steam_id steamIDFriend, const char *pchKey)
+	const char* friends::GetFriendRichPresence(steam_id steamIDFriend, const char* pchKey)
 	{
 		return "";
 	}
@@ -186,12 +185,12 @@ namespace steam
 		return 0;
 	}
 
-	const char *friends::GetFriendRichPresenceKeyByIndex(steam_id steamIDFriend, int iKey)
+	const char* friends::GetFriendRichPresenceKeyByIndex(steam_id steamIDFriend, int iKey)
 	{
 		return "a";
 	}
 
-	bool friends::InviteUserToGame(steam_id steamIDFriend, const char *pchConnectString)
+	bool friends::InviteUserToGame(steam_id steamIDFriend, const char* pchConnectString)
 	{
 		return false;
 	}

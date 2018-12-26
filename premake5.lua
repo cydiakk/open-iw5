@@ -98,7 +98,7 @@ workspace "open-iw5"
 		pchsource "src/std_include.cpp"
 		
 		linkoptions "/IGNORE:4254 /DYNAMICBASE:NO /SAFESEH:NO /LARGEADDRESSAWARE"
-		linkoptions "/LAST:.zdata"
+		linkoptions "/LAST:.main"
 
 
 		files {

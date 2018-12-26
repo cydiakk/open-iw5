@@ -5,7 +5,6 @@
 
 loader::loader(const launcher::mode mode) : mode_(mode)
 {
-
 }
 
 FARPROC loader::load(const utils::nt::module& module) const
@@ -22,19 +21,22 @@ FARPROC loader::load(const utils::nt::module& module) const
 	if (source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size)
 	{
 		const IMAGE_TLS_DIRECTORY* target_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + module
-		                                                                                                 .get_optional_header()
-		                                                                                                 ->DataDirectory
+		                                                                                                  .get_optional_header()
+		                                                                                                  ->
+		                                                                                                  DataDirectory
 			[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
 		const IMAGE_TLS_DIRECTORY* source_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + source
-		                                                                                                 .get_optional_header()
-		                                                                                                 ->DataDirectory
+		                                                                                                  .get_optional_header()
+		                                                                                                  ->
+		                                                                                                  DataDirectory
 			[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
 
 		*reinterpret_cast<DWORD*>(source_tls->AddressOfIndex) = 0;
 
 		DWORD old_protect;
 		VirtualProtect(PVOID(target_tls->StartAddressOfRawData),
-		               source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData, PAGE_READWRITE, &old_protect);
+		               source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData, PAGE_READWRITE,
+		               &old_protect);
 
 		const auto tls_base = *reinterpret_cast<LPVOID*>(__readfsdword(0x2C));
 		std::memmove(tls_base, PVOID(source_tls->StartAddressOfRawData),
@@ -142,7 +144,8 @@ void loader::load_imports(const utils::nt::module& target, const utils::nt::modu
 
 			if (!function)
 			{
-				throw std::runtime_error(utils::string::va("Unable to load import '%s' from module '%s'", function_name.data(), name.data()));
+				throw std::runtime_error(utils::string::va("Unable to load import '%s' from module '%s'",
+				                                           function_name.data(), name.data()));
 			}
 
 			*address_table_entry = reinterpret_cast<uintptr_t>(function);

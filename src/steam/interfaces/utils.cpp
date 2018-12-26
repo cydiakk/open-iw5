@@ -28,17 +28,17 @@ namespace steam
 		return "US";
 	}
 
-	bool utils::GetImageSize(int iImage, unsigned int *pnWidth, unsigned int *pnHeight)
+	bool utils::GetImageSize(int iImage, unsigned int* pnWidth, unsigned int* pnHeight)
 	{
 		return false;
 	}
 
-	bool utils::GetImageRGBA(int iImage, unsigned char *pubDest, int nDestBufferSize)
+	bool utils::GetImageRGBA(int iImage, unsigned char* pubDest, int nDestBufferSize)
 	{
 		return false;
 	}
 
-	bool utils::GetCSERIPPort(unsigned int *unIP, unsigned short *usPort)
+	bool utils::GetCSERIPPort(unsigned int* unIP, unsigned short* usPort)
 	{
 		return false;
 	}
@@ -61,7 +61,7 @@ namespace steam
 		}
 	}
 
-	bool utils::IsAPICallCompleted(unsigned __int64 hSteamAPICall, bool *pbFailed)
+	bool utils::IsAPICallCompleted(unsigned __int64 hSteamAPICall, bool* pbFailed)
 	{
 		return false;
 	}
@@ -71,7 +71,8 @@ namespace steam
 		return -1;
 	}
 
-	bool utils::GetAPICallResult(unsigned __int64 hSteamAPICall, void *pCallback, int cubCallback, int iCallbackExpected, bool *pbFailed)
+	bool utils::GetAPICallResult(unsigned __int64 hSteamAPICall, void* pCallback, int cubCallback,
+	                             int iCallbackExpected, bool* pbFailed)
 	{
 		return false;
 	}
@@ -85,7 +86,7 @@ namespace steam
 		return 0;
 	}
 
-	void utils::SetWarningMessageHook(void(*pFunction)(int hpipe, const char *message))
+	void utils::SetWarningMessageHook(void (*pFunction)(int hpipe, const char* message))
 	{
 	}
 
@@ -99,7 +100,7 @@ namespace steam
 		return false;
 	}
 
-	unsigned __int64 utils::CheckFileSignature(const char *szFileName)
+	unsigned __int64 utils::CheckFileSignature(const char* szFileName)
 	{
 		return 0;
 	}

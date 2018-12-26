@@ -3,23 +3,23 @@
 
 namespace steam
 {
-	bool remote_storage::FileWrite(const char *pchFile, const void *pvData, int cubData)
+	bool remote_storage::FileWrite(const char* pchFile, const void* pvData, int cubData)
 	{
 		return true;
 	}
 
-	int remote_storage::GetFileSize(const char *pchFile)
+	int remote_storage::GetFileSize(const char* pchFile)
 	{
 		return 0;
 	}
 
-	int remote_storage::FileRead(const char *pchFile, void *pvData, int cubDataToRead)
+	int remote_storage::FileRead(const char* pchFile, void* pvData, int cubDataToRead)
 	{
 		OutputDebugStringA(pchFile);
 		return 0;
 	}
 
-	bool remote_storage::FileExists(const char *pchFile)
+	bool remote_storage::FileExists(const char* pchFile)
 	{
 		return false;
 	}
@@ -29,13 +29,13 @@ namespace steam
 		return 0;
 	}
 
-	const char *remote_storage::GetFileNameAndSize(int iFile, int *pnFileSizeInBytes)
+	const char* remote_storage::GetFileNameAndSize(int iFile, int* pnFileSizeInBytes)
 	{
 		*pnFileSizeInBytes = 0;
 		return "";
 	}
 
-	bool remote_storage::GetQuota(int *pnTotalBytes, int *puAvailableBytes)
+	bool remote_storage::GetQuota(int* pnTotalBytes, int* puAvailableBytes)
 	{
 		*pnTotalBytes = 0x10000000;
 		*puAvailableBytes = 0x10000000;

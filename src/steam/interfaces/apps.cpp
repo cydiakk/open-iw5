@@ -23,12 +23,12 @@ namespace steam
 		return false;
 	}
 
-	const char *apps::GetCurrentGameLanguage()
+	const char* apps::GetCurrentGameLanguage()
 	{
 		return "english";
 	}
 
-	const char *apps::GetAvailableGameLanguages()
+	const char* apps::GetAvailableGameLanguages()
 	{
 		return "english";
 	}
@@ -58,7 +58,8 @@ namespace steam
 		return 0;
 	}
 
-	bool apps::BGetDLCDataByIndex(int iDLC, unsigned int *pAppID, bool *pbAvailable, char *pchName, int cchNameBufferSize)
+	bool apps::BGetDLCDataByIndex(int iDLC, unsigned int* pAppID, bool* pbAvailable, char* pchName,
+	                              int cchNameBufferSize)
 	{
 		return false;
 	}

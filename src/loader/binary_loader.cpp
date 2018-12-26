@@ -36,7 +36,7 @@ namespace binary_loader
 		return {};
 	}
 
-	std::string load_base(bool verify = true)
+	std::string load_base(const bool verify = true)
 	{
 		std::string data;
 		if (!utils::io::read_file("iw5mp_server.exe", &data))
@@ -87,7 +87,8 @@ namespace binary_loader
 
 	std::string build_binary(const std::string& base, const std::string& diff)
 	{
-		const auto* size = reinterpret_cast<const unsigned long long*>(diff.data() + diff.size() - sizeof(unsigned long long));
+		const auto* size = reinterpret_cast<const unsigned long long*>(diff.data() + diff.size() - sizeof(unsigned long
+			long));
 
 		std::string binary;
 		binary.resize(size_t(*size));

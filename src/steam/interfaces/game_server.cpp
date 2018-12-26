@@ -26,7 +26,8 @@ namespace steam
 		return steam_id();
 	}
 
-	bool game_server::SendUserConnectAndAuthenticate(unsigned int unIPClient, const void *pvAuthBlob, unsigned int cubAuthBlobSize, steam_id *pSteamIDUser)
+	bool game_server::SendUserConnectAndAuthenticate(unsigned int unIPClient, const void* pvAuthBlob,
+	                                                 unsigned int cubAuthBlobSize, steam_id* pSteamIDUser)
 	{
 		return true;
 	}
@@ -40,17 +41,20 @@ namespace steam
 	{
 	}
 
-	bool game_server::UpdateUserData(steam_id steamIDUser, const char *pchPlayerName, unsigned int uScore)
+	bool game_server::UpdateUserData(steam_id steamIDUser, const char* pchPlayerName, unsigned int uScore)
 	{
 		return true;
 	}
 
-	bool game_server::SetServerType(unsigned int unServerFlags, unsigned int unGameIP, unsigned short unGamePort, unsigned short unSpectatorPort, unsigned short usQueryPort, const char *pchGameDir, const char *pchVersion, bool bLANMode)
+	bool game_server::SetServerType(unsigned int unServerFlags, unsigned int unGameIP, unsigned short unGamePort,
+	                                unsigned short unSpectatorPort, unsigned short usQueryPort, const char* pchGameDir,
+	                                const char* pchVersion, bool bLANMode)
 	{
 		return true;
 	}
 
-	void game_server::UpdateServerStatus(int cPlayers, int cPlayersMax, int cBotPlayers, const char *pchServerName, const char *pSpectatorServerName, const char *pchMapName)
+	void game_server::UpdateServerStatus(int cPlayers, int cPlayersMax, int cBotPlayers, const char* pchServerName,
+	                                     const char* pSpectatorServerName, const char* pchMapName)
 	{
 	}
 
@@ -58,11 +62,11 @@ namespace steam
 	{
 	}
 
-	void game_server::SetGameType(const char *pchGameType)
+	void game_server::SetGameType(const char* pchGameType)
 	{
 	}
 
-	bool game_server::GetUserAchievementStatus(steam_id steamID, const char *pchAchievementName)
+	bool game_server::GetUserAchievementStatus(steam_id steamID, const char* pchAchievementName)
 	{
 		return false;
 	}
@@ -86,7 +90,7 @@ namespace steam
 		return 0;
 	}
 
-	void game_server::SetGameData(const char *pchGameData)
+	void game_server::SetGameData(const char* pchGameData)
 	{
 	}
 

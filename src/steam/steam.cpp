@@ -76,147 +76,148 @@ namespace steam
 		results_.clear();
 	}
 
-	extern "C"
+	extern "C" {
+	bool SteamAPI_RestartAppIfNecessary()
 	{
-		bool SteamAPI_RestartAppIfNecessary()
-		{
-			return false;
-		}
+		return false;
+	}
 
-		bool SteamAPI_Init()
-		{
-			overlay = ::utils::nt::module("gameoverlayrenderer.dll");
+	bool SteamAPI_Init()
+	{
+		overlay = ::utils::nt::module("gameoverlayrenderer.dll");
 
-			if (!overlay)
+		if (!overlay)
+		{
+			HKEY reg_key;
+			if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Valve\\Steam", 0, KEY_QUERY_VALUE, &reg_key) ==
+				ERROR_SUCCESS)
 			{
-				HKEY reg_key;
-				if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Valve\\Steam", 0, KEY_QUERY_VALUE, &reg_key) == ERROR_SUCCESS)
+				char steam_path[MAX_PATH] = {0};
+				DWORD length = sizeof(steam_path);
+				RegQueryValueExA(reg_key, "InstallPath", nullptr, nullptr, reinterpret_cast<BYTE*>(steam_path),
+				                 &length);
+				RegCloseKey(reg_key);
+
+				std::string overlay_path = steam_path;
+				if (overlay_path.back() != '\\' && overlay_path.back() != '/')
 				{
-					char steam_path[MAX_PATH] = { 0 };
-					DWORD length = sizeof(steam_path);
-					RegQueryValueExA(reg_key, "InstallPath", nullptr, nullptr, reinterpret_cast<BYTE*>(steam_path), &length);
-					RegCloseKey(reg_key);
-
-					std::string overlay_path = steam_path;
-					if(overlay_path.back() != '\\' && overlay_path.back() != '/')
-					{
-						overlay_path.push_back('\\');
-					}
-
-					overlay_path.append("gameoverlayrenderer.dll");
-					overlay = ::utils::nt::module::load(overlay_path);
+					overlay_path.push_back('\\');
 				}
+
+				overlay_path.append("gameoverlayrenderer.dll");
+				overlay = ::utils::nt::module::load(overlay_path);
 			}
-
-			return true;
 		}
 
-		void SteamAPI_RegisterCallResult(callbacks::base* result, uint64_t call)
-		{
-			callbacks::register_call_result(call, result);
-		}
+		return true;
+	}
 
-		void SteamAPI_RegisterCallback(callbacks::base* handler, int callback)
-		{
-			callbacks::register_callback(handler, callback);
-		}
+	void SteamAPI_RegisterCallResult(callbacks::base* result, uint64_t call)
+	{
+		callbacks::register_call_result(call, result);
+	}
 
-		void SteamAPI_RunCallbacks()
-		{
-			callbacks::run_callbacks();
-		}
+	void SteamAPI_RegisterCallback(callbacks::base* handler, int callback)
+	{
+		callbacks::register_callback(handler, callback);
+	}
 
-		void SteamAPI_Shutdown()
-		{
-		}
+	void SteamAPI_RunCallbacks()
+	{
+		callbacks::run_callbacks();
+	}
 
-		void SteamAPI_UnregisterCallResult()
-		{
-		}
+	void SteamAPI_Shutdown()
+	{
+	}
 
-		void SteamAPI_UnregisterCallback()
-		{
-		}
+	void SteamAPI_UnregisterCallResult()
+	{
+	}
 
-
-		bool SteamGameServer_Init()
-		{
-			return true;
-		}
-
-		void SteamGameServer_RunCallbacks()
-		{
-		}
-
-		void SteamGameServer_Shutdown()
-		{
-		}
+	void SteamAPI_UnregisterCallback()
+	{
+	}
 
 
-		friends* SteamFriends()
-		{
-			static friends friends;
-			return &friends;
-		}
+	bool SteamGameServer_Init()
+	{
+		return true;
+	}
 
-		matchmaking* SteamMatchmaking()
-		{
-			static matchmaking matchmaking;
-			return &matchmaking;
-		}
+	void SteamGameServer_RunCallbacks()
+	{
+	}
 
-		matchmaking_servers* SteamMatchmakingServers()
-		{
-			static matchmaking_servers matchmaking_servers;
-			return &matchmaking_servers;
-		}
+	void SteamGameServer_Shutdown()
+	{
+	}
 
-		game_server* SteamGameServer()
-		{
-			static game_server game_server;
-			return &game_server;
-		}
 
-		master_server_updater* SteamMasterServerUpdater()
-		{
-			static master_server_updater master_server_updater;
-			return &master_server_updater;
-		}
+	friends* SteamFriends()
+	{
+		static friends friends;
+		return &friends;
+	}
 
-		networking* SteamNetworking()
-		{
-			static networking networking;
-			return &networking;
-		}
+	matchmaking* SteamMatchmaking()
+	{
+		static matchmaking matchmaking;
+		return &matchmaking;
+	}
 
-		remote_storage* SteamRemoteStorage()
-		{
-			static remote_storage remote_storage;
-			return &remote_storage;
-		}
+	matchmaking_servers* SteamMatchmakingServers()
+	{
+		static matchmaking_servers matchmaking_servers;
+		return &matchmaking_servers;
+	}
 
-		user* SteamUser()
-		{
-			static user user;
-			return &user;
-		}
+	game_server* SteamGameServer()
+	{
+		static game_server game_server;
+		return &game_server;
+	}
 
-		utils* SteamUtils()
-		{
-			static utils utils;
-			return &utils;
-		}
+	master_server_updater* SteamMasterServerUpdater()
+	{
+		static master_server_updater master_server_updater;
+		return &master_server_updater;
+	}
 
-		apps* SteamApps()
-		{
-			static apps apps;
-			return &apps;
-		}
+	networking* SteamNetworking()
+	{
+		static networking networking;
+		return &networking;
+	}
 
-		user_stats* SteamUserStats()
-		{
-			static user_stats user_stats;
-			return &user_stats;
-		}
+	remote_storage* SteamRemoteStorage()
+	{
+		static remote_storage remote_storage;
+		return &remote_storage;
+	}
+
+	user* SteamUser()
+	{
+		static user user;
+		return &user;
+	}
+
+	utils* SteamUtils()
+	{
+		static utils utils;
+		return &utils;
+	}
+
+	apps* SteamApps()
+	{
+		static apps apps;
+		return &apps;
+	}
+
+	user_stats* SteamUserStats()
+	{
+		static user_stats user_stats;
+		return &user_stats;
+	}
 	}
 }

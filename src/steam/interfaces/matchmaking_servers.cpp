@@ -3,32 +3,37 @@
 
 namespace steam
 {
-	void* matchmaking_servers::RequestInternetServerList(unsigned int iApp, void **ppchFilters, unsigned int nFilters, void *pRequestServersResponse)
+	void* matchmaking_servers::RequestInternetServerList(unsigned int iApp, void** ppchFilters, unsigned int nFilters,
+	                                                     void* pRequestServersResponse)
 	{
 		return nullptr;
 	}
 
-	void* matchmaking_servers::RequestLANServerList(unsigned int iApp, void *pRequestServersResponse)
+	void* matchmaking_servers::RequestLANServerList(unsigned int iApp, void* pRequestServersResponse)
 	{
 		return nullptr;
 	}
 
-	void* matchmaking_servers::RequestFriendsServerList(unsigned int iApp, void **ppchFilters, unsigned int nFilters, void *pRequestServersResponse)
+	void* matchmaking_servers::RequestFriendsServerList(unsigned int iApp, void** ppchFilters, unsigned int nFilters,
+	                                                    void* pRequestServersResponse)
 	{
 		return nullptr;
 	}
 
-	void* matchmaking_servers::RequestFavoritesServerList(unsigned int iApp, void **ppchFilters, unsigned int nFilters, void *pRequestServersResponse)
+	void* matchmaking_servers::RequestFavoritesServerList(unsigned int iApp, void** ppchFilters, unsigned int nFilters,
+	                                                      void* pRequestServersResponse)
 	{
 		return nullptr;
 	}
 
-	void* matchmaking_servers::RequestHistoryServerList(unsigned int iApp, void **ppchFilters, unsigned int nFilters, void *pRequestServersResponse)
+	void* matchmaking_servers::RequestHistoryServerList(unsigned int iApp, void** ppchFilters, unsigned int nFilters,
+	                                                    void* pRequestServersResponse)
 	{
 		return nullptr;
 	}
 
-	void* matchmaking_servers::RequestSpectatorServerList(unsigned int iApp, void **ppchFilters, unsigned int nFilters, void *pRequestServersResponse)
+	void* matchmaking_servers::RequestSpectatorServerList(unsigned int iApp, void** ppchFilters, unsigned int nFilters,
+	                                                      void* pRequestServersResponse)
 	{
 		return nullptr;
 	}
@@ -37,7 +42,7 @@ namespace steam
 	{
 	}
 
-	void *matchmaking_servers::GetServerDetails(void* hRequest, int iServer)
+	void* matchmaking_servers::GetServerDetails(void* hRequest, int iServer)
 	{
 		return nullptr;
 	}
@@ -64,17 +69,17 @@ namespace steam
 	{
 	}
 
-	int matchmaking_servers::PingServer(unsigned int unIP, unsigned short usPort, void *pRequestServersResponse)
+	int matchmaking_servers::PingServer(unsigned int unIP, unsigned short usPort, void* pRequestServersResponse)
 	{
 		return 0;
 	}
 
-	int matchmaking_servers::PlayerDetails(unsigned int unIP, unsigned short usPort, void *pRequestServersResponse)
+	int matchmaking_servers::PlayerDetails(unsigned int unIP, unsigned short usPort, void* pRequestServersResponse)
 	{
 		return 0;
 	}
 
-	int matchmaking_servers::ServerRules(unsigned int unIP, unsigned short usPort, void *pRequestServersResponse)
+	int matchmaking_servers::ServerRules(unsigned int unIP, unsigned short usPort, void* pRequestServersResponse)
 	{
 		return 0;
 	}
