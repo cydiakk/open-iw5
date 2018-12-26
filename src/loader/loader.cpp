@@ -94,7 +94,7 @@ void loader::load_sections(const utils::nt::module& target, const utils::nt::mod
 
 void loader::load_imports(const utils::nt::module& target, const utils::nt::module& source) const
 {
-	IMAGE_DATA_DIRECTORY* import_directory = &source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
+	const auto import_directory = &source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
 
 	auto descriptor = PIMAGE_IMPORT_DESCRIPTOR(target.get_ptr() + import_directory->VirtualAddress);
 

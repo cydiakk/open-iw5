@@ -13,7 +13,7 @@ void exit_hook(const int code)
 	exit(code);
 }
 
-int CALLBACK WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*nCmdShow*/)
+int main()
 {
 	FARPROC entry_point = nullptr;
 
@@ -23,6 +23,8 @@ int CALLBACK WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR
 		binary_loader::create();
 		return 0;
 #endif
+
+		module_loader::post_start();
 
 		launcher launcher;
 		const auto mode = launcher.run();
@@ -50,7 +52,7 @@ int CALLBACK WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, LPSTR
 		game::initialize(mode);
 		module_loader::post_load();
 	}
-	catch (std::exception e)
+	catch (std::exception& e)
 	{
 		MessageBoxA(nullptr, e.what(), "ERROR", MB_ICONERROR);
 		return 1;

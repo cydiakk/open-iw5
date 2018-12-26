@@ -259,7 +259,7 @@ namespace utils
 			return compute(data.data(), data.size());
 		}
 
-		unsigned int jenkins_one_at_a_time::compute(const char* key, size_t len)
+		unsigned int jenkins_one_at_a_time::compute(const char* key, const size_t len)
 		{
 			unsigned int hash, i;
 			for (hash = i = 0; i < len; ++i)

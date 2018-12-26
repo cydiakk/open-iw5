@@ -91,7 +91,7 @@ workspace "open-iw5"
 	configuration {}
 
 	project "open-iw5"
-		kind "WindowedApp"
+		kind "ConsoleApp"
 		language "C++"
 
 		pchheader "std_include.hpp"

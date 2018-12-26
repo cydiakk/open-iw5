@@ -59,13 +59,13 @@ void image::set_click_listener(std::function<void()> callback)
 
 void image::click(const POINT& mouse, const bool down)
 {
-	if(down)
+	if (down)
 	{
 		this->down_handled_ = this->is_hovered(mouse);
 	}
 	else
 	{
-		if(this->down_handled_ && this->is_hovered(mouse) && this->callback_)
+		if (this->down_handled_ && this->is_hovered(mouse) && this->callback_)
 		{
 			this->callback_();
 		}

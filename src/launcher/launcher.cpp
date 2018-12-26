@@ -71,7 +71,7 @@ void launcher::draw_text(const HDC hdc)
 	Gdiplus::RectF rect{};
 	graphics.MeasureString(sp.data(), -1, &font, rect, stringformat, &rect);
 
-	Gdiplus::PointF pos{150 - (rect.Width / 2 + 2), 45};
+	const Gdiplus::PointF pos{150 - (rect.Width / 2 + 2), 45};
 	graphics.DrawString(sp.data(), -1, &font, pos, &color);
 
 	rect = {};

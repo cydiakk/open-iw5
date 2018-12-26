@@ -7,6 +7,10 @@ public:
 	{
 	}
 
+	virtual void post_start()
+	{
+	}
+
 	virtual void post_load()
 	{
 	}

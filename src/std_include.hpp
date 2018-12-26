@@ -11,6 +11,9 @@
 #include <Windowsx.h>
 #include <objidl.h>
 #include <gdiplus.h>
+#include <WinSock2.h>
+#include <corecrt_io.h>
+#include <fcntl.h>
 
 // min and max is required by gdi, therefore NOMINMAX won't work
 #ifdef max
@@ -24,8 +27,10 @@
 #include <map>
 #include <vector>
 #include <mutex>
+#include <queue>
 #include <thread>
 #include <fstream>
+#include <utility>
 #include <filesystem>
 
 #include <zlib.h>

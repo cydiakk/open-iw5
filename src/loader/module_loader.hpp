@@ -18,6 +18,7 @@ public:
 
 	static void register_module(std::unique_ptr<module>&& module);
 
+	static void post_start();
 	static void post_load();
 	static void pre_destroy();
 

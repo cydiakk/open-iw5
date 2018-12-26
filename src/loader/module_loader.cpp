@@ -14,6 +14,18 @@ void module_loader::register_module(std::unique_ptr<module>&& module_)
 	modules_->push_back(std::move(module_));
 }
 
+void module_loader::post_start()
+{
+	static auto handled = false;
+	if (handled || !modules_) return;
+	handled = true;
+
+	for (const auto& module_ : *modules_)
+	{
+		module_->post_start();
+	}
+}
+
 void module_loader::post_load()
 {
 	static auto handled = false;
