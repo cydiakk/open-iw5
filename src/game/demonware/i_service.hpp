@@ -30,8 +30,8 @@ namespace demonware
 
 			printf("DW: Handling subservice of type %d\n", this->sub_type_);
 
-			const auto callback = this->callbacks.find(this->sub_type_);
-			if (callback != this->callbacks.end())
+			const auto callback = this->callbacks_.find(this->sub_type_);
+			if (callback != this->callbacks_.end())
 			{
 				callback->second(server, &buffer);
 			}
@@ -42,21 +42,21 @@ namespace demonware
 		}
 
 	protected:
-		std::map<uint8_t, callback> callbacks{};
+		std::map<uint8_t, callback> callbacks_{};
 
-		template<typename Class, typename T, typename... Args>
-		void register_service(const uint8_t type, T(Class::*callback)(Args ...) const)
+		template <typename Class, typename T, typename... Args>
+		void register_service(const uint8_t type, T (Class::*callback)(Args ...) const)
 		{
-			this->callbacks[type] = [this, callback](Args... args) -> T
+			this->callbacks_[type] = [this, callback](Args ... args) -> T
 			{
 				return (reinterpret_cast<Class*>(this)->*callback)(args...);
 			};
 		}
 
-		template<typename Class, typename T, typename... Args>
-		void register_service(const uint8_t type, T(Class::*callback)(Args ...))
+		template <typename Class, typename T, typename... Args>
+		void register_service(const uint8_t type, T (Class::*callback)(Args ...))
 		{
-			this->callbacks[type] = [this, callback](Args... args) -> T
+			this->callbacks_[type] = [this, callback](Args ... args) -> T
 			{
 				return (reinterpret_cast<Class*>(this)->*callback)(args...);
 			};
@@ -70,7 +70,7 @@ namespace demonware
 		uint8_t sub_type_{};
 	};
 
-	template<uint16_t Type>
+	template <uint16_t Type>
 	class i_generic_service : public i_service
 	{
 	public:

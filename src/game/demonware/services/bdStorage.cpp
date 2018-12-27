@@ -43,7 +43,7 @@ namespace demonware
 
 	bool bdStorage::load_publisher_resource(const std::string& name, std::string& buffer)
 	{
-		for(const auto& resource : this->publisher_resources_)
+		for (const auto& resource : this->publisher_resources_)
 		{
 			if (std::regex_match(name, resource.first))
 			{
@@ -99,7 +99,7 @@ namespace demonware
 		printf("DW: Loading user file: %s\n", filename.data());
 
 		const auto path = get_user_file_path(filename);
-		if(utils::io::read_file(path, &data))
+		if (utils::io::read_file(path, &data))
 		{
 			auto reply = server->create_reply(this->get_sub_type());
 			reply->add(new bdFileData(data));
@@ -127,7 +127,7 @@ namespace demonware
 		auto reply = server->create_reply(this->get_sub_type());
 
 		const auto path = get_user_file_path(filename);
-		if(utils::io::read_file(path, &data))
+		if (utils::io::read_file(path, &data))
 		{
 			auto* info = new bdFileInfo;
 
@@ -252,7 +252,7 @@ namespace demonware
 		buffer->read_string(&platform);
 
 		const auto path = get_user_file_path(filename);
-		if(utils::io::read_file(path, &data))
+		if (utils::io::read_file(path, &data))
 		{
 			auto reply = server->create_reply(this->get_sub_type());
 			reply->add(new bdFileData(data));

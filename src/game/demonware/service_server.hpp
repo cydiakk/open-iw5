@@ -8,7 +8,8 @@ namespace demonware
 	public:
 		explicit service_server(std::string name);
 
-		template <typename T> void register_service()
+		template <typename T>
+		void register_service()
 		{
 			static_assert(std::is_base_of<i_service, T>::value, "Service must inherit from IService");
 

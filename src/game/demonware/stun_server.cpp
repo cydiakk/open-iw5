@@ -60,9 +60,14 @@ namespace demonware
 
 		switch (type)
 		{
-		case 30: this->ip_discovery(s, to, tolen); break;
-		case 20: this->nat_discovery(s, to, tolen); break;
-		default: break;
+		case 30:
+			this->ip_discovery(s, to, tolen);
+			break;
+		case 20:
+			this->nat_discovery(s, to, tolen);
+			break;
+		default:
+			break;
 		}
 
 		return len;

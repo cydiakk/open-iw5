@@ -37,14 +37,15 @@ namespace demonware
 		std::memcpy(auth_ticket.m_sessionKey, key.data(), 24);
 		auth_ticket.m_timeIssued = static_cast<uint32_t>(time(nullptr));
 
-		uint8_t	lsg_ticket[128];
+		uint8_t lsg_ticket[128];
 		ZeroMemory(&lsg_ticket, sizeof lsg_ticket);
 		std::memcpy(lsg_ticket, key.data(), 24);
 
 		const auto iv = utils::cryptography::tiger::compute(std::string(reinterpret_cast<char*>(&seed), 4));
 
-		const std::string enc_key (reinterpret_cast<char*>(&ticket[32]), 24);
-		auto enc_ticket = utils::cryptography::des3::encrypt(std::string(reinterpret_cast<char*>(&auth_ticket), sizeof(auth_ticket)), iv,enc_key );
+		const std::string enc_key(reinterpret_cast<char*>(&ticket[32]), 24);
+		auto enc_ticket = utils::cryptography::des3::encrypt(
+			std::string(reinterpret_cast<char*>(&auth_ticket), sizeof(auth_ticket)), iv, enc_key);
 
 		bit_buffer response;
 		response.set_use_data_types(false);
