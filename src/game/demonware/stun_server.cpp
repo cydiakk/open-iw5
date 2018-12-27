@@ -1,6 +1,6 @@
 #include <std_include.hpp>
 #include <utility>
-#include "stun_server.hpp"
+#include "module/dw.hpp"
 #include "utils/cryptography.hpp"
 #include "byte_buffer.hpp"
 
@@ -28,7 +28,7 @@ namespace demonware
 		buffer.write_uint32(ip);   // external ip
 		buffer.write_uint16(3074); // port
 
-		//Components::DemonWare::SendDatagramPacket(s, buffer, to, tolen);
+		dw::send_datagram_packet(s, buffer.get_buffer(), to, tolen);
 	}
 
 	void stun_server::nat_discovery(SOCKET s, const sockaddr* to, int tolen) const
@@ -45,7 +45,7 @@ namespace demonware
 		buffer.write_uint32(this->get_address()); // server ip
 		buffer.write_uint16(3074);               // server port
 
-		//Components::DemonWare::SendDatagramPacket(s, buffer, to, tolen);
+		dw::send_datagram_packet(s, buffer.get_buffer(), to, tolen);
 	}
 
 	int stun_server::send(const SOCKET s, const char* buf, int len, const sockaddr* to, int tolen) const

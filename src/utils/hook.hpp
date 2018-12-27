@@ -1,4 +1,5 @@
 #pragma once
+#include "nt.hpp"
 
 #define HOOK_JUMP true
 #define HOOK_CALL false
@@ -80,6 +81,8 @@ namespace utils
 
 		void* get_address() const;
 		void quick();
+
+		static bool iat(nt::module module, const std::string& target_module, const std::string& process, void* stub);
 
 		static void nop(void* place, size_t length);
 		static void nop(DWORD place, size_t length);

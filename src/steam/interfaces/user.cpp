@@ -1,8 +1,11 @@
 #include <std_include.hpp>
 #include "steam/steam.hpp"
+#include "module/dw.hpp"
 
 namespace steam
 {
+	std::string auth_ticket;
+
 	int user::GetHSteamUser()
 	{
 		return NULL;
@@ -107,7 +110,12 @@ namespace steam
 	unsigned __int64 user::RequestEncryptedAppTicket(void* pUserData, int cbUserData)
 	{
 		// Generate the authentication ticket
-		//Components::DemonWare::GenerateAuthTicket(std::string(reinterpret_cast<char*>(pUserData), cbUserData));
+		const auto id = this->GetSteamID();
+
+		auth_ticket = "Open-IW5";
+		auth_ticket.resize(32);
+		auth_ticket.append(reinterpret_cast<char*>(pUserData), cbUserData);
+		auth_ticket.append(reinterpret_cast<const char*>(&id.bits), sizeof(id.bits));
 
 		// Create the call response
 		const auto result = callbacks::register_call();
@@ -124,8 +132,12 @@ namespace steam
 
 	bool user::GetEncryptedAppTicket(void* pTicket, int cbMaxTicket, unsigned int* pcbTicket)
 	{
-		if (cbMaxTicket < 0) return false;
-		return false;
-		//Components::DemonWare::GetAuthTicket(pTicket, static_cast<unsigned int>(cbMaxTicket), pcbTicket);
+		if (cbMaxTicket < 0 || auth_ticket.empty()) return false;
+
+		const auto size = std::min(size_t(cbMaxTicket), auth_ticket.size());
+		std::memcpy(pTicket, auth_ticket.data(), size);
+		*pcbTicket = size;
+
+		return true;
 	}
 }

@@ -1,5 +1,5 @@
 #include <std_include.hpp>
-#include "service_server.hpp"
+#include "module/dw.hpp"
 #include "utils/cryptography.hpp"
 
 namespace demonware
@@ -41,7 +41,9 @@ namespace demonware
 		result.write_int32(seed);
 
 		const auto iv = utils::cryptography::tiger::compute(std::string(reinterpret_cast<char*>(&seed), 4));
-		//result.write(utils::cryptography::des3::encrypt(data, iv, Components::DemonWare::GetKey(true)));
+
+		const std::string key(reinterpret_cast<char*>(dw::get_key(true)), 24);
+		result.write(utils::cryptography::des3::encrypt(data, iv, key));
 
 		return result.get_buffer();
 	}
@@ -62,7 +64,6 @@ namespace demonware
 		std::lock_guard<std::recursive_mutex> _(this->mutex_);
 
 		this->incoming_queue_.push(std::string(buf, len));
-		//this->parsePacket(Utils::String(buf, len));
 
 		return len;
 	}
@@ -100,7 +101,7 @@ namespace demonware
 		}
 	}
 
-	void service_server::call_handler(uint8_t type, const std::string& data)
+	void service_server::call_handler(const uint8_t type, const std::string& data)
 	{
 		if (this->services_.find(type) != this->services_.end())
 		{
@@ -117,7 +118,7 @@ namespace demonware
 		if (!this->incoming_queue_.empty())
 		{
 			std::lock_guard _(this->mutex_);
-			const std::string packet = this->incoming_queue_.front();
+			const auto packet = this->incoming_queue_.front();
 			this->incoming_queue_.pop();
 
 			this->parse_packet(packet);
@@ -131,7 +132,7 @@ namespace demonware
 
 		try
 		{
-			while (!packet.empty())
+			while (buffer.has_more_data())
 			{
 				int size;
 				buffer.read_int32(&size);
@@ -170,7 +171,10 @@ namespace demonware
 					p_buffer.read_int32(&iv);
 
 					auto iv_hash = utils::cryptography::tiger::compute(std::string(reinterpret_cast<char*>(&iv), 4));
-					//pBuffer.get_buffer() = utils::cryptography::des3::decrypt(pBuffer.get_buffer(), iv_hash, Components::DemonWare::GetKey(false));
+
+					const std::string key(reinterpret_cast<char*>(dw::get_key(false)), 24);
+					p_buffer = byte_buffer{ utils::cryptography::des3::decrypt(p_buffer.get_remaining(), iv_hash, key) };
+					p_buffer.set_use_data_types(false);
 
 					int checksum;
 					p_buffer.read_int32(&checksum);
@@ -181,7 +185,7 @@ namespace demonware
 				printf("DW: Handling message of type %d (encrypted: %d)\n", type, enc);
 
 				this->reply_sent_ = false;
-				this->call_handler(type, p_buffer.get_buffer());
+				this->call_handler(type, p_buffer.get_remaining());
 
 				if (!this->reply_sent_ && type != 7)
 				{

@@ -122,7 +122,7 @@ namespace demonware
 		return true;
 	}
 
-	bool byte_buffer::read_data_type(char expected)
+	bool byte_buffer::read_data_type(const char expected)
 	{
 		if (!this->use_data_types_) return true;
 
@@ -294,5 +294,15 @@ namespace demonware
 	std::string& byte_buffer::get_buffer()
 	{
 		return this->buffer_;
+	}
+
+	std::string byte_buffer::get_remaining()
+	{
+		return std::string(this->buffer_.begin() + this->current_byte_, this->buffer_.end());
+	}
+
+	bool byte_buffer::has_more_data() const
+	{
+		return this->buffer_.size() > this->current_byte_;
 	}
 }

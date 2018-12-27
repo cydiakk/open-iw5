@@ -57,6 +57,9 @@ namespace demonware
 		bool is_using_data_types() const;
 
 		std::string& get_buffer();
+		std::string get_remaining();
+
+		bool has_more_data() const;
 
 	private:
 		std::string buffer_;

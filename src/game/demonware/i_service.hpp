@@ -17,7 +17,7 @@ namespace demonware
 		i_service(const i_service&) = delete;
 		i_service& operator=(const i_service&) = delete;
 
-		typedef std::function<void(i_server*, byte_buffer*)> Callback;
+		typedef std::function<void(i_server*, byte_buffer*)> callback;
 
 		virtual uint16_t getType() = 0;
 
@@ -42,7 +42,16 @@ namespace demonware
 		}
 
 	protected:
-		std::map<uint8_t, Callback> callbacks{};
+		std::map<uint8_t, callback> callbacks{};
+
+		template<typename Class, typename T, typename... Args>
+		void register_service(const uint8_t type, T(Class::*callback)(Args ...) const)
+		{
+			this->callbacks[type] = [this, callback](Args... args) -> T
+			{
+				return (reinterpret_cast<Class*>(this)->*callback)(args...);
+			};
+		}
 
 		template<typename Class, typename T, typename... Args>
 		void register_service(const uint8_t type, T(Class::*callback)(Args ...))
@@ -62,7 +71,7 @@ namespace demonware
 	};
 
 	template<uint16_t Type>
-	class i_generic_service final : public i_service
+	class i_generic_service : public i_service
 	{
 	public:
 		uint16_t getType() override { return Type; }

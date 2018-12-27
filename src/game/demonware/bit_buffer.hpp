@@ -13,7 +13,7 @@ namespace demonware
 
 		bool read_bytes(unsigned int bytes, unsigned char* output);
 		bool read_bool(bool* output);
-		bool read_u_int32(unsigned int* output);
+		bool read_uint32(unsigned int* output);
 		bool read_data_type(char expected);
 
 		bool write_bytes(unsigned int bytes, const char* data);

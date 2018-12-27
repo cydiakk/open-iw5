@@ -13,6 +13,7 @@
 #include <objidl.h>
 #include <gdiplus.h>
 #include <WinSock2.h>
+#include <Ws2tcpip.h>
 #include <corecrt_io.h>
 #include <fcntl.h>
 
@@ -29,6 +30,7 @@
 #include <vector>
 #include <mutex>
 #include <queue>
+#include <regex>
 #include <thread>
 #include <fstream>
 #include <utility>
@@ -40,6 +42,8 @@
 #include <tomcrypt.h>
 
 #pragma comment (lib, "gdiplus.lib")
+#pragma comment(lib, "ws2_32.lib")
+
 #pragma warning(pop)
 #pragma warning(disable: 4100)
 

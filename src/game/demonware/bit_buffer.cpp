@@ -18,7 +18,7 @@ namespace demonware
 		return this->read(1, output);
 	}
 
-	bool bit_buffer::read_u_int32(unsigned int* output)
+	bool bit_buffer::read_uint32(unsigned int* output)
 	{
 		if (!this->read_data_type(8))
 		{

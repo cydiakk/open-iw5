@@ -96,8 +96,9 @@ namespace utils
 		*reinterpret_cast<size_t*>(code + 1) = reinterpret_cast<size_t>(this->stub_) - (reinterpret_cast<size_t>(this->
 			place_) + 5);
 
-		if (unprotect && !keep_unprotected) VirtualProtect(this->place_, sizeof(this->buffer_), this->protection_,
-		                                                   &this->protection_);
+		if (unprotect && !keep_unprotected)
+			VirtualProtect(this->place_, sizeof(this->buffer_), this->protection_,
+			               &this->protection_);
 
 		FlushInstructionCache(GetCurrentProcess(), this->place_, sizeof(this->buffer_));
 
@@ -110,6 +111,22 @@ namespace utils
 		{
 			this->installed_ = false;
 		}
+	}
+
+	bool hook::iat(nt::module module, const std::string& target_module, const std::string& process, void* stub)
+	{
+		if (!module.is_valid()) return false;
+
+		auto ptr = module.get_iat_entry(target_module, process);
+		if (!ptr) return false;
+
+		DWORD protect;
+		VirtualProtect(ptr, sizeof(*ptr), PAGE_EXECUTE_READWRITE, &protect);
+
+		*ptr = stub;
+
+		VirtualProtect(ptr, sizeof(*ptr), protect, &protect);
+		return true;
 	}
 
 	hook* hook::uninstall(const bool unprotect)
