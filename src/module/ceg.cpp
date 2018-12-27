@@ -89,6 +89,10 @@ public:
 
 		// CEG uninitialization
 		utils::hook::set<BYTE>(0x527110, 0xC3);
+
+		// SP doesn't initialize WSA
+		WSADATA wsa_data;
+		WSAStartup(MAKEWORD(2, 2), &wsa_data);
 	}
 };
 
