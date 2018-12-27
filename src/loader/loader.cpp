@@ -20,29 +20,35 @@ FARPROC loader::load(const utils::nt::module& module) const
 
 	if (source.get_optional_header()->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size)
 	{
-		const IMAGE_TLS_DIRECTORY* target_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + module
-		                                                                                                  .get_optional_header()
-		                                                                                                  ->
-		                                                                                                  DataDirectory
+		const auto target_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + module
+		                                                                                  .get_optional_header()
+		                                                                                  ->
+		                                                                                  DataDirectory
 			[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
-		const IMAGE_TLS_DIRECTORY* source_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + source
-		                                                                                                  .get_optional_header()
-		                                                                                                  ->
-		                                                                                                  DataDirectory
+		const auto source_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(module.get_ptr() + source
+		                                                                                  .get_optional_header()
+		                                                                                  ->
+		                                                                                  DataDirectory
 			[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
 
-		*reinterpret_cast<DWORD*>(source_tls->AddressOfIndex) = 0;
+		const auto tls_size = source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData;
+		const auto tls_index = *reinterpret_cast<DWORD*>(target_tls->AddressOfIndex);
+		*reinterpret_cast<DWORD*>(source_tls->AddressOfIndex) = tls_index;
+
+		if (tls_size > TLS_PAYLOAD_SIZE)
+		{
+			throw std::runtime_error(utils::string::va(
+				"TLS data is of size 0x%X, but we have only reserved 0x%X bytes!", tls_size, TLS_PAYLOAD_SIZE));
+		}
 
 		DWORD old_protect;
 		VirtualProtect(PVOID(target_tls->StartAddressOfRawData),
 		               source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData, PAGE_READWRITE,
 		               &old_protect);
 
-		const auto tls_base = *reinterpret_cast<LPVOID*>(__readfsdword(0x2C));
-		std::memmove(tls_base, PVOID(source_tls->StartAddressOfRawData),
-		             source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData);
-		std::memmove(PVOID(target_tls->StartAddressOfRawData), PVOID(source_tls->StartAddressOfRawData),
-		             source_tls->EndAddressOfRawData - source_tls->StartAddressOfRawData);
+		const auto tls_base = *reinterpret_cast<LPVOID*>(__readfsdword(0x2C) + 4 * tls_index);
+		std::memmove(tls_base, PVOID(source_tls->StartAddressOfRawData), tls_size);
+		std::memmove(PVOID(target_tls->StartAddressOfRawData), PVOID(source_tls->StartAddressOfRawData), tls_size);
 	}
 
 	DWORD oldProtect;

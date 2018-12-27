@@ -7,7 +7,8 @@
 #pragma comment(linker, "/section:.main,re")
 #pragma comment(linker, "/base:0x400000")
 
-__declspec(thread) char tls_data[0x2000];
+// Moved to main.cpp to enforce early linking
+//__declspec(thread) char tls_data[TLS_PAYLOAD_SIZE];
 
 #pragma bss_seg(".payload")
 char payload_data[BINARY_PAYLOAD_SIZE];

@@ -1,6 +1,7 @@
 #pragma once
 
 #define BINARY_PAYLOAD_SIZE 0x0A000000
+#define TLS_PAYLOAD_SIZE 0x2000
 
 #pragma warning(push)
 #pragma warning(disable: 4458)
@@ -38,12 +39,10 @@
 #include <patch.h>
 #include <tomcrypt.h>
 
-#pragma warning(pop)
-
-using namespace std::literals;
-
 #pragma comment (lib, "gdiplus.lib")
-
+#pragma warning(pop)
 #pragma warning(disable: 4100)
 
 #include "resource.hpp"
+
+using namespace std::literals;
