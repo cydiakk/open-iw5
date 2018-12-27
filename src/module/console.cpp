@@ -1,6 +1,7 @@
 #include <std_include.hpp>
 #include "loader/module_loader.hpp"
 #include "game/game.hpp"
+#include "scheduler.hpp"
 
 class console final : public module
 {
@@ -13,12 +14,13 @@ public:
 		_dup2(this->handles_[1], 1);
 		_dup2(this->handles_[1], 2);
 
-		setvbuf(stdout, nullptr, _IONBF, 0);
-		setvbuf(stderr, nullptr, _IONBF, 0);
+		//setvbuf(stdout, nullptr, _IONBF, 0);
+		//setvbuf(stderr, nullptr, _IONBF, 0);
 	}
 
 	void post_start() override
 	{
+		scheduler::on_frame(std::bind(&console::log_messages, this));
 		this->console_runner_ = std::thread(std::bind(&console::runner, this));
 	}
 
@@ -46,7 +48,6 @@ public:
 
 		std::lock_guard _(this->mutex_);
 		this->console_initialized_ = true;
-		this->replay_messages();
 	}
 
 private:
@@ -59,26 +60,31 @@ private:
 
 	int handles_[2]{};
 
-	void replay_messages()
+	void log_messages()
 	{
-		if (!this->console_initialized_) return;
-
-		while (!this->message_queue_.empty())
+		while (this->console_initialized_ && !this->message_queue_.empty())
 		{
-			this->push_message(this->message_queue_.front());
-			this->message_queue_.pop();
+			std::queue<std::string> message_queue_copy;
+
+			{
+				std::lock_guard _(this->mutex_);
+				message_queue_copy = this->message_queue_;
+				this->message_queue_ = {};
+			}
+
+			while (!message_queue_copy.empty())
+			{
+				log_message(message_queue_copy.front());
+				message_queue_copy.pop();
+			}
 		}
+
+		fflush(stdout);
+		fflush(stderr);
 	}
 
-	void push_message(const std::string& message)
+	static void log_message(const std::string& message)
 	{
-		if (!this->console_initialized_)
-		{
-			std::lock_guard _(this->mutex_);
-			this->message_queue_.push(message);
-			return;
-		}
-
 		game::native::Conbuf_AppendText(message.data());
 	}
 
@@ -91,7 +97,8 @@ private:
 			const auto len = _read(this->handles_[0], buffer, sizeof(buffer));
 			if (len > 0)
 			{
-				this->push_message(std::string(buffer, len));
+				std::lock_guard _(this->mutex_);
+				this->message_queue_.push(std::string(buffer, len));
 			}
 			else
 			{

@@ -10,7 +10,7 @@
 
 __declspec(thread) char tls_data[TLS_PAYLOAD_SIZE];
 
-void exit_hook(const int code)
+DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 {
 	module_loader::pre_destroy();
 	exit(code);
@@ -39,7 +39,7 @@ void verify_tls()
 
 int main()
 {
-	FARPROC entry_point = nullptr;
+	FARPROC entry_point;
 
 	try
 	{

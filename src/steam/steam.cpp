@@ -1,5 +1,6 @@
 #include <std_include.hpp>
 #include "steam/steam.hpp"
+#include "module/scheduler.hpp"
 
 namespace steam
 {
@@ -125,6 +126,7 @@ namespace steam
 	void SteamAPI_RunCallbacks()
 	{
 		callbacks::run_callbacks();
+		scheduler::execute();
 	}
 
 	void SteamAPI_Shutdown()
