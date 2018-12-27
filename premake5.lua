@@ -104,7 +104,8 @@ workspace "open-iw5"
 		files {
 			"./src/**.rc",
 			"./src/**.hpp",
-			"./src/**.cpp"
+			"./src/**.cpp",
+			"./src/resources/**.*"
 		}
 
 		includedirs {
