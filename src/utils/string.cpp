@@ -18,6 +18,26 @@ namespace utils
 			return result;
 		}
 
+		std::string to_lower(std::string text)
+		{
+			std::transform(text.begin(), text.end(), text.begin(), [](const char input)
+			{
+				return CHAR(tolower(input));
+			});
+
+			return text;
+		}
+
+		std::string to_upper(std::string text)
+		{
+			std::transform(text.begin(), text.end(), text.begin(), [](const char input)
+			{
+				return CHAR(toupper(input));
+			});
+
+			return text;
+		}
+
 		std::string dump_hex(const std::string& data, const std::string& separator)
 		{
 			std::string result;

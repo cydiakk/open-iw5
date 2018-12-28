@@ -76,6 +76,9 @@ namespace utils
 
 		const char* va(const char* fmt, ...);
 
+		std::string to_lower(std::string text);
+		std::string to_upper(std::string text);
+
 		std::string dump_hex(const std::string& data, const std::string& separator = " ");
 	}
 }

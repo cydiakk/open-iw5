@@ -368,5 +368,15 @@ namespace game
 			char m_hash[4];
 		};
 #pragma pack(pop)
+
+		typedef struct cmd_function_s
+		{
+			cmd_function_s* next;
+			const char* name;
+			const char* autoCompleteDir;
+			const char* autoCompleteExt;
+			void (__cdecl *function)();
+			int flags;
+		} cmd_function_t;
 	}
 }
