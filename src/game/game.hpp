@@ -9,11 +9,14 @@ namespace game
 {
 	namespace native
 	{
-		typedef void (*Cmd_AddCommand_t)(const char* cmdName, void(*function)(), cmd_function_t* allocedCmd);
+		typedef void (*Cmd_AddCommand_t)(const char* cmdName, void (*function)(), cmd_function_t* allocedCmd);
 		extern Cmd_AddCommand_t Cmd_AddCommand;
 
 		typedef void (*Conbuf_AppendText_t)(const char* message);
 		extern Conbuf_AppendText_t Conbuf_AppendText;
+
+		typedef void (*DB_LoadXAssets_t)(XZoneInfo* zoneInfo, unsigned int zoneCount, int sync);
+		extern DB_LoadXAssets_t DB_LoadXAssets;
 
 		typedef void (*Sys_ShowConsole_t)();
 		extern Sys_ShowConsole_t Sys_ShowConsole;

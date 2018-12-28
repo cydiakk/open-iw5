@@ -77,17 +77,13 @@ public:
 		signature.process();
 
 		// Function fixup
-		utils::hook(0x4CA310, 0x48A8E0, HOOK_JUMP).install()->quick(); // DB_LoadXAssets
+		utils::hook(0x4CA310, game::native::DB_LoadXAssets, HOOK_JUMP).install()->quick();
 
 		// Some value obfuscation
 		utils::hook(0x493B81, 0x493BFC, HOOK_JUMP).install()->quick();
 
 		// CEG uninitialization
 		utils::hook::set<BYTE>(0x527110, 0xC3);
-
-		// SP doesn't initialize WSA
-		WSADATA wsa_data;
-		WSAStartup(MAKEWORD(2, 2), &wsa_data);
 	}
 };
 

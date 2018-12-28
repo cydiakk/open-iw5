@@ -378,5 +378,12 @@ namespace game
 			void (__cdecl *function)();
 			int flags;
 		} cmd_function_t;
+
+		struct XZoneInfo
+		{
+			const char* name;
+			int allocFlags;
+			int freeFlags;
+		};
 	}
 }
