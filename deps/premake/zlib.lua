@@ -29,7 +29,6 @@ function zlib.project()
 		}
 
 		defines {
-			"ZLIB_DLL",
 			"_CRT_SECURE_NO_DEPRECATE",
 		}
 
