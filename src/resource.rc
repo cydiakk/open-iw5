@@ -62,11 +62,7 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "momo5502"
-#ifdef _DEBUG
-            VALUE "FileDescription", "Open-IW5 (DEBUG)"
-#else
             VALUE "FileDescription", "Open-IW5"
-#endif
             VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "Open-IW5"
             VALUE "LegalCopyright", "All rights reserved."
