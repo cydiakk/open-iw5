@@ -55,6 +55,7 @@ workspace "open-iw5"
 	staticruntime "On"
 	editandcontinue "Off"
 	warnings "Extra"
+	characterset "ASCII"
 
 	flags {
 		"NoIncrementalLink",

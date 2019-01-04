@@ -10,6 +10,8 @@ window::window(const std::string& title, const int width, const int height)
 
 	ZeroMemory(&this->wc_, sizeof(this->wc_));
 
+	this->classname = "window-base-" + std::to_string(time(nullptr));
+
 	this->wc_.cbSize = sizeof(this->wc_);
 	this->wc_.style = CS_HREDRAW | CS_VREDRAW;
 	this->wc_.lpfnWndProc = static_processor;
@@ -18,13 +20,13 @@ window::window(const std::string& title, const int width, const int height)
 	this->wc_.hIcon = LoadIcon(handle, MAKEINTRESOURCE(102));
 	this->wc_.hIconSm = this->wc_.hIcon;
 	this->wc_.hbrBackground = CreateSolidBrush(RGB(35, 35, 35));
-	this->wc_.lpszClassName = L"lul_window";
+	this->wc_.lpszClassName = this->classname.data();
 	RegisterClassEx(&this->wc_);
 
 	const auto x = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
 	const auto y = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
 
-	this->handle_ = CreateWindowExA(NULL, "lul_window", title.data(),
+	this->handle_ = CreateWindowExA(NULL, this->wc_.lpszClassName, title.data(),
 	                                (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~(WS_THICKFRAME | WS_MAXIMIZEBOX), x, y, width,
 	                                height, nullptr, nullptr, handle, nullptr);
 

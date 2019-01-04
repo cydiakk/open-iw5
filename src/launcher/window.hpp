@@ -21,6 +21,7 @@ private:
 	ULONG_PTR token_;
 	WNDCLASSEX wc_{};
 	HWND handle_ = nullptr;
+	std::string classname;
 	std::function<LRESULT(UINT, WPARAM, LPARAM)> callback_;
 
 	LRESULT CALLBACK processor(UINT message, WPARAM w_param, LPARAM l_param) const;
