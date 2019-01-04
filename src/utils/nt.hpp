@@ -37,21 +37,21 @@ namespace utils
 			HMODULE get_handle() const;
 
 			template <typename T>
-			T get_proc(const std::string& process)
+			T get_proc(const std::string& process) const
 			{
 				if (!this->is_valid()) T{};
 				return reinterpret_cast<T>(GetProcAddress(this->module_, process.data()));
 			}
 
 			template <typename T>
-			std::function<T> get(const std::string& process)
+			std::function<T> get(const std::string& process) const
 			{
 				if (!this->is_valid()) std::function<T>();
 				return reinterpret_cast<T*>(this->get_proc<void*>(process));
 			}
 
 			template <typename T, typename... Args>
-			T invoke(const std::string& process, Args ... args)
+			T invoke(const std::string& process, Args ... args) const
 			{
 				auto method = this->get<T(__cdecl)(Args ...)>(process);
 				if (method) return method(args...);
@@ -59,7 +59,7 @@ namespace utils
 			}
 
 			template <typename T, typename... Args>
-			T invoke_pascal(const std::string& process, Args ... args)
+			T invoke_pascal(const std::string& process, Args ... args) const
 			{
 				auto method = this->get<T(__stdcall)(Args ...)>(process);
 				if (method) return method(args...);
@@ -67,9 +67,9 @@ namespace utils
 			}
 
 			template <typename T, typename... Args>
-			T invoke_this(const std::string& process, void* thisPtr, Args ... args)
+			T invoke_this(const std::string& process, void* this_ptr, Args ... args) const
 			{
-				auto method = this->get<T(__thiscall)(void*, Args ...)>(thisPtr, process);
+				auto method = this->get<T(__thiscall)(void*, Args ...)>(this_ptr, process);
 				if (method) return method(args...);
 				return T();
 			}

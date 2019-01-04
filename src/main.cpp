@@ -49,20 +49,20 @@ int main()
 #endif
 
 		verify_tls();
-
 		module_loader::post_start();
 
 		launcher launcher;
-		const auto mode = launcher.run();
+		utils::nt::module self;
 
+		const auto mode = launcher.run();
 		if (mode == launcher::mode::none) return 0;
 
 		loader loader(mode);
-		loader.set_import_resolver([](const std::string& module, const std::string& function) -> FARPROC
+		loader.set_import_resolver([self](const std::string& module, const std::string& function) -> FARPROC
 		{
 			if (module == "steam_api.dll")
 			{
-				return utils::nt::module().get_proc<FARPROC>(function);
+				return self.get_proc<FARPROC>(function);
 			}
 			else if (function == "ExitProcess")
 			{
@@ -72,8 +72,8 @@ int main()
 			return nullptr;
 		});
 
-		entry_point = loader.load({});
-		if (!entry_point) throw std::runtime_error("Unable to load inject binary into memory");
+		entry_point = loader.load(self);
+		if (!entry_point) throw std::runtime_error("Unable to load binary into memory");
 
 		game::initialize(mode);
 		module_loader::post_load();
