@@ -55,7 +55,11 @@ int main()
 		utils::nt::module self;
 
 		const auto mode = launcher.run();
-		if (mode == launcher::mode::none) return 0;
+		if (mode == launcher::mode::none)
+		{
+			module_loader::pre_destroy();
+			return 0;
+		}
 
 		loader loader(mode);
 		loader.set_import_resolver([self](const std::string& module, const std::string& function) -> FARPROC
@@ -81,6 +85,7 @@ int main()
 	catch (std::exception& e)
 	{
 		MessageBoxA(nullptr, e.what(), "ERROR", MB_ICONERROR);
+		module_loader::pre_destroy();
 		return 1;
 	}
 
