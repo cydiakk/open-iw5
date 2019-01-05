@@ -1,14 +1,10 @@
 #include <std_include.hpp>
 #include "launcher.hpp"
-#include "html_frame.hpp"
 #include "utils/nt.hpp"
 
 launcher::launcher()
 {
-	this->window_.set_callback(std::bind(&launcher::handler, this, std::placeholders::_1, std::placeholders::_2,
-	                                     std::placeholders::_3));
-
-	this->html_frame_.register_callback("selectMode", [this](html_frame::callback_params* params)
+	this->main_window_.register_callback("selectMode", [this](html_frame::callback_params* params)
 	{
 		if(params->arguments.empty()) return;
 
@@ -22,47 +18,44 @@ launcher::launcher()
 		}
 	});
 
-	this->window_.create("Open-IW5", 615, 300);
-	this->html_frame_.load_html(load_content());
+	this->main_window_.register_callback("showSettings", [this](html_frame::callback_params*)
+	{
+		this->settings_window_.show();
+	});
+
+	this->settings_window_.set_hide_on_close(true);
+	this->settings_window_.create("Open-IW5 Settings", 615, 300);
+	this->settings_window_.load_html(load_content(MENU_SETTINGS));
+
+	this->main_window_.set_close_all_on_close(true);
+	this->main_window_.create("Open-IW5", 615, 300);
+	this->main_window_.load_html(load_content(MENU_MAIN));
+	this->main_window_.show();
 }
 
 launcher::mode launcher::run() const
 {
-	this->window_.run();
+	window::run();
 
 	return this->mode_;
 }
 
-LRESULT launcher::handler(const UINT message, const WPARAM w_param, const LPARAM l_param)
-{
-	if (message == WM_SIZE)
-	{
-		this->html_frame_.resize(LOWORD(l_param), HIWORD(l_param));
-		return 0;
-	}
 
-	if (message == WM_CREATE)
-	{
-		this->html_frame_.initialize(this->window_);
-		return 0;
-	}
-
-	return DefWindowProc(this->window_, message, w_param, l_param);
-}
 
 void launcher::select_mode(const mode mode)
 {
 	this->mode_ = mode;
-	this->window_.close();
+	this->settings_window_.close();
+	this->main_window_.close();
 }
 
-std::string launcher::load_content()
+std::string launcher::load_content(int res)
 {
-	const auto res = FindResource(::utils::nt::module(), MAKEINTRESOURCE(MAIN_MENU), RT_RCDATA);
+	const auto resource = FindResource(::utils::nt::module(), MAKEINTRESOURCE(res), RT_RCDATA);
 	if (!res) return {};
 
-	const auto handle = LoadResource(nullptr, res);
+	const auto handle = LoadResource(nullptr, resource);
 	if (!handle) return {};
 
-	return std::string(LPSTR(LockResource(handle)), SizeofResource(nullptr, res));
+	return std::string(LPSTR(LockResource(handle)), SizeofResource(nullptr, resource));
 }

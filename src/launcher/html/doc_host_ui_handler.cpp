@@ -1,5 +1,5 @@
 #include <std_include.hpp>
-#include "../html_frame.hpp"
+#include "html_frame.hpp"
 
 doc_host_ui_handler::doc_host_ui_handler(html_frame* frame): frame_(frame)
 {

@@ -1,5 +1,5 @@
 #include <std_include.hpp>
-#include "../html_frame.hpp"
+#include "html_frame.hpp"
 
 ole_in_place_site::ole_in_place_site(html_frame* frame) : frame_(frame)
 {

@@ -1,5 +1,5 @@
 #include <std_include.hpp>
-#include "../html_frame.hpp"
+#include "html_frame.hpp"
 
 ole_client_site::ole_client_site(html_frame* frame): frame_(frame)
 {

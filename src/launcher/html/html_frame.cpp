@@ -2,6 +2,8 @@
 #include "html_frame.hpp"
 #include "utils/nt.hpp"
 
+std::atomic<int> html_frame::frame_count_ = 0;
+
 html_frame::callback_params::callback_params(DISPPARAMS* params, VARIANT* res) : result(res)
 {
 	for (auto i = params->cArgs; i > 0; --i)
@@ -14,7 +16,7 @@ html_frame::callback_params::callback_params(DISPPARAMS* params, VARIANT* res) :
 html_frame::html_frame() : in_place_frame_(this), in_place_site_(this), ui_handler_(this), client_site_(this),
                            html_dispatch_(this)
 {
-	if (OleInitialize(nullptr) != S_OK)
+	if (frame_count_++ == 0 && OleInitialize(nullptr) != S_OK)
 	{
 		throw std::runtime_error("Unable to initialize the OLE library");
 	}
@@ -25,7 +27,11 @@ html_frame::html_frame() : in_place_frame_(this), in_place_site_(this), ui_handl
 
 html_frame::~html_frame()
 {
-	OleUninitialize();
+	if (--frame_count_ <= 0)
+	{
+		frame_count_ = 0;
+		OleUninitialize();
+	}
 }
 
 void html_frame::object_deleter(IUnknown* object)

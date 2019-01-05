@@ -27,6 +27,7 @@
 #endif
 
 #include <map>
+#include <atomic>
 #include <vector>
 #include <mutex>
 #include <queue>

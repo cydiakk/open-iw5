@@ -1,6 +1,9 @@
 #include <std_include.hpp>
 #include "window.hpp"
 
+std::mutex window::mutex_;
+std::vector<window*> window::windows_;
+
 window::window()
 {
 	ZeroMemory(&this->wc_, sizeof(this->wc_));
@@ -21,11 +24,16 @@ window::window()
 
 void window::create(const std::string& title, const int width, const int height)
 {
+	{
+		std::lock_guard _(mutex_);
+		windows_.push_back(this);
+	}
+
 	const auto x = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
 	const auto y = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
 
 	this->handle_ = CreateWindowExA(NULL, this->wc_.lpszClassName, title.data(),
-	                                (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~(WS_THICKFRAME | WS_MAXIMIZEBOX), x, y, width,
+	                                WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX), x, y, width,
 	                                height, nullptr, nullptr, this->wc_.hInstance, this);
 }
 
@@ -33,7 +41,6 @@ window::~window()
 {
 	this->close();
 	UnregisterClass(this->wc_.lpszClassName, this->wc_.hInstance);
-	DeleteObject(this->wc_.hbrBackground);
 }
 
 void window::close()
@@ -44,16 +51,88 @@ void window::close()
 	this->handle_ = nullptr;
 }
 
-void window::run() const
+void window::run()
 {
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
-
-		//if(!this->handle_) break;
 	}
+}
+
+void window::close_all()
+{
+	std::unique_lock lock(mutex_);
+	auto window_list = windows_;
+	lock.unlock();
+
+	const auto current_thread_id = GetCurrentThreadId();
+	for (auto& window : window_list)
+	{
+		const auto thread_id = GetWindowThreadProcessId(*window, nullptr);
+
+		if (thread_id == current_thread_id)
+		{
+			window->close();
+		}
+	}
+}
+
+void window::remove_window(const window* window)
+{
+	std::lock_guard _(mutex_);
+
+	for (auto i = windows_.begin(); i != windows_.end(); ++i)
+	{
+		if (*i == window)
+		{
+			windows_.erase(i);
+			break;
+		}
+	}
+}
+
+int window::get_window_count()
+{
+	std::lock_guard _(mutex_);
+
+	auto count = 0;
+	const auto current_thread_id = GetCurrentThreadId();
+
+	for (const auto& window : windows_)
+	{
+		const auto thread_id = GetWindowThreadProcessId(*window, nullptr);
+
+		if (thread_id == current_thread_id)
+		{
+			++count;
+		}
+	}
+
+	return count;
+}
+
+void window::show() const
+{
+	ShowWindow(this->handle_, SW_SHOW);
+	UpdateWindow(this->handle_);
+}
+
+void window::hide() const
+{
+	ShowWindow(this->handle_, SW_HIDE);
+	UpdateWindow(this->handle_);
+}
+
+void window::set_hide_on_close(const bool value)
+{
+	this->hide_on_close_ = value;
+}
+
+void window::set_close_all_on_close(const bool value)
+{
+	this->close_all_on_close_ = value;
 }
 
 void window::set_callback(const std::function<LRESULT(UINT, WPARAM, LPARAM)>& callback)
@@ -63,9 +142,28 @@ void window::set_callback(const std::function<LRESULT(UINT, WPARAM, LPARAM)>& ca
 
 LRESULT CALLBACK window::processor(const UINT message, const WPARAM w_param, const LPARAM l_param) const
 {
+	if (message == WM_CLOSE)
+	{
+		if (this->hide_on_close_)
+		{
+			this->hide();
+			return TRUE;
+		}
+		else if (this->close_all_on_close_)
+		{
+			close_all();
+		}
+	}
+
 	if (message == WM_DESTROY)
 	{
-		PostQuitMessage(0);
+		remove_window(this);
+
+		if (get_window_count() == 0)
+		{
+			PostQuitMessage(0);
+		}
+
 		return TRUE;
 	}
 

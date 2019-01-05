@@ -1,5 +1,5 @@
 #include <std_include.hpp>
-#include "../html_frame.hpp"
+#include "html_frame.hpp"
 
 html_dispatch::html_dispatch(html_frame* frame) : frame_(frame)
 {

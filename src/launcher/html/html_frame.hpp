@@ -1,12 +1,12 @@
 #pragma once
-#include "html/ole_in_place_frame.hpp"
-#include "html/ole_in_place_site.hpp"
-#include "html/doc_host_ui_handler.hpp"
-#include "html/ole_client_site.hpp"
-#include "html/html_dispatch.hpp"
-#include "html/html_argument.hpp"
+#include "ole_in_place_frame.hpp"
+#include "ole_in_place_site.hpp"
+#include "doc_host_ui_handler.hpp"
+#include "ole_client_site.hpp"
+#include "html_dispatch.hpp"
+#include "html_argument.hpp"
 
-class html_frame final
+class html_frame
 {
 public:
 	class callback_params final
@@ -62,4 +62,6 @@ private:
 
 	static void set_browser_feature(const std::string& feature, DWORD value);
 	static void object_deleter(IUnknown* object);
+
+	static std::atomic<int> frame_count_;
 };

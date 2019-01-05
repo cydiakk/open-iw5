@@ -1,6 +1,5 @@
 #pragma once
-#include "window.hpp"
-#include "html_frame.hpp"
+#include "html_window.hpp"
 
 class launcher final
 {
@@ -20,11 +19,10 @@ public:
 private:
 	mode mode_ = none;
 
-	window window_;
-	html_frame html_frame_;
+	html_window main_window_;
+	html_window settings_window_;
 
-	LRESULT handler(const UINT message, const WPARAM w_param, const LPARAM l_param);
 	void select_mode(mode mode);
 
-	static std::string load_content();
+	static std::string load_content(int res);
 };

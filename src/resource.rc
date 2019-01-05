@@ -84,7 +84,6 @@ END
 
 102       ICON   "resources/icon.ico"
 
-MAIN_MENU RCDATA "resources/main.html"
 BINARY_SP RCDATA "resources/iw5sp.exe.diff"
 BINARY_MP RCDATA "resources/iw5mp.exe.diff"
 
@@ -96,6 +95,9 @@ DW_PLAYLIST RCDATA "resources/dw/playlists.aggr"
 DW_CONFIG   RCDATA "resources/dw/social_tu1.cfg"
 DW_IOTD_TXT RCDATA "resources/dw/iotd-english.txt"
 DW_IOTD_IMG RCDATA "resources/dw/iotd-english.jpg"
+
+MENU_MAIN     RCDATA "resources/main.html"
+MENU_SETTINGS RCDATA "resources/settings.html"
 
 
 #endif    // English (United States) resources
