@@ -88,8 +88,8 @@ HRESULT doc_host_ui_handler::GetDropTarget(IDropTarget* /*pDropTarget*/, IDropTa
 
 HRESULT doc_host_ui_handler::GetExternal(IDispatch** ppDispatch)
 {
-	*ppDispatch = nullptr;
-	return S_FALSE;
+	*ppDispatch = this->frame_->get_html_dispatch();
+	return (*ppDispatch) ? S_OK : S_FALSE;
 }
 
 HRESULT doc_host_ui_handler::FilterDataObject(IDataObject* /*pDO*/, IDataObject** ppDORet)

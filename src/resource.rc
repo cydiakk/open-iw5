@@ -83,8 +83,8 @@ END
 //
 
 102       ICON   "resources/icon.ico"
-IMAGE_SP  BITMAP "resources/singleplayer.bmp"
-IMAGE_MP  BITMAP "resources/multiplayer.bmp"
+
+MAIN_MENU RCDATA "resources/main.html"
 BINARY_SP RCDATA "resources/iw5sp.exe.diff"
 BINARY_MP RCDATA "resources/iw5mp.exe.diff"
 

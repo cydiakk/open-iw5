@@ -27,9 +27,6 @@ void window::create(const std::string& title, const int width, const int height)
 	this->handle_ = CreateWindowExA(NULL, this->wc_.lpszClassName, title.data(),
 	                                (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~(WS_THICKFRAME | WS_MAXIMIZEBOX), x, y, width,
 	                                height, nullptr, nullptr, this->wc_.hInstance, this);
-
-	ShowWindow(this->handle_, SW_SHOW);
-	UpdateWindow(this->handle_);
 }
 
 window::~window()
@@ -50,10 +47,12 @@ void window::close()
 void window::run() const
 {
 	MSG msg;
-	while (this->handle_ && IsWindow(*this) && GetMessage(&msg, nullptr, 0, 0))
+	while (GetMessage(&msg, nullptr, 0, 0))
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
+
+		//if(!this->handle_) break;
 	}
 }
 

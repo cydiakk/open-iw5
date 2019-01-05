@@ -25,4 +25,6 @@ private:
 
 	LRESULT handler(const UINT message, const WPARAM w_param, const LPARAM l_param);
 	void select_mode(mode mode);
+
+	static std::string load_content();
 };
