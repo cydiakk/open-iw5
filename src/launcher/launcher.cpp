@@ -4,6 +4,12 @@
 
 launcher::launcher()
 {
+	this->create_settings_menu();
+	this->create_main_menu();
+}
+
+void launcher::create_main_menu()
+{
 	this->main_window_.register_callback("selectMode", [this](html_frame::callback_params* params)
 	{
 		if(params->arguments.empty()) return;
@@ -23,24 +29,43 @@ launcher::launcher()
 		this->settings_window_.show();
 	});
 
-	this->settings_window_.set_hide_on_close(true);
-	this->settings_window_.create("Open-IW5 Settings", 615, 300);
-	this->settings_window_.load_html(load_content(MENU_SETTINGS));
+	this->main_window_.set_callback([](window* window, const UINT message, const WPARAM w_param, const LPARAM l_param) -> LRESULT
+	{
+		if(message == WM_CLOSE)
+		{
+			window::close_all();
+		}
 
-	this->main_window_.set_close_all_on_close(true);
+		return DefWindowProcA(*window, message, w_param, l_param);
+	});
+
 	this->main_window_.create("Open-IW5", 615, 300);
 	this->main_window_.load_html(load_content(MENU_MAIN));
 	this->main_window_.show();
 }
 
+void launcher::create_settings_menu()
+{
+		this->settings_window_.set_callback([](window* window, const UINT message, const WPARAM w_param, const LPARAM l_param) -> LRESULT
+	{
+		if(message == WM_CLOSE)
+		{
+			window->hide();
+			return TRUE;
+		}
+
+		return DefWindowProcA(*window, message, w_param, l_param);
+	});
+
+	this->settings_window_.create("Open-IW5 Settings", 400, 200);
+	this->settings_window_.load_html(load_content(MENU_SETTINGS));
+}
+
 launcher::mode launcher::run() const
 {
 	window::run();
-
 	return this->mode_;
 }
-
-
 
 void launcher::select_mode(const mode mode)
 {
@@ -49,9 +74,9 @@ void launcher::select_mode(const mode mode)
 	this->main_window_.close();
 }
 
-std::string launcher::load_content(int res)
+std::string launcher::load_content(const int res)
 {
-	const auto resource = FindResource(::utils::nt::module(), MAKEINTRESOURCE(res), RT_RCDATA);
+	const auto resource = FindResource(utils::nt::module(), MAKEINTRESOURCE(res), RT_RCDATA);
 	if (!res) return {};
 
 	const auto handle = LoadResource(nullptr, resource);

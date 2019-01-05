@@ -125,36 +125,13 @@ void window::hide() const
 	UpdateWindow(this->handle_);
 }
 
-void window::set_hide_on_close(const bool value)
-{
-	this->hide_on_close_ = value;
-}
-
-void window::set_close_all_on_close(const bool value)
-{
-	this->close_all_on_close_ = value;
-}
-
-void window::set_callback(const std::function<LRESULT(UINT, WPARAM, LPARAM)>& callback)
+void window::set_callback(const std::function<LRESULT(window*, UINT, WPARAM, LPARAM)>& callback)
 {
 	this->callback_ = callback;
 }
 
-LRESULT CALLBACK window::processor(const UINT message, const WPARAM w_param, const LPARAM l_param) const
+LRESULT window::processor(const UINT message, const WPARAM w_param, const LPARAM l_param)
 {
-	if (message == WM_CLOSE)
-	{
-		if (this->hide_on_close_)
-		{
-			this->hide();
-			return TRUE;
-		}
-		else if (this->close_all_on_close_)
-		{
-			close_all();
-		}
-	}
-
 	if (message == WM_DESTROY)
 	{
 		remove_window(this);
@@ -175,7 +152,7 @@ LRESULT CALLBACK window::processor(const UINT message, const WPARAM w_param, con
 
 	if (this->callback_)
 	{
-		return this->callback_(message, w_param, l_param);
+		return this->callback_(this, message, w_param, l_param);
 	}
 
 	return DefWindowProc(*this, message, w_param, l_param);

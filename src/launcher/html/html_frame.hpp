@@ -19,7 +19,7 @@ public:
 	};
 
 	html_frame();
-	~html_frame();
+	virtual ~html_frame();
 
 	void initialize(const HWND window);
 
