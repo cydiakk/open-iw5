@@ -1,36 +1,35 @@
 #include <std_include.hpp>
 #include "window.hpp"
 
-window::window(const std::string& title, const int width, const int height)
+window::window()
 {
-	Gdiplus::GdiplusStartupInput input;
-	GdiplusStartup(&this->token_, &input, nullptr);
-
-	const auto handle = GetModuleHandle(nullptr);
-
 	ZeroMemory(&this->wc_, sizeof(this->wc_));
 
-	this->classname = "window-base-" + std::to_string(time(nullptr));
+	this->classname_ = "window-base-" + std::to_string(time(nullptr));
 
 	this->wc_.cbSize = sizeof(this->wc_);
 	this->wc_.style = CS_HREDRAW | CS_VREDRAW;
 	this->wc_.lpfnWndProc = static_processor;
-	this->wc_.hInstance = handle;
+	this->wc_.hInstance = GetModuleHandle(nullptr);
 	this->wc_.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	this->wc_.hIcon = LoadIcon(handle, MAKEINTRESOURCE(102));
+	this->wc_.hIcon = LoadIcon(this->wc_.hInstance, MAKEINTRESOURCE(102));
 	this->wc_.hIconSm = this->wc_.hIcon;
-	this->wc_.hbrBackground = CreateSolidBrush(RGB(35, 35, 35));
-	this->wc_.lpszClassName = this->classname.data();
+	this->wc_.hbrBackground = HBRUSH(COLOR_WINDOW);
+	this->wc_.lpszClassName = this->classname_.data();
 	RegisterClassEx(&this->wc_);
+}
 
+void window::create(const std::string& title, const int width, const int height)
+{
 	const auto x = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
 	const auto y = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
 
 	this->handle_ = CreateWindowExA(NULL, this->wc_.lpszClassName, title.data(),
 	                                (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~(WS_THICKFRAME | WS_MAXIMIZEBOX), x, y, width,
-	                                height, nullptr, nullptr, handle, nullptr);
+	                                height, nullptr, nullptr, this->wc_.hInstance, this);
 
-	SetWindowLongPtrA(*this, GWLP_USERDATA, LONG_PTR(this));
+	ShowWindow(this->handle_, SW_SHOW);
+	UpdateWindow(this->handle_);
 }
 
 window::~window()
@@ -38,8 +37,6 @@ window::~window()
 	this->close();
 	UnregisterClass(this->wc_.lpszClassName, this->wc_.hInstance);
 	DeleteObject(this->wc_.hbrBackground);
-
-	Gdiplus::GdiplusShutdown(this->token_);
 }
 
 void window::close()
@@ -53,25 +50,11 @@ void window::close()
 void window::run() const
 {
 	MSG msg;
-	while (this->handle_ && IsWindow(*this))
+	while (this->handle_ && IsWindow(*this) && GetMessage(&msg, nullptr, 0, 0))
 	{
-		if (PeekMessageA(&msg, nullptr, NULL, NULL, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessageA(&msg);
-		}
-		else
-		{
-			std::this_thread::sleep_for(1ms);
-		}
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
-}
-
-void window::clear(const HDC hdc) const
-{
-	RECT rc;
-	GetClientRect(*this, &rc);
-	FillRect(hdc, &rc, this->wc_.hbrBackground);
 }
 
 void window::set_callback(const std::function<LRESULT(UINT, WPARAM, LPARAM)>& callback)
@@ -81,6 +64,12 @@ void window::set_callback(const std::function<LRESULT(UINT, WPARAM, LPARAM)>& ca
 
 LRESULT CALLBACK window::processor(const UINT message, const WPARAM w_param, const LPARAM l_param) const
 {
+	if (message == WM_DESTROY)
+	{
+		PostQuitMessage(0);
+		return TRUE;
+	}
+
 	if (message == WM_KILL_WINDOW)
 	{
 		DestroyWindow(*this);
@@ -97,6 +86,14 @@ LRESULT CALLBACK window::processor(const UINT message, const WPARAM w_param, con
 
 LRESULT CALLBACK window::static_processor(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param)
 {
+	if (message == WM_CREATE)
+	{
+		auto data = reinterpret_cast<LPCREATESTRUCT>(l_param);
+		SetWindowLongPtrA(hwnd, GWLP_USERDATA, LONG_PTR(data->lpCreateParams));
+
+		reinterpret_cast<window*>(data->lpCreateParams)->handle_ = hwnd;
+	}
+
 	const auto self = reinterpret_cast<window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 	if (self) return self->processor(message, w_param, l_param);
 
