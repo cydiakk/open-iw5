@@ -156,8 +156,7 @@ void html_frame::initialize_browser()
 
 void html_frame::set_browser_feature(const std::string& feature, DWORD value)
 {
-	utils::nt::module self;
-	std::string registry_path = R"(SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\)" + feature;
+	const auto registry_path = R"(SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\)" + feature;
 
 	HKEY key = nullptr;
 	if (RegOpenKeyExA(
@@ -165,6 +164,7 @@ void html_frame::set_browser_feature(const std::string& feature, DWORD value)
 		KEY_ALL_ACCESS, &key) != ERROR_SUCCESS)
 		return;
 
+	const utils::nt::module self;
 	const auto name = self.get_name();
 	RegSetValueExA(key, name.data(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(value));
 
