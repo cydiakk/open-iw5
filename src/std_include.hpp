@@ -41,6 +41,8 @@
 #include <patch.h>
 #include <tomcrypt.h>
 
+#include <gsl/gsl>
+
 #pragma comment (lib, "gdiplus.lib")
 #pragma comment(lib, "ws2_32.lib")
 
