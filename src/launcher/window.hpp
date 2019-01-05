@@ -5,23 +5,22 @@
 class window final
 {
 public:
-	window(const std::string& title, int width, int height);
+	window();
 	~window();
+
+	void create(const std::string& title, int width, int height);
 
 	void close();
 	void run() const;
-
-	void clear(const HDC hdc) const;
 
 	void set_callback(const std::function<LRESULT(UINT, WPARAM, LPARAM)>& callback);
 
 	operator HWND() const;
 
 private:
-	ULONG_PTR token_;
 	WNDCLASSEX wc_{};
 	HWND handle_ = nullptr;
-	std::string classname;
+	std::string classname_;
 	std::function<LRESULT(UINT, WPARAM, LPARAM)> callback_;
 
 	LRESULT CALLBACK processor(UINT message, WPARAM w_param, LPARAM l_param) const;

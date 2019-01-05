@@ -23,7 +23,10 @@ void command::add(const std::string& name, const std::function<void(const std::v
 void command::pre_destroy()
 {
 	std::lock_guard _(mutex_);
-	callbacks_.clear();
+	if(!callbacks_.empty())
+	{
+		callbacks_.clear();
+	}
 }
 
 void command::dispatcher()

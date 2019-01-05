@@ -1,6 +1,6 @@
 #pragma once
 #include "window.hpp"
-#include "image.hpp"
+#include "html_frame.hpp"
 
 class launcher final
 {
@@ -21,17 +21,10 @@ private:
 	mode mode_ = none;
 
 	window window_;
-
-	image image_sp_;
-	image image_mp_;
-
-	POINT mouse_{};
+	html_frame html_frame_;
 
 	LRESULT handler(const UINT message, const WPARAM w_param, const LPARAM l_param);
-
 	void select_mode(mode mode);
 
-	static void draw_text(const HDC hdc);
-	void paint() const;
-	void mouse_move(LPARAM l_param);
+	static std::string load_content();
 };

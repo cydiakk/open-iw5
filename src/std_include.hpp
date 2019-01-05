@@ -9,9 +9,9 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
-#include <Windowsx.h>
-#include <objidl.h>
-#include <gdiplus.h>
+#include <mshtml.h>
+#include <mshtmhst.h>
+#include <ExDisp.h>
 #include <WinSock2.h>
 #include <Ws2tcpip.h>
 #include <corecrt_io.h>
@@ -40,6 +40,8 @@
 #include <diff.h>
 #include <patch.h>
 #include <tomcrypt.h>
+
+#include <gsl/gsl>
 
 #pragma comment (lib, "gdiplus.lib")
 #pragma comment(lib, "ws2_32.lib")
