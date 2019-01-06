@@ -9,9 +9,11 @@ public:
 
 	bool is_string() const;
 	bool is_number() const;
+	bool is_bool() const;
 
 	std::string get_string() const;
 	int get_number() const;
+	bool get_bool() const;
 
 private:
 	VARIANT* value_;
