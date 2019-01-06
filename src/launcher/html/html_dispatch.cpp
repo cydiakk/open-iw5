@@ -41,7 +41,7 @@ HRESULT html_dispatch::GetTypeInfo(UINT iTInfo, LCID lcid, ITypeInfo** ppTInfo)
 
 HRESULT html_dispatch::GetIDsOfNames(const IID& riid, LPOLESTR* rgszNames, UINT cNames, LCID lcid, DISPID* rgDispId)
 {
-	for(unsigned int i = 0; i < cNames; ++i)
+	for (unsigned int i = 0; i < cNames; ++i)
 	{
 		std::wstring wide_name(rgszNames[i]);
 		std::string name(wide_name.begin(), wide_name.end());
@@ -53,7 +53,7 @@ HRESULT html_dispatch::GetIDsOfNames(const IID& riid, LPOLESTR* rgszNames, UINT 
 }
 
 HRESULT html_dispatch::Invoke(DISPID dispIdMember, const IID& riid, LCID lcid, WORD wFlags, DISPPARAMS* pDispParams,
-	VARIANT* pVarResult, EXCEPINFO* pExcepInfo, UINT* puArgErr)
+                              VARIANT* pVarResult, EXCEPINFO* pExcepInfo, UINT* puArgErr)
 {
 	html_frame::callback_params params(pDispParams, pVarResult);
 	this->frame_->invoke_callback(dispIdMember, &params);

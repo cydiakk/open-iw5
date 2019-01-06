@@ -12,13 +12,13 @@ void launcher::create_main_menu()
 {
 	this->main_window_.register_callback("selectMode", [this](html_frame::callback_params* params)
 	{
-		if(params->arguments.empty()) return;
+		if (params->arguments.empty()) return;
 
 		const auto param = params->arguments[0];
-		if(!param.is_number()) return;
+		if (!param.is_number()) return;
 
 		const auto number = param.get_number();
-		if(number == singleplayer || number == multiplayer)
+		if (number == singleplayer || number == multiplayer)
 		{
 			this->select_mode(static_cast<mode>(number));
 		}
@@ -29,15 +29,16 @@ void launcher::create_main_menu()
 		this->settings_window_.show();
 	});
 
-	this->main_window_.set_callback([](window* window, const UINT message, const WPARAM w_param, const LPARAM l_param) -> LRESULT
-	{
-		if(message == WM_CLOSE)
+	this->main_window_.set_callback(
+		[](window* window, const UINT message, const WPARAM w_param, const LPARAM l_param) -> LRESULT
 		{
-			window::close_all();
-		}
+			if (message == WM_CLOSE)
+			{
+				window::close_all();
+			}
 
-		return DefWindowProcA(*window, message, w_param, l_param);
-	});
+			return DefWindowProcA(*window, message, w_param, l_param);
+		});
 
 	this->main_window_.create("Open-IW5", 615, 300);
 	this->main_window_.load_html(load_content(MENU_MAIN));
@@ -46,18 +47,20 @@ void launcher::create_main_menu()
 
 void launcher::create_settings_menu()
 {
-		this->settings_window_.set_callback([](window* window, const UINT message, const WPARAM w_param, const LPARAM l_param) -> LRESULT
-	{
-		if(message == WM_CLOSE)
+	this->settings_window_.set_callback(
+		[](window* window, const UINT message, const WPARAM w_param, const LPARAM l_param) -> LRESULT
 		{
-			window->hide();
-			return TRUE;
-		}
+			if (message == WM_CLOSE)
+			{
+				window->hide();
+				return TRUE;
+			}
 
-		return DefWindowProcA(*window, message, w_param, l_param);
-	});
+			return DefWindowProcA(*window, message, w_param, l_param);
+		});
 
-	this->settings_window_.create("Open-IW5 Settings", 400, 200);
+	this->settings_window_.create("Open-IW5 Settings", 400, 200,
+	                              WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
 	this->settings_window_.load_html(load_content(MENU_SETTINGS));
 }
 

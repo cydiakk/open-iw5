@@ -22,7 +22,7 @@ window::window()
 	RegisterClassEx(&this->wc_);
 }
 
-void window::create(const std::string& title, const int width, const int height)
+void window::create(const std::string& title, const int width, const int height, const long flags)
 {
 	{
 		std::lock_guard _(mutex_);
@@ -32,9 +32,8 @@ void window::create(const std::string& title, const int width, const int height)
 	const auto x = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
 	const auto y = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
 
-	this->handle_ = CreateWindowExA(NULL, this->wc_.lpszClassName, title.data(),
-	                                WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX), x, y, width,
-	                                height, nullptr, nullptr, this->wc_.hInstance, this);
+	this->handle_ = CreateWindowExA(NULL, this->wc_.lpszClassName, title.data(), flags, x, y, width, height, nullptr,
+	                                nullptr, this->wc_.hInstance, this);
 }
 
 window::~window()

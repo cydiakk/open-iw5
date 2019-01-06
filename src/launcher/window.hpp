@@ -8,7 +8,8 @@ public:
 	window();
 	virtual ~window();
 
-	void create(const std::string& title, int width, int height);
+	void create(const std::string& title, int width, int height,
+	            long flags = (WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX)));
 
 	void close();
 

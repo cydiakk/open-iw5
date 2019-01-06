@@ -1,6 +1,6 @@
 #pragma once
-#include "window.hpp"
-#include "html/html_frame.hpp"
+#include "../window.hpp"
+#include "html_frame.hpp"
 
 class html_window final : public window, public html_frame
 {

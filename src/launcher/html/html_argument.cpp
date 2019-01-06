@@ -3,7 +3,6 @@
 
 html_argument::html_argument(VARIANT* val) : value_(val)
 {
-
 }
 
 bool html_argument::is_empty() const
@@ -13,25 +12,25 @@ bool html_argument::is_empty() const
 
 bool html_argument::is_string() const
 {
-	if(this->is_empty()) return false;
+	if (this->is_empty()) return false;
 	return this->value_->vt == VT_BSTR;
 }
 
 bool html_argument::is_number() const
 {
-	if(this->is_empty()) return false;
+	if (this->is_empty()) return false;
 	return this->value_->vt == VT_I4;
 }
 
 std::string html_argument::get_string() const
 {
-	if(!this->is_string()) return {};
+	if (!this->is_string()) return {};
 	std::wstring wide_string(this->value_->bstrVal);
 	return std::string(wide_string.begin(), wide_string.end());
 }
 
 int html_argument::get_number() const
 {
-	if(!this->is_number()) return 0;
+	if (!this->is_number()) return 0;
 	return this->value_->intVal;
 }
