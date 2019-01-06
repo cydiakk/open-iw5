@@ -44,6 +44,8 @@
 
 #include <gsl/gsl>
 
+#include <udis86.h>
+
 #pragma comment(lib, "gdiplus.lib")
 #pragma comment(lib, "ws2_32.lib")
 
