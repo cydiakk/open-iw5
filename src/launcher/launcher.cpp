@@ -59,8 +59,7 @@ void launcher::create_settings_menu()
 			return DefWindowProcA(*window, message, w_param, l_param);
 		});
 
-	this->settings_window_.create("Open-IW5 Settings", 400, 200,
-	                              WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
+	this->settings_window_.create("Open-IW5 Settings", 400, 200, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU);
 	this->settings_window_.load_html(load_content(MENU_SETTINGS));
 }
 
