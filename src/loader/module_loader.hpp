@@ -4,6 +4,14 @@
 class module_loader final
 {
 public:
+	class premature_shutdown_trigger final : public std::exception
+	{
+		const char* what() const noexcept override
+		{
+			return "Premature shutdown requested";
+		}
+	};
+
 	template <typename T>
 	class installer final
 	{
@@ -18,9 +26,11 @@ public:
 
 	static void register_module(std::unique_ptr<module>&& module);
 
-	static void post_start();
-	static void post_load();
+	static bool post_start();
+	static bool post_load();
 	static void pre_destroy();
+
+	static void trigger_premature_shutdown();
 
 private:
 	static std::vector<std::unique_ptr<module>>* modules_;

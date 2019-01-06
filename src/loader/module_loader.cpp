@@ -14,28 +14,46 @@ void module_loader::register_module(std::unique_ptr<module>&& module_)
 	modules_->push_back(std::move(module_));
 }
 
-void module_loader::post_start()
+bool module_loader::post_start()
 {
 	static auto handled = false;
-	if (handled || !modules_) return;
+	if (handled || !modules_) return true;
 	handled = true;
 
-	for (const auto& module_ : *modules_)
+	try
 	{
-		module_->post_start();
+		for (const auto& module_ : *modules_)
+		{
+			module_->post_start();
+		}
 	}
+	catch(premature_shutdown_trigger&)
+	{
+		return false;
+	}
+
+	return true;
 }
 
-void module_loader::post_load()
+bool module_loader::post_load()
 {
 	static auto handled = false;
-	if (handled || !modules_) return;
+	if (handled || !modules_) return true;
 	handled = true;
 
-	for (const auto& module_ : *modules_)
+	try
 	{
-		module_->post_load();
+		for (const auto& module_ : *modules_)
+		{
+			module_->post_load();
+		}
 	}
+	catch (premature_shutdown_trigger&)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void module_loader::pre_destroy()
@@ -58,4 +76,9 @@ void module_loader::destroy_modules()
 
 	delete modules_;
 	modules_ = nullptr;
+}
+
+void module_loader::trigger_premature_shutdown()
+{
+	throw premature_shutdown_trigger();
 }

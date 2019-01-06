@@ -37,56 +37,72 @@ void verify_tls()
 	}
 }
 
+FARPROC load_binary(const launcher::mode mode)
+{
+	loader loader(mode);
+	utils::nt::module self;
+
+	loader.set_import_resolver([self](const std::string& module, const std::string& function) -> FARPROC
+	{
+		if (module == "steam_api.dll")
+		{
+			return self.get_proc<FARPROC>(function);
+		}
+		else if (function == "ExitProcess")
+		{
+			return FARPROC(exit_hook);
+		}
+
+		return nullptr;
+	});
+
+	return loader.load(self);
+}
+
 int main()
 {
 	FARPROC entry_point;
 
-	try
 	{
-#ifdef GENERATE_DIFFS
-		binary_loader::create();
-		return 0;
-#endif
-
-		verify_tls();
-		module_loader::post_start();
-
-		launcher launcher;
-		utils::nt::module self;
-
-		const auto mode = launcher.run();
-		if (mode == launcher::mode::none)
+		bool premature_shutdown = true;
+		const auto _ = gsl::finally( [&premature_shutdown]()
 		{
-			module_loader::pre_destroy();
-			return 0;
-		}
-
-		loader loader(mode);
-		loader.set_import_resolver([self](const std::string& module, const std::string& function) -> FARPROC
-		{
-			if (module == "steam_api.dll")
+			if(premature_shutdown)
 			{
-				return self.get_proc<FARPROC>(function);
+				module_loader::pre_destroy();
 			}
-			else if (function == "ExitProcess")
-			{
-				return FARPROC(exit_hook);
-			}
-
-			return nullptr;
 		});
 
-		entry_point = loader.load(self);
-		if (!entry_point) throw std::runtime_error("Unable to load binary into memory");
+		try
+		{
+#ifdef GENERATE_DIFFS
+			binary_loader::create();
+			return 0;
+#endif
 
-		game::initialize(mode);
-		module_loader::post_load();
-	}
-	catch (std::exception& e)
-	{
-		MessageBoxA(nullptr, e.what(), "ERROR", MB_ICONERROR);
-		module_loader::pre_destroy();
-		return 1;
+			verify_tls();
+			if (!module_loader::post_start()) return 0;
+
+			launcher launcher;
+			const auto mode = launcher.run();
+			if (mode == launcher::mode::none) return 0;
+
+			entry_point = load_binary(mode);
+			if (!entry_point)
+			{
+				throw std::runtime_error("Unable to load binary into memory");
+			}
+
+			game::initialize(mode);
+			if (!module_loader::post_load()) return 0;
+
+			premature_shutdown = false;
+		}
+		catch (std::exception& e)
+		{
+			MessageBoxA(nullptr, e.what(), "ERROR", MB_ICONERROR);
+			return 1;
+		}
 	}
 
 	return entry_point();

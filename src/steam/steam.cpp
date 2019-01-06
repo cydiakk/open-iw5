@@ -77,6 +77,30 @@ namespace steam
 		results_.clear();
 	}
 
+	std::string get_steam_install_directory()
+	{
+		HKEY reg_key;
+		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Valve\\Steam", 0, KEY_QUERY_VALUE, &reg_key) ==
+			ERROR_SUCCESS)
+		{
+			char path[MAX_PATH] = { 0 };
+			DWORD length = sizeof(path);
+			RegQueryValueExA(reg_key, "InstallPath", nullptr, nullptr, reinterpret_cast<BYTE*>(path),
+				&length);
+			RegCloseKey(reg_key);
+
+			std::string steam_path = path;
+			if (steam_path.back() != '\\' && steam_path.back() != '/')
+			{
+				steam_path.push_back('\\');
+			}
+
+			return steam_path;
+		}
+
+		return {};
+	}
+
 	extern "C" {
 	bool SteamAPI_RestartAppIfNecessary()
 	{
@@ -89,24 +113,10 @@ namespace steam
 
 		if (!overlay)
 		{
-			HKEY reg_key;
-			if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Valve\\Steam", 0, KEY_QUERY_VALUE, &reg_key) ==
-				ERROR_SUCCESS)
+			const auto steam_path = get_steam_install_directory();
+			if(!steam_path.empty())
 			{
-				char steam_path[MAX_PATH] = {0};
-				DWORD length = sizeof(steam_path);
-				RegQueryValueExA(reg_key, "InstallPath", nullptr, nullptr, reinterpret_cast<BYTE*>(steam_path),
-				                 &length);
-				RegCloseKey(reg_key);
-
-				std::string overlay_path = steam_path;
-				if (overlay_path.back() != '\\' && overlay_path.back() != '/')
-				{
-					overlay_path.push_back('\\');
-				}
-
-				overlay_path.append("gameoverlayrenderer.dll");
-				overlay = ::utils::nt::module::load(overlay_path);
+				overlay = ::utils::nt::module::load(steam_path + "gameoverlayrenderer.dll");
 			}
 		}
 
