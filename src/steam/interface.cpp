@@ -1,12 +1,23 @@
 #include <std_include.hpp>
 #include "interface.hpp"
 #include "utils/memory.hpp"
+#include "utils/nt.hpp"
+#include <minwinbase.h>
 
 namespace steam
 {
+	interface::interface() : interface(nullptr)
+	{
+	}
+
 	interface::interface(void* interface_ptr) : interface_ptr_(static_cast<void***>(interface_ptr))
 	{
 
+	}
+
+	interface::operator bool() const
+	{
+		return this->interface_ptr_ != nullptr;
 	}
 
 	interface::method interface::find_method(const std::string& name)
@@ -29,14 +40,15 @@ namespace steam
 			while (!utils::memory::is_bad_read_ptr(vftbl) && !utils::memory::is_bad_code_ptr(*vftbl))
 			{
 				const interface::method_result result = this->analyze_method(*vftbl);
-				if (!result.valid) break;
-
-				const interface::method method_result{ *vftbl, result.param_size };
-				this->methods_[result.name] = method_result;
-
-				if(result.name == name)
+				if (result.param_size_found && result.name_found)
 				{
-					return method_result;
+					const interface::method method_result { *vftbl, result.param_size };
+					this->methods_[result.name] = method_result;
+
+					if (result.name == name)
+					{
+						return method_result;
+					}
 				}
 
 				++vftbl;
@@ -61,35 +73,63 @@ namespace steam
 		{
 			ud_disassemble(&ud);
 
-			if (ud_insn_mnemonic(&ud) == UD_Iret)
+			if (ud_insn_mnemonic(&ud) == UD_Iret && !result.param_size_found)
 			{
 				const ud_operand* operand = ud_insn_opr(&ud, 0);
-				if (!operand) break;
-
-				if (operand->type == UD_OP_IMM && operand->size == 16)
+				if (operand && operand->type == UD_OP_IMM && operand->size == 16)
 				{
 					result.param_size = operand->lval.uword;
-					result.valid = !result.name.empty();
-					return result;
+				}
+				else
+				{
+					result.param_size = 0;
 				}
 
-				break;
+				result.param_size_found = true;
 			}
 
-			if (ud_insn_mnemonic(&ud) == UD_Ipush && result.name.empty())
+			if (ud_insn_mnemonic(&ud) == UD_Ipush && !result.name_found)
 			{
 				const auto operand = ud_insn_opr(&ud, 0);
 				if (operand->type == UD_OP_IMM && operand->size == 32)
 				{
 					char* operand_ptr = reinterpret_cast<char*>(operand->lval.udword);
-					if (!utils::memory::is_bad_read_ptr(operand_ptr))
+					if (!utils::memory::is_bad_read_ptr(operand_ptr) && this->is_rdata(operand_ptr))
 					{
 						result.name = operand_ptr;
+						result.name_found = true;
 					}
 				}
 			}
+
+			if(*reinterpret_cast<unsigned char*>(ud.pc) == 0xCC) break; // int 3
+			if (result.param_size_found && result.name_found) break;
 		}
 
 		return result;
+	}
+
+	bool interface::is_rdata(void* pointer)
+	{
+		const auto pointer_lib = utils::nt::module::get_by_address(pointer);
+
+		for(const auto& section : pointer_lib.get_section_headers())
+		{
+			const auto size = sizeof(section->Name);
+			char name[size + 1];
+			name[size] = 0;
+			std::memcpy(name, section->Name, size);
+
+			if(name == ".rdata"s)
+			{
+				const auto target = size_t(pointer);
+				const size_t source_start = size_t(pointer_lib.get_ptr()) + section->PointerToRawData;
+				const size_t source_end = source_start + section->SizeOfRawData;
+
+				return target >= source_start && target <= source_end;
+			}
+		}
+
+		return false;
 	}
 }
