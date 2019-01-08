@@ -25,7 +25,14 @@ public:
 
 		try
 		{
-			this->start_mod(game::is_mp() ? "LUUUUUL" : "LEEEEL", 480);
+			if (game::is_sp())
+			{
+				this->start_mod("Open-IW5 Singleplayer", 42680);
+			}
+			else if (game::is_mp())
+			{
+				this->start_mod("Open-IW5 Multiplayer", 42690);
+			}
 		}
 		catch (std::exception& e)
 		{
@@ -35,6 +42,18 @@ public:
 
 	void pre_destroy() override
 	{
+		if (this->steam_client_)
+		{
+			if (this->steam_pipe_)
+			{
+				if (this->global_user_)
+				{
+					this->steam_client_.invoke<void>(4, this->steam_pipe_, this->global_user_); // ReleaseUser
+				}
+
+				this->steam_client_.invoke<bool>(1, this->steam_pipe_); // ReleaseSteamPipe
+			}
+		}
 	}
 
 private:
@@ -48,7 +67,7 @@ private:
 	void* steam_pipe_ = nullptr;
 	void* global_user_ = nullptr;
 
-	void run_mod()
+	void run_mod() const
 	{
 		const char* command = "-proc ";
 		const char* parent_proc = strstr(GetCommandLineA(), command);
@@ -68,14 +87,15 @@ private:
 		}
 	}
 
-	void* load_client_engine()
+	void* load_client_engine() const
 	{
-		if (!this->steam_client_module_.is_valid()) return nullptr;
+		if (!this->steam_client_module_) return nullptr;
 
-		for (int i = 1; i > 0; ++i)
+		for (auto i = 1; i > 0; ++i)
 		{
 			std::string name = utils::string::va("CLIENTENGINE_INTERFACE_VERSION%03i", i);
-			void* client_engine = this->steam_client_module_.invoke<void*>("CreateInterface", name.data(), nullptr);
+			const auto client_engine = this->steam_client_module_
+			                               .invoke<void*>("CreateInterface", name.data(), nullptr);
 			if (client_engine) return client_engine;
 		}
 
@@ -106,19 +126,24 @@ private:
 		                                                         "CLIENTUTILS_INTERFACE_VERSION001"); // GetIClientUtils
 	}
 
-	void start_mod(const std::string& title, const size_t app_id)
+	void start_mod(const std::string& title, size_t app_id)
 	{
 		if (!this->client_utils_ || !this->client_user_) return;
+
+		if (!this->client_user_.invoke<bool>("BIsSubscribedApp", app_id))
+		{
+			app_id = 480; // Spacewar
+		}
 
 		this->client_utils_.invoke<void>("SetAppIDForCurrentPipe", app_id, false);
 
 		utils::nt::module self;
-		std::string path = self.get_path();
+		const auto path = self.get_path();
 
 		char our_directory[MAX_PATH] = {0};
 		GetCurrentDirectoryA(sizeof(our_directory), our_directory);
 
-		std::string cmdline = utils::string::va("\"%s\" -proc %d", path.data(), GetCurrentProcessId());
+		const std::string cmdline = utils::string::va("\"%s\" -proc %d", path.data(), GetCurrentProcessId());
 
 		game_id game_id;
 		game_id.raw.type = 1; // k_EGameIDTypeGameMod
