@@ -5,6 +5,7 @@
 #include "game/game.hpp"
 #include "loader/binary_loader.hpp"
 #include "utils/string.hpp"
+#include "utils/flags.hpp"
 
 //#define GENERATE_DIFFS
 
@@ -37,6 +38,26 @@ void verify_tls()
 	}
 }
 
+launcher::mode detect_mode_from_arguments()
+{
+	if (utils::flags::has_flag("dedicated"))
+	{
+		return launcher::mode::server;
+	}
+
+	if (utils::flags::has_flag("multiplayer"))
+	{
+		return launcher::mode::multiplayer;
+	}
+
+	if (utils::flags::has_flag("singleplayer"))
+	{
+		return launcher::mode::singleplayer;
+	}
+
+	return launcher::mode::none;
+}
+
 FARPROC load_binary(const launcher::mode mode)
 {
 	loader loader(mode);
@@ -64,10 +85,10 @@ int main()
 	FARPROC entry_point;
 
 	{
-		bool premature_shutdown = true;
-		const auto _ = gsl::finally( [&premature_shutdown]()
+		auto premature_shutdown = true;
+		const auto _ = gsl::finally([&premature_shutdown]()
 		{
-			if(premature_shutdown)
+			if (premature_shutdown)
 			{
 				module_loader::pre_destroy();
 			}
@@ -83,9 +104,13 @@ int main()
 			verify_tls();
 			if (!module_loader::post_start()) return 0;
 
-			launcher launcher;
-			const auto mode = launcher.run();
-			if (mode == launcher::mode::none) return 0;
+			auto mode = detect_mode_from_arguments();
+			if (mode == launcher::mode::none)
+			{
+				launcher launcher;
+				mode = launcher.run();
+				if (mode == launcher::mode::none) return 0;
+			}
 
 			entry_point = load_binary(mode);
 			if (!entry_point)
