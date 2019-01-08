@@ -1,12 +1,11 @@
 #include <std_include.hpp>
-#include <discord_rpc.h>
 #include "loader/module_loader.hpp"
 #include "game/game.hpp"
 #include "utils/nt.hpp"
 #include "steam/steam.hpp"
 #include "steam/interface.hpp"
 #include "utils/string.hpp"
-#include "utils/io.hpp"
+#include "scheduler.hpp"
 
 class steam_proxy final : public module
 {
@@ -17,6 +16,8 @@ public:
 
 		this->run_mod();
 		this->load_client();
+
+		this->clean_up_on_error();
 	}
 
 	void post_load() override
@@ -42,16 +43,16 @@ public:
 
 	void pre_destroy() override
 	{
-		if (this->steam_client_)
+		if (this->steam_client_module_)
 		{
 			if (this->steam_pipe_)
 			{
 				if (this->global_user_)
 				{
-					this->steam_client_.invoke<void>(4, this->steam_pipe_, this->global_user_); // ReleaseUser
+					this->steam_client_module_.invoke<void>("Steam_ReleaseUser", this->steam_pipe_, this->global_user_);
 				}
 
-				this->steam_client_.invoke<bool>(1, this->steam_pipe_); // ReleaseSteamPipe
+				this->steam_client_module_.invoke<bool>("Steam_BReleaseSteamPipe", this->steam_pipe_);
 			}
 		}
 	}
@@ -59,7 +60,6 @@ public:
 private:
 	utils::nt::module steam_client_module_;
 
-	steam::interface steam_client_;
 	steam::interface client_engine_;
 	steam::interface client_user_;
 	steam::interface client_utils_;
@@ -69,14 +69,13 @@ private:
 
 	void run_mod() const
 	{
-		const char* command = "-proc ";
+		const auto command = "-proc ";
 		const char* parent_proc = strstr(GetCommandLineA(), command);
 
 		if (parent_proc)
 		{
-			const int pid = atoi(parent_proc + strlen(command));
-
-			const HANDLE process_handle = OpenProcess(SYNCHRONIZE, FALSE, pid);
+			const auto pid = atoi(parent_proc + strlen(command));
+			const auto process_handle = OpenProcess(SYNCHRONIZE, FALSE, pid);
 			if (process_handle && process_handle != INVALID_HANDLE_VALUE)
 			{
 				WaitForSingleObject(process_handle, INFINITE);
@@ -110,16 +109,13 @@ private:
 		utils::nt::module::load(steam_path + "tier0_s.dll");
 		utils::nt::module::load(steam_path + "vstdlib_s.dll");
 		this->steam_client_module_ = utils::nt::module::load(steam_path + "steamclient.dll");
-
 		if (!this->steam_client_module_) return;
 
-		this->steam_client_ = this->steam_client_module_.invoke<void*>("CreateInterface", "SteamClient008", nullptr);
 		this->client_engine_ = load_client_engine();
-
 		if (!this->client_engine_) return;
 
-		this->steam_pipe_ = this->steam_client_.invoke<void*>(0); // CreateSteamPipe
-		this->global_user_ = this->steam_client_.invoke<void*>(2, this->steam_pipe_); // ConnectToGlobalUser
+		this->steam_pipe_ = this->steam_client_module_.invoke<void*>("Steam_CreateSteamPipe");
+		this->global_user_ = this->steam_client_module_.invoke<void*>("Steam_ConnectToGlobalUser", this->steam_pipe_);
 		this->client_user_ = this->client_engine_.invoke<void*>(8, this->steam_pipe_, this->global_user_,
 		                                                        "CLIENTUSER_INTERFACE_VERSION001"); // GetIClientUser
 		this->client_utils_ = this->client_engine_.invoke<void*>(13, this->steam_pipe_,
@@ -149,11 +145,33 @@ private:
 		game_id.raw.type = 1; // k_EGameIDTypeGameMod
 		game_id.raw.app_id = app_id & 0xFFFFFF;
 
-		const char* mod_id = "OIW5";
+		const auto mod_id = "OIW5";
 		game_id.raw.mod_id = *reinterpret_cast<const unsigned int*>(mod_id) | 0x80000000;
 
 		this->client_user_.invoke<bool>("SpawnProcess", self.get_path().data(), cmdline.data(), 0, our_directory,
 		                                game_id.bits, title.data(), app_id, 0, 0);
+	}
+
+	void clean_up_on_error()
+	{
+		if (this->steam_client_module_
+			&& this->steam_pipe_
+			&& this->global_user_
+			&& this->steam_client_module_.invoke<bool>("Steam_BConnected", this->global_user_, this->steam_pipe_)
+			&& this->steam_client_module_.invoke<bool>("Steam_BLoggedOn", this->global_user_, this->steam_pipe_))
+		{
+			scheduler::once(std::bind(&steam_proxy::clean_up_on_error, this));
+			return;
+		}
+
+		this->client_engine_ = nullptr;
+		this->client_user_ = nullptr;
+		this->client_utils_ = nullptr;
+
+		this->steam_pipe_ = nullptr;
+		this->global_user_ = nullptr;
+
+		this->steam_client_module_ = utils::nt::module{ nullptr };
 	}
 };
 

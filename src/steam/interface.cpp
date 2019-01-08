@@ -39,10 +39,10 @@ namespace steam
 
 			while (!utils::memory::is_bad_read_ptr(vftbl) && !utils::memory::is_bad_code_ptr(*vftbl))
 			{
-				const interface::method_result result = this->analyze_method(*vftbl);
+				const auto result = this->analyze_method(*vftbl);
 				if (result.param_size_found && result.name_found)
 				{
-					const interface::method method_result { *vftbl, result.param_size };
+					const method method_result { *vftbl, result.param_size };
 					this->methods_[result.name] = method_result;
 
 					if (result.name == name)
