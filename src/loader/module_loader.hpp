@@ -30,6 +30,8 @@ public:
 	static bool post_load();
 	static void pre_destroy();
 
+	static void* load_import(const std::string& module, const std::string& function);
+
 	static void trigger_premature_shutdown();
 
 private:

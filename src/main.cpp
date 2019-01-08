@@ -74,7 +74,7 @@ FARPROC load_binary(const launcher::mode mode)
 			return FARPROC(exit_hook);
 		}
 
-		return nullptr;
+		return FARPROC(module_loader::load_import(module, function));
 	});
 
 	return loader.load(self);

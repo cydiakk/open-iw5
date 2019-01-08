@@ -18,4 +18,9 @@ public:
 	virtual void pre_destroy()
 	{
 	}
+
+	virtual void* load_import(const std::string& module, const std::string& function)
+	{
+		return nullptr;
+	}
 };
