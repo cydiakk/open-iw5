@@ -19,7 +19,8 @@ public:
 
 private:
 	static HINSTANCE __stdcall shell_execute_a(const HWND hwnd, const LPCSTR lp_operation, const LPCSTR lp_file,
-	                                 const LPCSTR lp_parameters, const LPCSTR lp_directory, INT n_show_cmd)
+	                                           const LPCSTR lp_parameters, const LPCSTR lp_directory,
+	                                           const INT n_show_cmd)
 	{
 		static const auto sp_url = "steam://run/42680"s;
 		static const auto mp_url = "steam://run/42690"s;

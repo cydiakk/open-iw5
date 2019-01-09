@@ -12,7 +12,6 @@ namespace steam
 
 	interface::interface(void* interface_ptr) : interface_ptr_(static_cast<void***>(interface_ptr))
 	{
-
 	}
 
 	interface::operator bool() const
@@ -23,7 +22,7 @@ namespace steam
 	interface::method interface::find_method(const std::string& name)
 	{
 		const auto method_entry = this->methods_.find(name);
-		if(method_entry != this->methods_.end())
+		if (method_entry != this->methods_.end())
 		{
 			return method_entry->second;
 		}
@@ -42,7 +41,7 @@ namespace steam
 				const auto result = this->analyze_method(*vftbl);
 				if (result.param_size_found && result.name_found)
 				{
-					const method method_result { *vftbl, result.param_size };
+					const method method_result{*vftbl, result.param_size};
 					this->methods_[result.name] = method_result;
 
 					if (result.name == name)
@@ -102,7 +101,7 @@ namespace steam
 				}
 			}
 
-			if(*reinterpret_cast<unsigned char*>(ud.pc) == 0xCC) break; // int 3
+			if (*reinterpret_cast<unsigned char*>(ud.pc) == 0xCC) break; // int 3
 			if (result.param_size_found && result.name_found) break;
 		}
 
@@ -113,14 +112,14 @@ namespace steam
 	{
 		const auto pointer_lib = utils::nt::module::get_by_address(pointer);
 
-		for(const auto& section : pointer_lib.get_section_headers())
+		for (const auto& section : pointer_lib.get_section_headers())
 		{
 			const auto size = sizeof(section->Name);
 			char name[size + 1];
 			name[size] = 0;
 			std::memcpy(name, section->Name, size);
 
-			if(name == ".rdata"s)
+			if (name == ".rdata"s)
 			{
 				const auto target = size_t(pointer);
 				const size_t source_start = size_t(pointer_lib.get_ptr()) + section->PointerToRawData;

@@ -83,10 +83,10 @@ namespace steam
 		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "Software\\Valve\\Steam", 0, KEY_QUERY_VALUE, &reg_key) ==
 			ERROR_SUCCESS)
 		{
-			char path[MAX_PATH] = { 0 };
+			char path[MAX_PATH] = {0};
 			DWORD length = sizeof(path);
 			RegQueryValueExA(reg_key, "InstallPath", nullptr, nullptr, reinterpret_cast<BYTE*>(path),
-				&length);
+			                 &length);
 			RegCloseKey(reg_key);
 
 			std::string steam_path = path;
@@ -114,7 +114,7 @@ namespace steam
 		if (!overlay)
 		{
 			const auto steam_path = get_steam_install_directory();
-			if(!steam_path.empty())
+			if (!steam_path.empty())
 			{
 				overlay = ::utils::nt::module::load(steam_path + "gameoverlayrenderer.dll");
 			}

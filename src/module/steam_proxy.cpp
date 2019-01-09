@@ -171,7 +171,7 @@ private:
 		this->steam_pipe_ = nullptr;
 		this->global_user_ = nullptr;
 
-		this->steam_client_module_ = utils::nt::module{ nullptr };
+		this->steam_client_module_ = utils::nt::module{nullptr};
 	}
 };
 
