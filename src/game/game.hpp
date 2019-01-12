@@ -18,6 +18,9 @@ namespace game
 		typedef void (*DB_LoadXAssets_t)(XZoneInfo* zoneInfo, unsigned int zoneCount, int sync);
 		extern DB_LoadXAssets_t DB_LoadXAssets;
 
+		typedef void(*MSG_ReadData_t)(msg_t *msg, void *data, int len);
+		extern MSG_ReadData_t MSG_ReadData;
+
 		typedef void (*Sys_ShowConsole_t)();
 		extern Sys_ShowConsole_t Sys_ShowConsole;
 

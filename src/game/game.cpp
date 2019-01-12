@@ -11,6 +11,8 @@ namespace game
 
 		DB_LoadXAssets_t DB_LoadXAssets;
 
+		MSG_ReadData_t MSG_ReadData;
+
 		Sys_ShowConsole_t Sys_ShowConsole;
 
 		int* cmd_args;
@@ -45,6 +47,8 @@ namespace game
 		native::Conbuf_AppendText = native::Conbuf_AppendText_t(SELECT_VALUE(0x4C84E0, 0x5CF610, 0x53C790));
 
 		native::DB_LoadXAssets = native::DB_LoadXAssets_t(SELECT_VALUE(0x48A8E0, 0x4CD020, 0x44F770));
+
+		native::MSG_ReadData = native::MSG_ReadData_t(SELECT_VALUE(0, 0x5592A0, 0));
 
 		native::Sys_ShowConsole = native::Sys_ShowConsole_t(SELECT_VALUE(0x470AF0, 0x5CF590, 0));
 

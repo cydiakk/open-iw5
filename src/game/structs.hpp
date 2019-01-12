@@ -369,15 +369,29 @@ namespace game
 		};
 #pragma pack(pop)
 
-		typedef struct cmd_function_s
+		struct cmd_function_t
 		{
-			cmd_function_s* next;
+			cmd_function_t* next;
 			const char* name;
 			const char* autoCompleteDir;
 			const char* autoCompleteExt;
 			void (__cdecl *function)();
 			int flags;
-		} cmd_function_t;
+		};
+
+		struct msg_t
+		{
+			int overflowed;
+			int readOnly;
+			char* data;
+			char* splitData;
+			int maxsize;
+			int cursize;
+			int splitSize;
+			int readcount;
+			int bit;
+			int lastEntityRef;
+		};
 
 		struct XZoneInfo
 		{
