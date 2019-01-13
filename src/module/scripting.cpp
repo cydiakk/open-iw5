@@ -95,6 +95,10 @@ void scripting::initialize()
 			{
 				callback(event->name, arguments);
 			}
+			catch (chaiscript::exception::eval_error &e)
+			{
+				printf("Failed to handle event: %s\n", e.pretty_print().data());
+			}
 			catch (std::exception& e)
 			{
 				printf("Failed to handle event: %s\n", e.what());
@@ -114,6 +118,10 @@ void scripting::load_scripts() const
 			try
 			{
 				this->chai_->eval_file(script);
+			}
+			catch (chaiscript::exception::eval_error &e)
+			{
+				printf("Failed to load script %s: %s\n", script.data(), e.pretty_print().data());
 			}
 			catch (std::exception& e)
 			{
