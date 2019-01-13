@@ -32,7 +32,7 @@ namespace game
 			{
 				++scrVarGlob[4 * value->u.entityId];
 			}
-			else if (value->type == SCRIPT_STRING)
+			else if ((value->type & ~1) == SCRIPT_STRING)
 			{
 				static const auto size = is_sp() ? 16 : 12;
 				const auto ref_count = reinterpret_cast<unsigned volatile *>(*scrMemTreePub + size * value

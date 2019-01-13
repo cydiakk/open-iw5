@@ -1,5 +1,7 @@
 #include <std_include.hpp>
-#include "scripting.hpp"
+#include "notification.hpp"
+#include "utils/io.hpp"
+#include "utils/string.hpp"
 
 utils::hook scripting::start_hook_;
 utils::hook scripting::stop_hook_;
@@ -10,17 +12,26 @@ std::vector<std::function<void()>> scripting::stop_callbacks_;
 
 scripting::variable::variable(game::native::VariableValue value) : value_(value)
 {
-	game::native::AddRefToValue(&value);
+	//game::native::AddRefToValue(&value);
 }
 
 scripting::variable::~variable()
 {
-	game::native::RemoveRefToValue(this->value_.type, this->value_.u);
+	//game::native::RemoveRefToValue(this->value_.type, this->value_.u);
 }
 
 scripting::variable::operator game::native::VariableValue() const
 {
 	return this->value_;
+}
+
+void scripting::post_start()
+{
+	on_start(std::bind(&scripting::initialize, this));
+	on_stop([this]()
+	{
+		this->chai_ = {};
+	});
 }
 
 void scripting::post_load()
@@ -36,16 +47,6 @@ void scripting::post_load()
 		stop_execution();
 		static_cast<void(*)()>(stop_hook_.get_original())();
 	}, HOOK_CALL)->install()->quick();
-
-	on_start([this]()
-	{
-		this->chai_ = std::make_unique<chaiscript::ChaiScript>();
-	});
-
-	on_stop([this]()
-	{
-		this->chai_ = {};
-	});
 }
 
 void scripting::pre_destroy()
@@ -53,6 +54,52 @@ void scripting::pre_destroy()
 	this->chai_ = {};
 	start_callbacks_.clear();
 	stop_callbacks_.clear();
+}
+
+void scripting::initialize()
+{
+	this->chai_ = std::make_unique<chaiscript::ChaiScript>();
+	this->chai_->add(chaiscript::fun([](const std::string& string)
+	{
+		printf("%s\n", string.data());
+	}), "print");
+
+	this->chai_->add(chaiscript::fun(
+		                 [this](const std::function<void(const std::string&,
+		                                                 const std::vector<chaiscript::Boxed_Value>&)>& callback)
+		                 {
+			                 std::lock_guard _(mutex_);
+			                 this->callbacks_.push_back(callback);
+		                 }), "onNotify");
+
+	this->load_scripts();
+
+	notification::listen([this](notification::event* event)
+	{
+		decltype(this->callbacks_) copy;
+		{
+			std::lock_guard _(mutex_);
+			copy = this->callbacks_;
+		}
+
+		for (const auto& callback : copy)
+		{
+			callback(event->name, {});
+		}
+	});
+}
+
+void scripting::load_scripts() const
+{
+	const auto scripts = utils::io::list_files("open-iw5/scripts/");
+
+	for (const auto& script : scripts)
+	{
+		if (script.substr(script.find_last_of('.') + 1) == "chai")
+		{
+			this->chai_->eval_file(script);
+		}
+	}
 }
 
 void scripting::on_start(const std::function<void()>& callback)
@@ -69,8 +116,7 @@ void scripting::on_stop(const std::function<void()>& callback)
 
 void scripting::start_execution()
 {
-	std::vector<std::function<void()>> copy;
-
+	decltype(start_callbacks_) copy;
 	{
 		std::lock_guard _(mutex_);
 		copy = start_callbacks_;
@@ -84,11 +130,11 @@ void scripting::start_execution()
 
 void scripting::stop_execution()
 {
-	std::vector<std::function<void()>> copy;
-
+	decltype(stop_callbacks_) copy;
 	{
 		std::lock_guard _(mutex_);
 		copy = stop_callbacks_;
+		std::reverse(copy.begin(), copy.end());
 	}
 
 	for (const auto& callback : copy)

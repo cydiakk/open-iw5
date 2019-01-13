@@ -18,6 +18,7 @@ public:
 		game::native::VariableValue value_;
 	};
 
+	void post_start() override;
 	void post_load() override;
 	void pre_destroy() override;
 
@@ -26,6 +27,10 @@ public:
 
 private:
 	std::unique_ptr<chaiscript::ChaiScript> chai_;
+	std::vector<std::function<void(const std::string&, const std::vector<chaiscript::Boxed_Value>&)>> callbacks_;
+
+	void initialize();
+	void load_scripts() const;
 
 	static utils::hook start_hook_;
 	static utils::hook stop_hook_;
