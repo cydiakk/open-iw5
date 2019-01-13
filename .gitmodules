@@ -2,27 +2,35 @@
 	path = deps/libtommath
 	url = https://github.com/libtom/libtommath.git
 	branch = develop
+	shallow = true
 [submodule "deps/libtomcrypt"]
 	path = deps/libtomcrypt
 	url = https://github.com/libtom/libtomcrypt.git
 	branch = develop
+	shallow = true
 [submodule "deps/zlib"]
 	path = deps/zlib
 	url = https://github.com/madler/zlib.git
 	branch = develop
+	shallow = true
 [submodule "deps/HDiffPatch"]
 	path = deps/HDiffPatch
 	url = https://github.com/sisong/HDiffPatch.git
 	branch = master
+	shallow = true
 [submodule "deps/GSL"]
 	path = deps/GSL
 	url = https://github.com/Microsoft/GSL.git
+	shallow = true
 [submodule "deps/discord-rpc"]
 	path = deps/discord-rpc
 	url = https://github.com/discordapp/discord-rpc.git
+	shallow = true
 [submodule "deps/rapidjson"]
 	path = deps/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
+	shallow = true
 [submodule "deps/udis86"]
 	path = deps/udis86
 	url = https://github.com/vmt/udis86.git
+	shallow = true
