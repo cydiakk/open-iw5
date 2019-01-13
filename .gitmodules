@@ -34,3 +34,8 @@
 	path = deps/udis86
 	url = https://github.com/vmt/udis86.git
 	shallow = true
+[submodule "deps/ChaiScript"]
+	path = deps/ChaiScript
+	url = https://github.com/ChaiScript/ChaiScript.git
+	branch = master
+	shallow = true

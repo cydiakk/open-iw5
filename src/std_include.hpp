@@ -47,6 +47,8 @@
 
 #include <udis86.h>
 
+#include <chaiscript/chaiscript.hpp>
+
 #pragma comment(lib, "gdiplus.lib")
 #pragma comment(lib, "ws2_32.lib")
 
