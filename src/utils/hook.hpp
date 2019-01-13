@@ -80,6 +80,7 @@ namespace utils
 		hook* uninstall(bool unprotect = true);
 
 		void* get_address() const;
+		void* get_original() const;
 		void quick();
 
 		static bool iat(nt::module module, const std::string& target_module, const std::string& process, void* stub);

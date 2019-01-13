@@ -18,15 +18,30 @@ namespace game
 		typedef void (*DB_LoadXAssets_t)(XZoneInfo* zoneInfo, unsigned int zoneCount, int sync);
 		extern DB_LoadXAssets_t DB_LoadXAssets;
 
-		typedef void(*MSG_ReadData_t)(msg_t *msg, void *data, int len);
+		typedef void (*MSG_ReadData_t)(msg_t* msg, void* data, int len);
 		extern MSG_ReadData_t MSG_ReadData;
+
+		typedef void (*RemoveRefToValue_t)(scriptType_e type, VariableUnion u);
+		extern RemoveRefToValue_t RemoveRefToValue;
 
 		typedef void (*Sys_ShowConsole_t)();
 		extern Sys_ShowConsole_t Sys_ShowConsole;
 
+		typedef void (*VM_Notify_t)(unsigned int notifyListOwnerId, unsigned int stringValue, VariableValue* top);
+		extern VM_Notify_t VM_Notify;
+
 		extern int* cmd_args;
 		extern int* cmd_argc;
 		extern const char*** cmd_argv;
+
+		extern short* scrVarGlob;
+		extern char** scrMemTreePub;
+
+		void AddRefToValue(VariableValue* value);
+
+		scr_entref_t Scr_GetEntityIdRef(unsigned int id);
+
+		const char* SL_ConvertToString(unsigned int stringValue);
 	}
 
 	bool is_mp();

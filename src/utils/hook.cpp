@@ -156,6 +156,11 @@ namespace utils
 		return this->place_;
 	}
 
+	void* hook::get_original() const
+	{
+		return this->original_;
+	}
+
 	void hook::nop(void* place, const size_t length)
 	{
 		DWORD old_protect;

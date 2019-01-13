@@ -399,5 +399,56 @@ namespace game
 			int allocFlags;
 			int freeFlags;
 		};
+
+		struct scr_entref_raw
+		{
+			unsigned __int16 entnum;
+			unsigned __int16 classnum;
+		};
+
+		union scr_entref_t
+		{
+			unsigned int val;
+			scr_entref_raw raw;
+		};
+
+		enum scriptType_e
+		{
+			SCRIPT_NONE = 0,
+			SCRIPT_OBJECT = 1,
+			SCRIPT_STRING = 2,
+			SCRIPT_VECTOR = 4,
+			SCRIPT_FLOAT = 5,
+			SCRIPT_INTEGER = 6,
+			SCRIPT_END = 8, // Custom
+		};
+
+		struct VariableStackBuffer
+		{
+			const char* pos;
+			unsigned __int16 size;
+			unsigned __int16 bufLen;
+			unsigned __int16 localId;
+			char time;
+			char buf[1];
+		};
+
+		union VariableUnion
+		{
+			int intValue;
+			float floatValue;
+			unsigned int stringValue;
+			const float* vectorValue;
+			const char* codePosValue;
+			unsigned int pointerValue;
+			VariableStackBuffer* stackValue;
+			unsigned int entityId;
+		};
+
+		struct VariableValue
+		{
+			VariableUnion u;
+			scriptType_e type;
+		};
 	}
 }
