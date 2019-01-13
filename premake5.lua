@@ -37,6 +37,7 @@ newoption {
 dependencies.load()
 
 workspace "open-iw5"
+	startproject "open-iw5"
 	location "./build"
 	objdir "%{wks.location}/obj"
 	targetdir "%{wks.location}/bin/%{cfg.platform}/%{cfg.buildcfg}"
