@@ -12,12 +12,12 @@ std::vector<std::function<void()>> scripting::stop_callbacks_;
 
 scripting::variable::variable(game::native::VariableValue value) : value_(value)
 {
-	//game::native::AddRefToValue(&value);
+	game::native::AddRefToValue(&value);
 }
 
 scripting::variable::~variable()
 {
-	//game::native::RemoveRefToValue(this->value_.type, this->value_.u);
+	game::native::RemoveRefToValue(this->value_.type, this->value_.u);
 }
 
 scripting::variable::operator game::native::VariableValue() const
@@ -76,6 +76,13 @@ void scripting::initialize()
 
 	notification::listen([this](notification::event* event)
 	{
+		std::vector<chaiscript::Boxed_Value> arguments;
+
+		for (const auto& argument : event->arguments)
+		{
+			arguments.push_back(make_boxed(argument));
+		}
+
 		decltype(this->callbacks_) copy;
 		{
 			std::lock_guard _(mutex_);
@@ -84,7 +91,14 @@ void scripting::initialize()
 
 		for (const auto& callback : copy)
 		{
-			callback(event->name, {});
+			try
+			{
+				callback(event->name, arguments);
+			}
+			catch (std::exception& e)
+			{
+				printf("Failed to handle event: %s\n", e.what());
+			}
 		}
 	});
 }
@@ -97,9 +111,35 @@ void scripting::load_scripts() const
 	{
 		if (script.substr(script.find_last_of('.') + 1) == "chai")
 		{
-			this->chai_->eval_file(script);
+			try
+			{
+				this->chai_->eval_file(script);
+			}
+			catch (std::exception& e)
+			{
+				printf("Failed to load script %s: %s\n", script.data(), e.what());
+			}
 		}
 	}
+}
+
+chaiscript::Boxed_Value scripting::make_boxed(const game::native::VariableValue value)
+{
+	if (value.type == game::native::SCRIPT_STRING)
+	{
+		const std::string string = game::native::SL_ConvertToString(value.u.stringValue);
+		return chaiscript::var(string);
+	}
+	else if (value.type == game::native::SCRIPT_FLOAT)
+	{
+		return chaiscript::var(value.u.floatValue);
+	}
+	else if (value.type == game::native::SCRIPT_INTEGER)
+	{
+		return chaiscript::var(value.u.intValue);
+	}
+
+	return {};
 }
 
 void scripting::on_start(const std::function<void()>& callback)

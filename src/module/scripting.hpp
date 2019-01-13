@@ -32,6 +32,8 @@ private:
 	void initialize();
 	void load_scripts() const;
 
+	static chaiscript::Boxed_Value make_boxed(game::native::VariableValue value);
+
 	static utils::hook start_hook_;
 	static utils::hook stop_hook_;
 

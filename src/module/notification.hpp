@@ -10,7 +10,8 @@ public:
 	public:
 		std::string name;
 		game::native::scr_entref_t entity;
-		std::vector<scripting::variable> arguments;
+		//std::vector<scripting::variable> arguments;
+		std::vector<game::native::VariableValue> arguments;
 	};
 
 	void post_load() override;
