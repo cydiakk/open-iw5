@@ -2,6 +2,7 @@
 #include "notification.hpp"
 #include "utils/io.hpp"
 #include "utils/string.hpp"
+#include "scheduler.hpp"
 
 utils::hook scripting::start_hook_;
 utils::hook scripting::stop_hook_;
@@ -9,6 +10,35 @@ utils::hook scripting::stop_hook_;
 std::mutex scripting::mutex_;
 std::vector<std::function<void()>> scripting::start_callbacks_;
 std::vector<std::function<void()>> scripting::stop_callbacks_;
+
+scripting::entity::entity(scripting* environment, const unsigned int entity_id) : environment_(environment),
+                                                                                  entity_id_(entity_id)
+{
+}
+
+void scripting::entity::on_notify(const std::string& event,
+                                  const std::function<void(const std::vector<chaiscript::Boxed_Value>&)>& callback,
+                                  const bool is_volatile)
+const
+{
+	event_listener listener;
+	listener.event = event;
+	listener.callback = callback;
+	listener.entity_id = this->entity_id_;
+	listener.is_volatile = is_volatile;
+
+	this->environment_->add_event_listener(listener);
+}
+
+unsigned int scripting::entity::get_entity_id() const
+{
+	return this->entity_id_;
+}
+
+game::native::scr_entref_t scripting::entity::get_entity_reference() const
+{
+	return game::native::Scr_GetEntityIdRef(this->get_entity_id());
+}
 
 scripting::variable::variable(game::native::VariableValue value) : value_(value)
 {
@@ -27,7 +57,17 @@ scripting::variable::operator game::native::VariableValue() const
 
 void scripting::post_start()
 {
-	on_start(std::bind(&scripting::initialize, this));
+	on_start([this]()
+	{
+		try
+		{
+			this->initialize();
+		}
+		catch (std::exception& e)
+		{
+			scheduler::error(e.what(), 5);
+		}
+	});
 	on_stop([this]()
 	{
 		this->chai_ = {};
@@ -56,21 +96,29 @@ void scripting::pre_destroy()
 	stop_callbacks_.clear();
 }
 
+void scripting::add_event_listener(const event_listener& listener)
+{
+	this->event_listeners_.add(listener);
+}
+
 void scripting::initialize()
 {
 	this->chai_ = std::make_unique<chaiscript::ChaiScript>();
+	this->chai_->add(chaiscript::user_type<entity>(), "entity");
+	this->chai_->add(chaiscript::fun(&entity::on_notify), "onNotify");
+
 	this->chai_->add(chaiscript::fun([](const std::string& string)
 	{
 		printf("%s\n", string.data());
 	}), "print");
 
-	this->chai_->add(chaiscript::fun(
-		                 [this](const std::function<void(const std::string&,
-		                                                 const std::vector<chaiscript::Boxed_Value>&)>& callback)
-		                 {
-			                 std::lock_guard _(mutex_);
-			                 this->callbacks_.push_back(callback);
-		                 }), "onNotify");
+	this->chai_->add(chaiscript::fun([](const std::string& string)
+	{
+		MessageBoxA(nullptr, string.data(), nullptr, 0);
+	}), "alert");
+
+	const auto level_id = *game::native::levelEntityId;
+	this->chai_->add_global(chaiscript::var(entity(this, level_id)), "level");
 
 	this->load_scripts();
 
@@ -80,28 +128,26 @@ void scripting::initialize()
 
 		for (const auto& argument : event->arguments)
 		{
-			arguments.push_back(make_boxed(argument));
+			arguments.push_back(this->make_boxed(argument));
 		}
 
-		decltype(this->callbacks_) copy;
-		{
-			std::lock_guard _(mutex_);
-			copy = this->callbacks_;
-		}
-
-		for (const auto& callback : copy)
+		for (auto listener = this->event_listeners_.begin(); listener.is_valid(); ++listener)
 		{
 			try
 			{
-				callback(event->name, arguments);
+				if (listener->event == event->name && listener->entity_id == event->entity_id)
+				{
+					if (listener->is_volatile)
+					{
+						this->event_listeners_.remove(listener);
+					}
+
+					listener->callback(arguments);
+				}
 			}
-			catch (chaiscript::exception::eval_error &e)
+			catch (chaiscript::exception::eval_error& e)
 			{
-				printf("Failed to handle event: %s\n", e.pretty_print().data());
-			}
-			catch (std::exception& e)
-			{
-				printf("Failed to handle event: %s\n", e.what());
+				throw std::runtime_error(e.pretty_print());
 			}
 		}
 	});
@@ -119,13 +165,9 @@ void scripting::load_scripts() const
 			{
 				this->chai_->eval_file(script);
 			}
-			catch (chaiscript::exception::eval_error &e)
+			catch (chaiscript::exception::eval_error& e)
 			{
-				printf("Failed to load script %s: %s\n", script.data(), e.pretty_print().data());
-			}
-			catch (std::exception& e)
-			{
-				printf("Failed to load script %s: %s\n", script.data(), e.what());
+				throw std::runtime_error(e.pretty_print());
 			}
 		}
 	}
@@ -145,6 +187,10 @@ chaiscript::Boxed_Value scripting::make_boxed(const game::native::VariableValue 
 	else if (value.type == game::native::SCRIPT_INTEGER)
 	{
 		return chaiscript::var(value.u.intValue);
+	}
+	else if (value.type == game::native::SCRIPT_OBJECT)
+	{
+		return chaiscript::var(entity(this, value.u.entityId));
 	}
 
 	return {};

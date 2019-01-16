@@ -7,6 +7,8 @@ namespace game
 	{
 		Cmd_AddCommand_t Cmd_AddCommand;
 
+		Com_Error_t Com_Error;
+
 		Conbuf_AppendText_t Conbuf_AppendText;
 
 		DB_LoadXAssets_t DB_LoadXAssets;
@@ -25,6 +27,8 @@ namespace game
 
 		short* scrVarGlob;
 		char** scrMemTreePub;
+
+		unsigned int* levelEntityId;
 
 		void AddRefToValue(VariableValue* value)
 		{
@@ -92,6 +96,8 @@ namespace game
 
 		native::Cmd_AddCommand = native::Cmd_AddCommand_t(SELECT_VALUE(0x558820, 0x545DF0, 0));
 
+		native::Com_Error = native::Com_Error_t(SELECT_VALUE(0x425540, 0x555450, 0x4D93F0));
+
 		native::Conbuf_AppendText = native::Conbuf_AppendText_t(SELECT_VALUE(0x4C84E0, 0x5CF610, 0x53C790));
 
 		native::DB_LoadXAssets = native::DB_LoadXAssets_t(SELECT_VALUE(0x48A8E0, 0x4CD020, 0x44F770));
@@ -110,5 +116,7 @@ namespace game
 
 		native::scrVarGlob = reinterpret_cast<short*>(SELECT_VALUE(0x19AFC80, 0x1E72180, 0x1D3C800));
 		native::scrMemTreePub = reinterpret_cast<char**>(SELECT_VALUE(0x196FB00, 0x1E32000, 0x1C152A4));
+
+		native::levelEntityId = reinterpret_cast<unsigned int*>(SELECT_VALUE(0x1BCBCA4, 0x208E1A4, 0x1CD873C));
 	}
 }

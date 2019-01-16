@@ -9,7 +9,7 @@ public:
 	{
 	public:
 		std::string name;
-		game::native::scr_entref_t entity;
+		unsigned int entity_id;
 		//std::vector<scripting::variable> arguments;
 		std::vector<game::native::VariableValue> arguments;
 	};

@@ -12,6 +12,9 @@ namespace game
 		typedef void (*Cmd_AddCommand_t)(const char* cmdName, void (*function)(), cmd_function_t* allocedCmd);
 		extern Cmd_AddCommand_t Cmd_AddCommand;
 
+		typedef void (*Com_Error_t)(int code, const char *fmt, ...);
+		extern Com_Error_t Com_Error;
+
 		typedef void (*Conbuf_AppendText_t)(const char* message);
 		extern Conbuf_AppendText_t Conbuf_AppendText;
 
@@ -36,6 +39,8 @@ namespace game
 
 		extern short* scrVarGlob;
 		extern char** scrMemTreePub;
+
+		extern unsigned int* levelEntityId;
 
 		void AddRefToValue(VariableValue* value);
 

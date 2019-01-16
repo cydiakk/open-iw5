@@ -2,6 +2,8 @@
 #include "loader/module_loader.hpp"
 #include "notification.hpp"
 #include "utils/hook.hpp"
+#include "utils/string.hpp"
+#include "scheduler.hpp"
 
 std::mutex notification::mutex_;
 std::vector<std::function<void(notification::event*)>> notification::callbacks_;
@@ -45,7 +47,7 @@ void notification::dispatch(event* event)
 		copy = callbacks_;
 	}
 
-	for(const auto& callback : copy)
+	for (const auto& callback : copy)
 	{
 		callback(event);
 	}
@@ -54,18 +56,29 @@ void notification::dispatch(event* event)
 void notification::vm_notify_stub(const unsigned int notify_id, const unsigned short type,
                                   game::native::VariableValue* stack)
 {
-	event e;
-	e.name = game::native::SL_ConvertToString(type);
-	e.entity = game::native::Scr_GetEntityIdRef(notify_id);
-
-	for (auto value = stack; value->type != game::native::SCRIPT_END; --value)
-	{
-		e.arguments.emplace_back(*value);
-	}
-
-	dispatch(&e);
-
 	game::native::VM_Notify(notify_id, type, stack);
+
+	try
+	{
+		event e;
+		e.name = game::native::SL_ConvertToString(type);
+		e.entity_id = notify_id;
+
+		if (e.name == "touch") return; // Skip that for now
+
+		//printf("%X %X: %s\n", e.entity_id, *game::native::levelEntityId, e.name.data());
+
+		for (auto value = stack; value->type != game::native::SCRIPT_END; --value)
+		{
+			e.arguments.emplace_back(*value);
+		}
+
+		dispatch(&e);
+	}
+	catch (std::exception& e)
+	{
+		scheduler::error(e.what(), 5);
+	}
 }
 
 REGISTER_MODULE(notification)
