@@ -412,6 +412,8 @@ namespace game
 			scr_entref_raw raw;
 		};
 
+		typedef void(__cdecl * scr_call_t)(int entref);
+
 		enum scriptType_e
 		{
 			SCRIPT_NONE = 0,

@@ -3,6 +3,7 @@
 #include "utils/io.hpp"
 #include "utils/string.hpp"
 #include "scheduler.hpp"
+#include "game/scripting/functions.hpp"
 
 utils::hook scripting::start_hook_;
 utils::hook scripting::stop_hook_;
@@ -10,6 +11,10 @@ utils::hook scripting::stop_hook_;
 std::mutex scripting::mutex_;
 std::vector<std::function<void()>> scripting::start_callbacks_;
 std::vector<std::function<void()>> scripting::stop_callbacks_;
+
+scripting::entity::entity() : environment_(nullptr), entity_id_(0)
+{
+}
 
 scripting::entity::entity(scripting* environment, const unsigned int entity_id) : environment_(environment),
                                                                                   entity_id_(entity_id)
@@ -40,6 +45,11 @@ game::native::scr_entref_t scripting::entity::get_entity_reference() const
 	return game::native::Scr_GetEntityIdRef(this->get_entity_id());
 }
 
+void scripting::entity::call(const std::string& function, const std::vector<chaiscript::Boxed_Value>& arguments)
+{
+	scripting::call(function, this->get_entity_id(), arguments);
+}
+
 scripting::variable::variable(game::native::VariableValue value) : value_(value)
 {
 	game::native::AddRefToValue(&value);
@@ -65,7 +75,7 @@ void scripting::post_start()
 		}
 		catch (std::exception& e)
 		{
-			scheduler::error(e.what(), 5);
+			propagate_scripting_error(e);
 		}
 	});
 	on_stop([this]()
@@ -105,7 +115,14 @@ void scripting::initialize()
 {
 	this->chai_ = std::make_unique<chaiscript::ChaiScript>();
 	this->chai_->add(chaiscript::user_type<entity>(), "entity");
+	this->chai_->add(chaiscript::constructor<entity()>(), "entity");
+	this->chai_->add(chaiscript::constructor<entity(const entity&)>(), "entity");
 	this->chai_->add(chaiscript::fun(&entity::on_notify), "onNotify");
+	this->chai_->add(chaiscript::fun(&entity::call), "call");
+	this->chai_->add(chaiscript::fun([](entity& lhs, const entity& rhs) -> entity&
+	{
+		return lhs = rhs;
+	}), "=");
 
 	this->chai_->add(chaiscript::fun([](const std::string& string)
 	{
@@ -208,6 +225,15 @@ void scripting::on_stop(const std::function<void()>& callback)
 	stop_callbacks_.push_back(callback);
 }
 
+void scripting::propagate_scripting_error(const std::exception& e)
+{
+	printf("\n******* Script execution error *******\n");
+	printf("%s\n", e.what());
+	printf("**************************************\n\n");
+
+	scheduler::error("Script execution error\n(see console for actual details)\n", 5);
+}
+
 void scripting::start_execution()
 {
 	decltype(start_callbacks_) copy;
@@ -235,6 +261,41 @@ void scripting::stop_execution()
 	{
 		callback();
 	}
+}
+
+void scripting::call(const std::string& function, const unsigned int entity_id,
+                     const std::vector<chaiscript::Boxed_Value>& /*arguments*/)
+{
+	const int function_index = find_function_index(function);
+	if (function_index < 0)
+	{
+		throw std::runtime_error("No function found for name " + function);
+	}
+
+	const game::native::scr_entref_t entity = function_index > 0x1C7
+		                                    ? game::native::Scr_GetEntityIdRef(entity_id)
+		                                    : game::native::scr_entref_t{~0u};
+
+	const auto function_ptr = game::native::Scr_GetFunc(function_index);
+
+	function_ptr(entity.val);
+}
+
+int scripting::find_function_index(const std::string& function)
+{
+	auto function_entry = game::scripting::instance_function_map.find(function);
+	if (function_entry != game::scripting::instance_function_map.end())
+	{
+		return function_entry->second;
+	}
+
+	function_entry = game::scripting::global_function_map.find(function);
+	if (function_entry != game::scripting::global_function_map.end())
+	{
+		return function_entry->second;
+	}
+
+	return -1;
 }
 
 

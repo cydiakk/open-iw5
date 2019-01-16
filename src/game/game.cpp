@@ -28,6 +28,12 @@ namespace game
 		short* scrVarGlob;
 		char** scrMemTreePub;
 
+		unsigned int* scr_numParam;
+		VariableValue** scr_stackPtr;
+
+		scr_call_t* scr_instanceFunctions;
+		scr_call_t* scr_globalFunctions;
+
 		unsigned int* levelEntityId;
 
 		void AddRefToValue(VariableValue* value)
@@ -52,6 +58,18 @@ namespace game
 			}
 		}
 
+		void Scr_ClearOutParams()
+		{
+			const auto num_params = *scr_numParam;
+			for (unsigned int i = num_params; i > 0; --i)
+			{
+				const auto value = (*scr_stackPtr)[i - 1];
+				RemoveRefToValue(value.type, value.u);
+			}
+
+			*scr_stackPtr -= num_params;
+		}
+
 		scr_entref_t Scr_GetEntityIdRef(const unsigned int id)
 		{
 			static auto class_array = reinterpret_cast<DWORD*>(SELECT_VALUE(0x19AFC84, 0x1E72184, 0x1D3C804));
@@ -62,6 +80,18 @@ namespace game
 			result.raw.entnum = ent_array[4 * id];
 
 			return result;
+		}
+
+		scr_call_t Scr_GetFunc(const unsigned int index)
+		{
+			if (index > 0x1C7)
+			{
+				return scr_instanceFunctions[index];
+			}
+			else
+			{
+				return scr_globalFunctions[index];
+			}
 		}
 
 		const char* SL_ConvertToString(unsigned int stringValue)
@@ -116,6 +146,12 @@ namespace game
 
 		native::scrVarGlob = reinterpret_cast<short*>(SELECT_VALUE(0x19AFC80, 0x1E72180, 0x1D3C800));
 		native::scrMemTreePub = reinterpret_cast<char**>(SELECT_VALUE(0x196FB00, 0x1E32000, 0x1C152A4));
+
+		native::scr_numParam = reinterpret_cast<unsigned int*>(SELECT_VALUE(0x1BF2598, 0x20B4A98, 0x1F5B098));
+		native::scr_stackPtr = reinterpret_cast<native::VariableValue**>(SELECT_VALUE(0x1BF2590, 0x20B4A90, 0x1F5B090));
+
+		native::scr_instanceFunctions = reinterpret_cast<native::scr_call_t*>(SELECT_VALUE(0x184CDB0, 0x1D4F258, 0x1BF59C8));
+		native::scr_globalFunctions = reinterpret_cast<native::scr_call_t*>(SELECT_VALUE(0x186C68C, 0x1D6EB34, 0x1C152A4));
 
 		native::levelEntityId = reinterpret_cast<unsigned int*>(SELECT_VALUE(0x1BCBCA4, 0x208E1A4, 0x1CD873C));
 	}

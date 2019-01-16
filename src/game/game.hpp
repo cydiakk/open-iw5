@@ -40,11 +40,19 @@ namespace game
 		extern short* scrVarGlob;
 		extern char** scrMemTreePub;
 
+		extern unsigned int* scr_numParam;
+		extern VariableValue** scr_stackPtr;
+
+		extern scr_call_t* scr_instanceFunctions;
+		extern scr_call_t* scr_globalFunctions;
+
 		extern unsigned int* levelEntityId;
 
 		void AddRefToValue(VariableValue* value);
 
+		void Scr_ClearOutParams();
 		scr_entref_t Scr_GetEntityIdRef(unsigned int id);
+		scr_call_t Scr_GetFunc(unsigned int index);
 
 		const char* SL_ConvertToString(unsigned int stringValue);
 	}

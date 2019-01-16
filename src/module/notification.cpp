@@ -77,7 +77,7 @@ void notification::vm_notify_stub(const unsigned int notify_id, const unsigned s
 	}
 	catch (std::exception& e)
 	{
-		scheduler::error(e.what(), 5);
+		scripting::propagate_scripting_error(e);
 	}
 }
 
