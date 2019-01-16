@@ -278,7 +278,18 @@ void scripting::call(const std::string& function, const unsigned int entity_id,
 
 	const auto function_ptr = game::native::Scr_GetFunc(function_index);
 
+	/*static_assert(sizeof(jmp_buf) == 64);
+	++*(DWORD*)0x20B21FC;
+	int res = setjmp(((jmp_buf*)0x20B4218)[*(DWORD*)0x20B21FC]);
+	if (res)
+	{
+		--*(DWORD*)0x20B21FC;
+		return;
+	}*/
+
 	function_ptr(entity.val);
+
+	//--*(DWORD*)0x20B21FC;
 }
 
 int scripting::find_function_index(const std::string& function)
