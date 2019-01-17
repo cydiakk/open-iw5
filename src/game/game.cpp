@@ -17,6 +17,8 @@ namespace game
 
 		RemoveRefToValue_t RemoveRefToValue;
 
+		SL_GetStringOfSize_t SL_GetStringOfSize;
+
 		Sys_ShowConsole_t Sys_ShowConsole;
 
 		VM_Notify_t VM_Notify;
@@ -29,7 +31,9 @@ namespace game
 		char** scrMemTreePub;
 
 		unsigned int* scr_numParam;
+		unsigned int* scr_numArgs;
 		VariableValue** scr_stackPtr;
+		VariableValue** scr_stackEndPtr;
 
 		scr_call_t* scr_instanceFunctions;
 		scr_call_t* scr_globalFunctions;
@@ -97,12 +101,17 @@ namespace game
 			}
 		}
 
-		const char* SL_ConvertToString(unsigned int stringValue)
+		const char* SL_ConvertToString(const unsigned int stringValue)
 		{
 			if (!stringValue) return nullptr;
 
 			static const auto size = is_sp() ? 16 : 12;
 			return *scrMemTreePub + size * stringValue + 4;
+		}
+
+		unsigned int SL_GetString(const char *str, const unsigned int user)
+		{
+			return SL_GetStringOfSize(str, user, strlen(str), 7);
 		}
 	}
 
@@ -139,6 +148,8 @@ namespace game
 
 		native::RemoveRefToValue = native::RemoveRefToValue_t(SELECT_VALUE(0x477EA0, 0x565730, 0x4E8A40));
 
+		native::SL_GetStringOfSize = native::SL_GetStringOfSize_t(SELECT_VALUE(0x4E13F0, 0x564650, 0x4E7490));
+
 		native::Sys_ShowConsole = native::Sys_ShowConsole_t(SELECT_VALUE(0x470AF0, 0x5CF590, 0));
 
 		native::VM_Notify = native::VM_Notify_t(SELECT_VALUE(0x610200, 0x569720, 0x4EF450));
@@ -151,7 +162,9 @@ namespace game
 		native::scrMemTreePub = reinterpret_cast<char**>(SELECT_VALUE(0x196FB00, 0x1E32000, 0x1C152A4));
 
 		native::scr_numParam = reinterpret_cast<unsigned int*>(SELECT_VALUE(0x1BF2598, 0x20B4A98, 0x1F5B098));
+		native::scr_numArgs = reinterpret_cast<unsigned int*>(SELECT_VALUE(0x1BF2594, 0x20B4A94, 0x1F5B094));
 		native::scr_stackPtr = reinterpret_cast<native::VariableValue**>(SELECT_VALUE(0x1BF2590, 0x20B4A90, 0x1F5B090));
+		native::scr_stackEndPtr = reinterpret_cast<native::VariableValue**>(SELECT_VALUE(0x1BF2584, 0x20B4A84, 0x1F5B084));
 
 		native::scr_instanceFunctions = reinterpret_cast<native::scr_call_t*>(SELECT_VALUE(0x184CDB0, 0x1D4F258, 0x1BF59C8));
 		native::scr_globalFunctions = reinterpret_cast<native::scr_call_t*>(SELECT_VALUE(0x186C68C, 0x1D6EB34, 0x1C152A4));

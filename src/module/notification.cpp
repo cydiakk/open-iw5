@@ -56,8 +56,6 @@ void notification::dispatch(event* event)
 void notification::vm_notify_stub(const unsigned int notify_id, const unsigned short type,
                                   game::native::VariableValue* stack)
 {
-	game::native::VM_Notify(notify_id, type, stack);
-
 	try
 	{
 		event e;
@@ -79,6 +77,8 @@ void notification::vm_notify_stub(const unsigned int notify_id, const unsigned s
 	{
 		scripting::propagate_error(e);
 	}
+
+	game::native::VM_Notify(notify_id, type, stack);
 }
 
 REGISTER_MODULE(notification)

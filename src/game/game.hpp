@@ -27,6 +27,9 @@ namespace game
 		typedef void (*RemoveRefToValue_t)(scriptType_e type, VariableUnion u);
 		extern RemoveRefToValue_t RemoveRefToValue;
 
+		typedef unsigned int (*SL_GetStringOfSize_t)(const char *str, unsigned int user, unsigned int len, int type);
+		extern SL_GetStringOfSize_t SL_GetStringOfSize;
+
 		typedef void (*Sys_ShowConsole_t)();
 		extern Sys_ShowConsole_t Sys_ShowConsole;
 
@@ -41,7 +44,9 @@ namespace game
 		extern char** scrMemTreePub;
 
 		extern unsigned int* scr_numParam;
+		extern unsigned int* scr_numArgs;
 		extern VariableValue** scr_stackPtr;
+		extern VariableValue** scr_stackEndPtr;
 
 		extern scr_call_t* scr_instanceFunctions;
 		extern scr_call_t* scr_globalFunctions;
@@ -58,6 +63,7 @@ namespace game
 		scr_call_t Scr_GetFunc(unsigned int index);
 
 		const char* SL_ConvertToString(unsigned int stringValue);
+		unsigned int SL_GetString(const char *str, unsigned int user);
 	}
 
 	bool is_mp();

@@ -12,13 +12,33 @@ std::mutex scripting::mutex_;
 std::vector<std::function<void()>> scripting::start_callbacks_;
 std::vector<std::function<void()>> scripting::stop_callbacks_;
 
-scripting::entity::entity() : environment_(nullptr), entity_id_(0)
+scripting::entity::entity() : entity(nullptr, 0)
 {
+}
+
+scripting::entity::entity(const entity& other) : entity(other.environment_, other.entity_id_)
+{
+
 }
 
 scripting::entity::entity(scripting* environment, const unsigned int entity_id) : environment_(environment),
                                                                                   entity_id_(entity_id)
 {
+	if (this->entity_id_)
+	{
+		game::native::VariableValue value;
+		value.type = game::native::SCRIPT_OBJECT;
+		value.u.entityId = this->entity_id_;
+		game::native::AddRefToValue(&value);
+	}
+}
+
+scripting::entity::~entity()
+{
+	if (this->entity_id_)
+	{
+		game::native::RemoveRefToValue(game::native::SCRIPT_OBJECT, {static_cast<int>(this->entity_id_)});
+	}
 }
 
 void scripting::entity::on_notify(const std::string& event,
@@ -45,9 +65,9 @@ game::native::scr_entref_t scripting::entity::get_entity_reference() const
 	return game::native::Scr_GetEntityIdRef(this->get_entity_id());
 }
 
-void scripting::entity::call(const std::string& function, const std::vector<chaiscript::Boxed_Value>& arguments)
+void scripting::entity::call(const std::string& function, const std::vector<chaiscript::Boxed_Value>& arguments) const
 {
-	scripting::call(function, this->get_entity_id(), arguments);
+	this->environment_->call(function, this->get_entity_id(), arguments);
 }
 
 scripting::variable::variable(game::native::VariableValue value) : value_(value)
@@ -264,21 +284,42 @@ void scripting::stop_execution()
 }
 
 void scripting::call(const std::string& function, const unsigned int entity_id,
-                     const std::vector<chaiscript::Boxed_Value>& /*arguments*/)
+                     std::vector<chaiscript::Boxed_Value> arguments) const
 {
-	const int function_index = find_function_index(function);
+	const auto function_index = find_function_index(function);
 	if (function_index < 0)
 	{
 		throw std::runtime_error("No function found for name '" + function + "'");
 	}
 
-	const game::native::scr_entref_t entity = function_index > 0x1C7
-		                                    ? game::native::Scr_GetEntityIdRef(entity_id)
-		                                    : game::native::scr_entref_t{~0u};
+	const auto entity = function_index > 0x1C7
+		                    ? game::native::Scr_GetEntityIdRef(entity_id)
+		                    : game::native::scr_entref_t{~0u};
 
 	const auto function_ptr = game::native::Scr_GetFunc(function_index);
 
-	if(!call_safe(function_ptr, entity))
+	const auto old_args = *game::native::scr_numArgs;
+	const auto old_params = *game::native::scr_numParam;
+	*game::native::scr_numArgs = 0;
+	*game::native::scr_numParam = 0;
+
+	const auto cleanup = gsl::finally([old_args, old_params]()
+	{
+		game::native::Scr_ClearOutParams();
+		*game::native::scr_numArgs = old_args;
+		*game::native::scr_numParam = old_params;
+	});
+
+	std::reverse(arguments.begin(), arguments.end());
+	for (const auto& argument : arguments)
+	{
+		this->push_param(argument);
+	}
+
+	*game::native::scr_numParam = *game::native::scr_numArgs;
+	*game::native::scr_numArgs = 0;
+
+	if (!call_safe(function_ptr, entity))
 	{
 		throw std::runtime_error("Error executing function '" + function + "'");
 	}
@@ -319,6 +360,61 @@ int scripting::find_function_index(const std::string& function)
 	}
 
 	return -1;
+}
+
+void scripting::push_param(const chaiscript::Boxed_Value& value) const
+{
+	if (*game::native::scr_numParam)
+	{
+		game::native::Scr_ClearOutParams();
+	}
+
+	if (*game::native::scr_stackPtr == *game::native::scr_stackEndPtr)
+	{
+		throw std::runtime_error("Internal script stack overflow");
+	}
+
+	game::native::VariableValue* value_ptr = ++*game::native::scr_stackPtr;
+	++*game::native::scr_numArgs;
+
+	value_ptr->type = game::native::SCRIPT_NONE;
+	value_ptr->u.intValue = 0;
+
+	if (value.get_type_info() == typeid(double) || value.get_type_info() == typeid(float))
+	{
+		const auto real_value = this->chai_->boxed_cast<float>(value);
+		value_ptr->type = game::native::SCRIPT_FLOAT;
+		value_ptr->u.floatValue = real_value;
+	}
+	else if (value.get_type_info() == typeid(int)
+		|| value.get_type_info() == typeid(unsigned int)
+		|| value.get_type_info() == typeid(short)
+		|| value.get_type_info() == typeid(unsigned short)
+		|| value.get_type_info() == typeid(long long)
+		|| value.get_type_info() == typeid(unsigned long long))
+	{
+		const auto real_value = this->chai_->boxed_cast<int>(value);
+		value_ptr->type = game::native::SCRIPT_INTEGER;
+		value_ptr->u.intValue = real_value;
+	}
+	else if (value.get_type_info() == typeid(entity))
+	{
+		const auto real_value = this->chai_->boxed_cast<entity>(value);
+		value_ptr->type = game::native::SCRIPT_OBJECT;
+		value_ptr->u.entityId = real_value.get_entity_id();
+
+		game::native::AddRefToValue(value_ptr);
+	}
+	else if (value.get_type_info() == typeid(std::string))
+	{
+		const auto real_value = this->chai_->boxed_cast<std::string>(value);
+		value_ptr->type = game::native::SCRIPT_STRING;
+		value_ptr->u.stringValue = game::native::SL_GetString(real_value.data(), 0);
+	}
+	else
+	{
+		throw std::runtime_error("Unable to unbox value of type '" + value.get_type_info().bare_name() + "'");
+	}
 }
 
 
