@@ -48,6 +48,9 @@ namespace game
 
 		extern unsigned int* levelEntityId;
 
+		extern int* g_script_error_level;
+		extern jmp_buf* g_script_error;
+
 		void AddRefToValue(VariableValue* value);
 
 		void Scr_ClearOutParams();

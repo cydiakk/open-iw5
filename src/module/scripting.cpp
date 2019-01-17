@@ -75,7 +75,7 @@ void scripting::post_start()
 		}
 		catch (std::exception& e)
 		{
-			propagate_scripting_error(e);
+			propagate_error(e);
 		}
 	});
 	on_stop([this]()
@@ -225,7 +225,7 @@ void scripting::on_stop(const std::function<void()>& callback)
 	stop_callbacks_.push_back(callback);
 }
 
-void scripting::propagate_scripting_error(const std::exception& e)
+void scripting::propagate_error(const std::exception& e)
 {
 	printf("\n******* Script execution error *******\n");
 	printf("%s\n", e.what());
@@ -269,7 +269,7 @@ void scripting::call(const std::string& function, const unsigned int entity_id,
 	const int function_index = find_function_index(function);
 	if (function_index < 0)
 	{
-		throw std::runtime_error("No function found for name " + function);
+		throw std::runtime_error("No function found for name '" + function + "'");
 	}
 
 	const game::native::scr_entref_t entity = function_index > 0x1C7
@@ -278,19 +278,31 @@ void scripting::call(const std::string& function, const unsigned int entity_id,
 
 	const auto function_ptr = game::native::Scr_GetFunc(function_index);
 
-	/*static_assert(sizeof(jmp_buf) == 64);
-	++*(DWORD*)0x20B21FC;
-	int res = setjmp(((jmp_buf*)0x20B4218)[*(DWORD*)0x20B21FC]);
-	if (res)
+	if(!call_safe(function_ptr, entity))
 	{
-		--*(DWORD*)0x20B21FC;
-		return;
-	}*/
-
-	function_ptr(entity.val);
-
-	//--*(DWORD*)0x20B21FC;
+		throw std::runtime_error("Error executing function '" + function + "'");
+	}
 }
+
+#pragma warning(push)
+#pragma warning(disable: 4611)
+bool scripting::call_safe(const game::native::scr_call_t function, const game::native::scr_entref_t entref)
+{
+	static_assert(sizeof(jmp_buf) == 64);
+
+	*game::native::g_script_error_level += 1;
+	if (setjmp(game::native::g_script_error[*game::native::g_script_error_level]))
+	{
+		*game::native::g_script_error_level -= 1;
+		return false;
+	}
+
+	function(entref.val);
+
+	*game::native::g_script_error_level -= 1;
+	return true;
+}
+#pragma warning(pop)
 
 int scripting::find_function_index(const std::string& function)
 {

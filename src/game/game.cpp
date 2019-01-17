@@ -36,6 +36,9 @@ namespace game
 
 		unsigned int* levelEntityId;
 
+		int* g_script_error_level;
+		jmp_buf* g_script_error;
+
 		void AddRefToValue(VariableValue* value)
 		{
 			if (value->type == SCRIPT_OBJECT)
@@ -152,6 +155,9 @@ namespace game
 
 		native::scr_instanceFunctions = reinterpret_cast<native::scr_call_t*>(SELECT_VALUE(0x184CDB0, 0x1D4F258, 0x1BF59C8));
 		native::scr_globalFunctions = reinterpret_cast<native::scr_call_t*>(SELECT_VALUE(0x186C68C, 0x1D6EB34, 0x1C152A4));
+
+		native::g_script_error_level = reinterpret_cast<int*>(SELECT_VALUE(0x1BEFCFC, 0x20B21FC, 0x1F5B058));
+		native::g_script_error = reinterpret_cast<jmp_buf*>(SELECT_VALUE(0x1BF1D18, 0x20B4218, 0x1F5A818));
 
 		native::levelEntityId = reinterpret_cast<unsigned int*>(SELECT_VALUE(0x1BCBCA4, 0x208E1A4, 0x1CD873C));
 	}

@@ -56,7 +56,7 @@ public:
 	static void on_start(const std::function<void()>& callback);
 	static void on_stop(const std::function<void()>& callback);
 
-	static void propagate_scripting_error(const std::exception& e);
+	static void propagate_error(const std::exception& e);
 
 private:
 	std::unique_ptr<chaiscript::ChaiScript> chai_;
@@ -80,5 +80,6 @@ private:
 	static void stop_execution();
 
 	static void call(const std::string& function, unsigned int entity_id, const std::vector<chaiscript::Boxed_Value>& arguments);
+	static bool call_safe(game::native::scr_call_t function, game::native::scr_entref_t entref);
 	static int find_function_index(const std::string& function);
 };
