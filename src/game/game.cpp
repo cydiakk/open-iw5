@@ -65,16 +65,21 @@ namespace game
 			}
 		}
 
-		void Scr_ClearOutParams()
+		__declspec(naked) void Scr_ClearOutParams()
 		{
-			const auto num_params = *scr_numParam;
+			__asm
+			{
+				push 569010h
+				retn
+			}
+			/*const auto num_params = *scr_numParam;
 			for (unsigned int i = num_params; i > 0; --i)
 			{
 				const auto value = (*scr_stackPtr)[i - 1];
 				RemoveRefToValue(value.type, value.u);
 			}
 
-			*scr_stackPtr -= num_params;
+			*scr_stackPtr -= num_params;*/
 		}
 
 		scr_entref_t Scr_GetEntityIdRef(const unsigned int id)

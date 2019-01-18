@@ -300,14 +300,16 @@ void scripting::call(const std::string& function, const unsigned int entity_id,
 
 	const auto old_args = *game::native::scr_numArgs;
 	const auto old_params = *game::native::scr_numParam;
+	const auto old_stack_ptr = *game::native::scr_stackPtr;
 	*game::native::scr_numArgs = 0;
 	*game::native::scr_numParam = 0;
 
-	const auto cleanup = gsl::finally([old_args, old_params]()
+	const auto cleanup = gsl::finally([old_args, old_params, old_stack_ptr]()
 	{
-		game::native::Scr_ClearOutParams();
+		//game::native::Scr_ClearOutParams();
 		*game::native::scr_numArgs = old_args;
 		*game::native::scr_numParam = old_params;
+		*game::native::scr_stackPtr = old_stack_ptr;
 	});
 
 	std::reverse(arguments.begin(), arguments.end());
@@ -319,10 +321,10 @@ void scripting::call(const std::string& function, const unsigned int entity_id,
 	*game::native::scr_numParam = *game::native::scr_numArgs;
 	*game::native::scr_numArgs = 0;
 
-	if (!call_safe(function_ptr, entity))
+	/*if (!call_safe(function_ptr, entity))
 	{
 		throw std::runtime_error("Error executing function '" + function + "'");
-	}
+	}*/
 }
 
 #pragma warning(push)
@@ -374,11 +376,11 @@ void scripting::push_param(const chaiscript::Boxed_Value& value) const
 		throw std::runtime_error("Internal script stack overflow");
 	}
 
-	game::native::VariableValue* value_ptr = ++*game::native::scr_stackPtr;
-	++*game::native::scr_numArgs;
+	game::native::VariableValue* value_ptr = nullptr;//++*game::native::scr_stackPtr;
+	//++*game::native::scr_numArgs;
 
-	value_ptr->type = game::native::SCRIPT_NONE;
-	value_ptr->u.intValue = 0;
+	//value_ptr->type = game::native::SCRIPT_NONE;
+	//value_ptr->u.intValue = 0;
 
 	if (value.get_type_info() == typeid(double) || value.get_type_info() == typeid(float))
 	{
@@ -408,8 +410,10 @@ void scripting::push_param(const chaiscript::Boxed_Value& value) const
 	else if (value.get_type_info() == typeid(std::string))
 	{
 		const auto real_value = this->chai_->boxed_cast<std::string>(value);
-		value_ptr->type = game::native::SCRIPT_STRING;
-		value_ptr->u.stringValue = game::native::SL_GetString(real_value.data(), 0);
+		//value_ptr->type = game::native::SCRIPT_STRING;
+		//value_ptr->u.stringValue = game::native::SL_GetString(real_value.data(), 0);
+
+		((void(*)(const char*))0x56AC00)(real_value.data());
 	}
 	else
 	{
