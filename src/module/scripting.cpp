@@ -18,7 +18,6 @@ scripting::entity::entity() : entity(nullptr, 0)
 
 scripting::entity::entity(const entity& other) : entity(other.environment_, other.entity_id_)
 {
-
 }
 
 scripting::entity::entity(scripting* environment, const unsigned int entity_id) : environment_(environment),
@@ -65,9 +64,10 @@ game::native::scr_entref_t scripting::entity::get_entity_reference() const
 	return game::native::Scr_GetEntityIdRef(this->get_entity_id());
 }
 
-void scripting::entity::call(const std::string& function, const std::vector<chaiscript::Boxed_Value>& arguments) const
+chaiscript::Boxed_Value scripting::entity::call(const std::string& function,
+                                                const std::vector<chaiscript::Boxed_Value>& arguments) const
 {
-	this->environment_->call(function, this->get_entity_id(), arguments);
+	return this->environment_->call(function, this->get_entity_id(), arguments);
 }
 
 scripting::variable::variable(game::native::VariableValue value) : value_(value)
@@ -134,16 +134,6 @@ void scripting::add_event_listener(const event_listener& listener)
 void scripting::initialize()
 {
 	this->chai_ = std::make_unique<chaiscript::ChaiScript>();
-	this->chai_->add(chaiscript::user_type<entity>(), "entity");
-	this->chai_->add(chaiscript::constructor<entity()>(), "entity");
-	this->chai_->add(chaiscript::constructor<entity(const entity&)>(), "entity");
-	this->chai_->add(chaiscript::fun(&entity::on_notify), "onNotify");
-	this->chai_->add(chaiscript::fun(&entity::call), "call");
-	this->chai_->add(chaiscript::fun([](entity& lhs, const entity& rhs) -> entity&
-	{
-		return lhs = rhs;
-	}), "=");
-
 	this->chai_->add(chaiscript::fun([](const std::string& string)
 	{
 		printf("%s\n", string.data());
@@ -153,6 +143,8 @@ void scripting::initialize()
 	{
 		MessageBoxA(nullptr, string.data(), nullptr, 0);
 	}), "alert");
+
+	this->initialize_entity();
 
 	const auto level_id = *game::native::levelEntityId;
 	this->chai_->add_global(chaiscript::var(entity(this, level_id)), "level");
@@ -188,6 +180,69 @@ void scripting::initialize()
 			}
 		}
 	});
+}
+
+void scripting::initialize_entity()
+{
+	this->chai_->add(chaiscript::user_type<entity>(), "entity");
+	this->chai_->add(chaiscript::constructor<entity()>(), "entity");
+	this->chai_->add(chaiscript::constructor<entity(const entity&)>(), "entity");
+	this->chai_->add(chaiscript::fun(&entity::on_notify), "onNotify");
+	this->chai_->add(chaiscript::fun([](entity& lhs, const entity& rhs) -> entity&
+	{
+		return lhs = rhs;
+	}), "=");
+
+	this->chai_->add(chaiscript::fun(&entity::call), "vectorCall");
+	this->chai_->add(chaiscript::fun([](const entity& ent, const std::string& function)
+	{
+		return ent.call(function, {});
+	}), "call");
+
+	this->chai_->add(chaiscript::fun(
+		                 [](const entity& ent, const std::string& function,
+		                    const chaiscript::Boxed_Value& a1)
+		                 {
+			                 return ent.call(function, {a1});
+		                 }), "call");
+
+	this->chai_->add(chaiscript::fun(
+		                 [](const entity& ent, const std::string& function,
+		                    const chaiscript::Boxed_Value& a1,
+		                    const chaiscript::Boxed_Value& a2)
+		                 {
+			                 return ent.call(function, {a1, a2});
+		                 }), "call");
+
+	this->chai_->add(chaiscript::fun(
+		                 [](const entity& ent, const std::string& function,
+		                    const chaiscript::Boxed_Value& a1,
+		                    const chaiscript::Boxed_Value& a2,
+		                    const chaiscript::Boxed_Value& a3)
+		                 {
+			                 return ent.call(function, {a1, a2, a3});
+		                 }), "call");
+
+	this->chai_->add(chaiscript::fun(
+		                 [](const entity& ent, const std::string& function,
+		                    const chaiscript::Boxed_Value& a1,
+		                    const chaiscript::Boxed_Value& a2,
+		                    const chaiscript::Boxed_Value& a3,
+		                    const chaiscript::Boxed_Value& a4)
+		                 {
+			                 return ent.call(function, {a1, a2, a3, a4});
+		                 }), "call");
+
+	this->chai_->add(chaiscript::fun(
+		                 [](const entity& ent, const std::string& function,
+		                    const chaiscript::Boxed_Value& a1,
+		                    const chaiscript::Boxed_Value& a2,
+		                    const chaiscript::Boxed_Value& a3,
+		                    const chaiscript::Boxed_Value& a4,
+		                    const chaiscript::Boxed_Value& a5)
+		                 {
+			                 return ent.call(function, {a1, a2, a3, a4, a5});
+		                 }), "call");
 }
 
 void scripting::load_scripts() const
@@ -283,8 +338,8 @@ void scripting::stop_execution()
 	}
 }
 
-void scripting::call(const std::string& function, const unsigned int entity_id,
-                     std::vector<chaiscript::Boxed_Value> arguments) const
+chaiscript::Boxed_Value scripting::call(const std::string& function, const unsigned int entity_id,
+                                        std::vector<chaiscript::Boxed_Value> arguments)
 {
 	const auto function_index = find_function_index(function);
 	if (function_index < 0)
@@ -301,15 +356,21 @@ void scripting::call(const std::string& function, const unsigned int entity_id,
 	const auto old_args = *game::native::scr_numArgs;
 	const auto old_params = *game::native::scr_numParam;
 	const auto old_stack_ptr = *game::native::scr_stackPtr;
+	const auto old_stack_end_ptr = *game::native::scr_stackEndPtr;
+
+	game::native::VariableValue stack[512];
+	*game::native::scr_stackPtr = stack;
+	*game::native::scr_stackEndPtr = &stack[ARRAYSIZE(stack) - 1];
 	*game::native::scr_numArgs = 0;
 	*game::native::scr_numParam = 0;
 
-	const auto cleanup = gsl::finally([old_args, old_params, old_stack_ptr]()
+	const auto cleanup = gsl::finally([=]()
 	{
-		//game::native::Scr_ClearOutParams();
+		game::native::Scr_ClearOutParams();
 		*game::native::scr_numArgs = old_args;
 		*game::native::scr_numParam = old_params;
 		*game::native::scr_stackPtr = old_stack_ptr;
+		*game::native::scr_stackEndPtr = old_stack_end_ptr;
 	});
 
 	std::reverse(arguments.begin(), arguments.end());
@@ -321,10 +382,12 @@ void scripting::call(const std::string& function, const unsigned int entity_id,
 	*game::native::scr_numParam = *game::native::scr_numArgs;
 	*game::native::scr_numArgs = 0;
 
-	/*if (!call_safe(function_ptr, entity))
+	if (!call_safe(function_ptr, entity))
 	{
 		throw std::runtime_error("Error executing function '" + function + "'");
-	}*/
+	}
+
+	return this->get_return_value();
 }
 
 #pragma warning(push)
@@ -376,24 +439,25 @@ void scripting::push_param(const chaiscript::Boxed_Value& value) const
 		throw std::runtime_error("Internal script stack overflow");
 	}
 
-	game::native::VariableValue* value_ptr = nullptr;//++*game::native::scr_stackPtr;
-	//++*game::native::scr_numArgs;
+	game::native::VariableValue* value_ptr = ++*game::native::scr_stackPtr;
+	++*game::native::scr_numArgs;
 
-	//value_ptr->type = game::native::SCRIPT_NONE;
-	//value_ptr->u.intValue = 0;
+	value_ptr->type = game::native::SCRIPT_NONE;
+	value_ptr->u.intValue = 0;
 
-	if (value.get_type_info() == typeid(double) || value.get_type_info() == typeid(float))
+	if (value.get_type_info() == typeid(float))
 	{
 		const auto real_value = this->chai_->boxed_cast<float>(value);
 		value_ptr->type = game::native::SCRIPT_FLOAT;
 		value_ptr->u.floatValue = real_value;
 	}
-	else if (value.get_type_info() == typeid(int)
-		|| value.get_type_info() == typeid(unsigned int)
-		|| value.get_type_info() == typeid(short)
-		|| value.get_type_info() == typeid(unsigned short)
-		|| value.get_type_info() == typeid(long long)
-		|| value.get_type_info() == typeid(unsigned long long))
+	else if (value.get_type_info() == typeid(double))
+	{
+		const auto real_value = this->chai_->boxed_cast<double>(value);
+		value_ptr->type = game::native::SCRIPT_FLOAT;
+		value_ptr->u.floatValue = static_cast<float>(real_value);
+	}
+	else if (value.get_type_info() == typeid(int))
 	{
 		const auto real_value = this->chai_->boxed_cast<int>(value);
 		value_ptr->type = game::native::SCRIPT_INTEGER;
@@ -410,15 +474,24 @@ void scripting::push_param(const chaiscript::Boxed_Value& value) const
 	else if (value.get_type_info() == typeid(std::string))
 	{
 		const auto real_value = this->chai_->boxed_cast<std::string>(value);
-		//value_ptr->type = game::native::SCRIPT_STRING;
-		//value_ptr->u.stringValue = game::native::SL_GetString(real_value.data(), 0);
-
-		((void(*)(const char*))0x56AC00)(real_value.data());
+		value_ptr->type = game::native::SCRIPT_STRING;
+		value_ptr->u.stringValue = game::native::SL_GetString(real_value.data(), 0);
 	}
 	else
 	{
 		throw std::runtime_error("Unable to unbox value of type '" + value.get_type_info().bare_name() + "'");
 	}
+}
+
+chaiscript::Boxed_Value scripting::get_return_value()
+{
+	if (*game::native::scr_numArgs == 0) return {};
+
+	game::native::Scr_ClearOutParams();
+	*game::native::scr_numParam = *game::native::scr_numArgs;
+	*game::native::scr_numArgs = 0;
+
+	return this->make_boxed((*game::native::scr_stackPtr)[1 - *game::native::scr_numParam]);
 }
 
 

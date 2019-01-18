@@ -65,21 +65,16 @@ namespace game
 			}
 		}
 
-		__declspec(naked) void Scr_ClearOutParams()
+		void Scr_ClearOutParams()
 		{
-			__asm
-			{
-				push 569010h
-				retn
-			}
-			/*const auto num_params = *scr_numParam;
+			const auto num_params = *scr_numParam;
 			for (unsigned int i = num_params; i > 0; --i)
 			{
 				const auto value = (*scr_stackPtr)[i - 1];
 				RemoveRefToValue(value.type, value.u);
 			}
 
-			*scr_stackPtr -= num_params;*/
+			*scr_stackPtr -= num_params;
 		}
 
 		scr_entref_t Scr_GetEntityIdRef(const unsigned int id)
@@ -116,7 +111,7 @@ namespace game
 
 		unsigned int SL_GetString(const char *str, const unsigned int user)
 		{
-			return SL_GetStringOfSize(str, user, strlen(str), 7);
+			return SL_GetStringOfSize(str, user, strlen(str) + 1, 7);
 		}
 	}
 

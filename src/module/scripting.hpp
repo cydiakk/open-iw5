@@ -22,7 +22,7 @@ public:
 		unsigned int get_entity_id() const;
 		game::native::scr_entref_t get_entity_reference() const;
 
-		void call(const std::string& function, const std::vector<chaiscript::Boxed_Value>& arguments) const;
+		chaiscript::Boxed_Value call(const std::string& function, const std::vector<chaiscript::Boxed_Value>& arguments) const;
 
 	private:
 		scripting* environment_;
@@ -66,6 +66,7 @@ private:
 	void add_event_listener(const event_listener& listener);
 
 	void initialize();
+	void initialize_entity();
 	void load_scripts() const;
 
 	chaiscript::Boxed_Value make_boxed(game::native::VariableValue value);
@@ -81,7 +82,8 @@ private:
 	static void stop_execution();
 
 	void push_param(const chaiscript::Boxed_Value& value) const;
-	void call(const std::string& function, unsigned int entity_id, std::vector<chaiscript::Boxed_Value> arguments) const;
+	chaiscript::Boxed_Value get_return_value();
+	chaiscript::Boxed_Value call(const std::string& function, unsigned int entity_id, std::vector<chaiscript::Boxed_Value> arguments);
 	static bool call_safe(game::native::scr_call_t function, game::native::scr_entref_t entref);
 	static int find_function_index(const std::string& function);
 };
