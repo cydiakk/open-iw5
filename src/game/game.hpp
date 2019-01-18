@@ -12,7 +12,7 @@ namespace game
 		typedef void (*Cmd_AddCommand_t)(const char* cmdName, void (*function)(), cmd_function_t* allocedCmd);
 		extern Cmd_AddCommand_t Cmd_AddCommand;
 
-		typedef void (*Com_Error_t)(int code, const char *fmt, ...);
+		typedef void (*Com_Error_t)(int code, const char* fmt, ...);
 		extern Com_Error_t Com_Error;
 
 		typedef void (*Conbuf_AppendText_t)(const char* message);
@@ -24,10 +24,16 @@ namespace game
 		typedef void (*MSG_ReadData_t)(msg_t* msg, void* data, int len);
 		extern MSG_ReadData_t MSG_ReadData;
 
+		typedef void* (*MT_AllocIndex_t)(int numBytes, int type);
+		extern MT_AllocIndex_t MT_AllocIndex;
+
 		typedef void (*RemoveRefToValue_t)(scriptType_e type, VariableUnion u);
 		extern RemoveRefToValue_t RemoveRefToValue;
 
-		typedef unsigned int (*SL_GetStringOfSize_t)(const char *str, unsigned int user, unsigned int len, int type);
+		typedef void (*Scr_NotifyId_t)(unsigned int id, unsigned int stringValue, unsigned int paramcount);
+		extern Scr_NotifyId_t Scr_NotifyId;
+
+		typedef unsigned int (*SL_GetStringOfSize_t)(const char* str, unsigned int user, unsigned int len, int type);
 		extern SL_GetStringOfSize_t SL_GetStringOfSize;
 
 		typedef void (*Sys_ShowConsole_t)();
@@ -42,6 +48,7 @@ namespace game
 
 		extern short* scrVarGlob;
 		extern char** scrMemTreePub;
+		extern char* scrMemTreeGlob;
 
 		extern unsigned int* scr_numParam;
 		extern unsigned int* scr_numArgs;
@@ -58,12 +65,15 @@ namespace game
 
 		void AddRefToValue(VariableValue* value);
 
+		void* MT_Alloc(int numBytes, int type);
+
+		const float* Scr_AllocVector(const float* v);
 		void Scr_ClearOutParams();
 		scr_entref_t Scr_GetEntityIdRef(unsigned int id);
 		scr_call_t Scr_GetFunc(unsigned int index);
 
 		const char* SL_ConvertToString(unsigned int stringValue);
-		unsigned int SL_GetString(const char *str, unsigned int user);
+		unsigned int SL_GetString(const char* str, unsigned int user);
 	}
 
 	bool is_mp();

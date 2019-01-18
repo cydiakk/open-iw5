@@ -70,6 +70,11 @@ chaiscript::Boxed_Value scripting::entity::call(const std::string& function,
 	return this->environment_->call(function, this->get_entity_id(), arguments);
 }
 
+void scripting::entity::notify(const std::string& event, const std::vector<chaiscript::Boxed_Value>& arguments) const
+{
+	this->environment_->notify(event, this->get_entity_id(), arguments);
+}
+
 scripting::variable::variable(game::native::VariableValue value) : value_(value)
 {
 	game::native::AddRefToValue(&value);
@@ -187,11 +192,70 @@ void scripting::initialize_entity()
 	this->chai_->add(chaiscript::user_type<entity>(), "entity");
 	this->chai_->add(chaiscript::constructor<entity()>(), "entity");
 	this->chai_->add(chaiscript::constructor<entity(const entity&)>(), "entity");
+
 	this->chai_->add(chaiscript::fun(&entity::on_notify), "onNotify");
+	this->chai_->add(chaiscript::fun([](const entity& ent, const std::string& event,
+	                                    const std::function<void(const std::vector<chaiscript::Boxed_Value>&)>&
+	                                    callback)
+	{
+		return ent.on_notify(event, callback, false);
+	}), "onNotify");
+
 	this->chai_->add(chaiscript::fun([](entity& lhs, const entity& rhs) -> entity&
 	{
 		return lhs = rhs;
 	}), "=");
+
+	this->chai_->add(chaiscript::fun(&entity::notify), "vectorNotify");
+	this->chai_->add(chaiscript::fun([](const entity& ent, const std::string& event)
+	{
+		return ent.notify(event, {});
+	}), "notify");
+
+	this->chai_->add(chaiscript::fun(
+		                 [](const entity& ent, const std::string& event,
+		                    const chaiscript::Boxed_Value& a1)
+		                 {
+			                 return ent.notify(event, {a1});
+		                 }), "notify");
+
+	this->chai_->add(chaiscript::fun(
+		                 [](const entity& ent, const std::string& event,
+		                    const chaiscript::Boxed_Value& a1,
+		                    const chaiscript::Boxed_Value& a2)
+		                 {
+			                 return ent.notify(event, {a1, a2});
+		                 }), "notify");
+
+	this->chai_->add(chaiscript::fun(
+		                 [](const entity& ent, const std::string& event,
+		                    const chaiscript::Boxed_Value& a1,
+		                    const chaiscript::Boxed_Value& a2,
+		                    const chaiscript::Boxed_Value& a3)
+		                 {
+			                 return ent.notify(event, {a1, a2, a3});
+		                 }), "notify");
+
+	this->chai_->add(chaiscript::fun(
+		                 [](const entity& ent, const std::string& event,
+		                    const chaiscript::Boxed_Value& a1,
+		                    const chaiscript::Boxed_Value& a2,
+		                    const chaiscript::Boxed_Value& a3,
+		                    const chaiscript::Boxed_Value& a4)
+		                 {
+			                 return ent.notify(event, {a1, a2, a3, a4});
+		                 }), "notify");
+
+	this->chai_->add(chaiscript::fun(
+		                 [](const entity& ent, const std::string& event,
+		                    const chaiscript::Boxed_Value& a1,
+		                    const chaiscript::Boxed_Value& a2,
+		                    const chaiscript::Boxed_Value& a3,
+		                    const chaiscript::Boxed_Value& a4,
+		                    const chaiscript::Boxed_Value& a5)
+		                 {
+			                 return ent.notify(event, {a1, a2, a3, a4, a5});
+		                 }), "notify");
 
 	this->chai_->add(chaiscript::fun(&entity::call), "vectorCall");
 	this->chai_->add(chaiscript::fun([](const entity& ent, const std::string& function)
@@ -284,6 +348,15 @@ chaiscript::Boxed_Value scripting::make_boxed(const game::native::VariableValue 
 	{
 		return chaiscript::var(entity(this, value.u.entityId));
 	}
+	else if (value.type == game::native::SCRIPT_VECTOR)
+	{
+		std::vector<float> values;
+		values.push_back(value.u.vectorValue[0]);
+		values.push_back(value.u.vectorValue[1]);
+		values.push_back(value.u.vectorValue[2]);
+
+		return chaiscript::var(values);
+	}
 
 	return {};
 }
@@ -338,6 +411,39 @@ void scripting::stop_execution()
 	}
 }
 
+void scripting::notify(const std::string& event, const unsigned int entity_id,
+                       std::vector<chaiscript::Boxed_Value> arguments)
+{
+	const auto old_args = *game::native::scr_numArgs;
+	const auto old_params = *game::native::scr_numParam;
+	const auto old_stack_ptr = *game::native::scr_stackPtr;
+	const auto old_stack_end_ptr = *game::native::scr_stackEndPtr;
+
+	game::native::VariableValue stack[512];
+	*game::native::scr_stackPtr = stack;
+	*game::native::scr_stackEndPtr = &stack[ARRAYSIZE(stack) - 1];
+	*game::native::scr_numArgs = 0;
+	*game::native::scr_numParam = 0;
+
+	const auto cleanup = gsl::finally([=]()
+	{
+		game::native::Scr_ClearOutParams();
+		*game::native::scr_numArgs = old_args;
+		*game::native::scr_numParam = old_params;
+		*game::native::scr_stackPtr = old_stack_ptr;
+		*game::native::scr_stackEndPtr = old_stack_end_ptr;
+	});
+
+	std::reverse(arguments.begin(), arguments.end());
+	for (const auto& argument : arguments)
+	{
+		this->push_param(argument);
+	}
+
+	const auto event_id = game::native::SL_GetString(event.data(), 0);
+	game::native::Scr_NotifyId(entity_id, event_id, *game::native::scr_numArgs);
+}
+
 chaiscript::Boxed_Value scripting::call(const std::string& function, const unsigned int entity_id,
                                         std::vector<chaiscript::Boxed_Value> arguments)
 {
@@ -378,9 +484,6 @@ chaiscript::Boxed_Value scripting::call(const std::string& function, const unsig
 	{
 		this->push_param(argument);
 	}
-
-	*game::native::scr_numParam = *game::native::scr_numArgs;
-	*game::native::scr_numArgs = 0;
 
 	if (!call_safe(function_ptr, entity))
 	{
@@ -476,6 +579,41 @@ void scripting::push_param(const chaiscript::Boxed_Value& value) const
 		const auto real_value = this->chai_->boxed_cast<std::string>(value);
 		value_ptr->type = game::native::SCRIPT_STRING;
 		value_ptr->u.stringValue = game::native::SL_GetString(real_value.data(), 0);
+	}
+	else if (value.get_type_info() == typeid(std::vector<chaiscript::Boxed_Value>))
+	{
+		float values[3];
+		const auto real_value = this->chai_->boxed_cast<std::vector<chaiscript::Boxed_Value>>(value);
+		if (real_value.size() != 3)
+		{
+			throw std::runtime_error("Invalid vector length. Size must be exactly 3");
+		}
+
+		const auto unbox_float = [&real_value, this](size_t index) -> float
+		{
+			const auto value = real_value[index];
+			if (value.get_type_info() == typeid(float))
+			{
+				return this->chai_->boxed_cast<float>(value);
+			}
+			else if (value.get_type_info() == typeid(double))
+			{
+				return float(this->chai_->boxed_cast<double>(value));
+			}
+			else if (value.get_type_info() == typeid(int))
+			{
+				return float(this->chai_->boxed_cast<int>(value));
+			}
+
+			throw std::runtime_error("Vector element at index " + std::to_string(index) + " is not a number");
+		};
+
+		values[0] = unbox_float(0);
+		values[1] = unbox_float(1);
+		values[2] = unbox_float(2);
+
+		value_ptr->type = game::native::SCRIPT_VECTOR;
+		value_ptr->u.vectorValue = game::native::Scr_AllocVector(values);
 	}
 	else
 	{
