@@ -488,24 +488,25 @@ int scripting::get_field_id(const int classnum, const std::string& field) const
 void scripting::notify(const std::string& event, const unsigned int entity_id,
                        std::vector<chaiscript::Boxed_Value> arguments)
 {
-	const auto old_args = *game::native::scr_numArgs;
-	const auto old_params = *game::native::scr_numParam;
-	const auto old_stack_ptr = *game::native::scr_stackPtr;
-	const auto old_stack_end_ptr = *game::native::scr_stackEndPtr;
+
+	const auto old_args = game::native::scr_VmPub->inparamcount;
+	const auto old_params = game::native::scr_VmPub->outparamcount;
+	const auto old_stack_top = game::native::scr_VmPub->top;
+	const auto old_stack_end = game::native::scr_VmPub->maxstack;
 
 	game::native::VariableValue stack[512];
-	*game::native::scr_stackPtr = stack;
-	*game::native::scr_stackEndPtr = &stack[ARRAYSIZE(stack) - 1];
-	*game::native::scr_numArgs = 0;
-	*game::native::scr_numParam = 0;
+	game::native::scr_VmPub->top = stack;
+	game::native::scr_VmPub->maxstack = &stack[ARRAYSIZE(stack) - 1];
+	game::native::scr_VmPub->inparamcount = 0;
+	game::native::scr_VmPub->outparamcount = 0;
 
 	const auto cleanup = gsl::finally([=]()
 	{
 		game::native::Scr_ClearOutParams();
-		*game::native::scr_numArgs = old_args;
-		*game::native::scr_numParam = old_params;
-		*game::native::scr_stackPtr = old_stack_ptr;
-		*game::native::scr_stackEndPtr = old_stack_end_ptr;
+		game::native::scr_VmPub->inparamcount = old_args;
+		game::native::scr_VmPub->outparamcount = old_params;
+		game::native::scr_VmPub->top = old_stack_top;
+		game::native::scr_VmPub->maxstack = old_stack_end;
 	});
 
 	std::reverse(arguments.begin(), arguments.end());
@@ -515,7 +516,7 @@ void scripting::notify(const std::string& event, const unsigned int entity_id,
 	}
 
 	const auto event_id = game::native::SL_GetString(event.data(), 0);
-	game::native::Scr_NotifyId(entity_id, event_id, *game::native::scr_numArgs);
+	game::native::Scr_NotifyId(entity_id, event_id, game::native::scr_VmPub->inparamcount);
 }
 
 chaiscript::Boxed_Value scripting::call(const std::string& function, const unsigned int entity_id,
@@ -533,24 +534,24 @@ chaiscript::Boxed_Value scripting::call(const std::string& function, const unsig
 
 	const auto function_ptr = game::native::Scr_GetFunc(function_index);
 
-	const auto old_args = *game::native::scr_numArgs;
-	const auto old_params = *game::native::scr_numParam;
-	const auto old_stack_ptr = *game::native::scr_stackPtr;
-	const auto old_stack_end_ptr = *game::native::scr_stackEndPtr;
+	const auto old_args = game::native::scr_VmPub->inparamcount;
+	const auto old_params = game::native::scr_VmPub->outparamcount;
+	const auto old_stack_top = game::native::scr_VmPub->top;
+	const auto old_stack_end = game::native::scr_VmPub->maxstack;
 
 	game::native::VariableValue stack[512];
-	*game::native::scr_stackPtr = stack;
-	*game::native::scr_stackEndPtr = &stack[ARRAYSIZE(stack) - 1];
-	*game::native::scr_numArgs = 0;
-	*game::native::scr_numParam = 0;
+	game::native::scr_VmPub->top = stack;
+	game::native::scr_VmPub->maxstack = &stack[ARRAYSIZE(stack) - 1];
+	game::native::scr_VmPub->inparamcount = 0;
+	game::native::scr_VmPub->outparamcount = 0;
 
 	const auto cleanup = gsl::finally([=]()
 	{
 		game::native::Scr_ClearOutParams();
-		*game::native::scr_numArgs = old_args;
-		*game::native::scr_numParam = old_params;
-		*game::native::scr_stackPtr = old_stack_ptr;
-		*game::native::scr_stackEndPtr = old_stack_end_ptr;
+		game::native::scr_VmPub->inparamcount = old_args;
+		game::native::scr_VmPub->outparamcount = old_params;
+		game::native::scr_VmPub->top = old_stack_top;
+		game::native::scr_VmPub->maxstack = old_stack_end;
 	});
 
 	std::reverse(arguments.begin(), arguments.end());
@@ -559,8 +560,8 @@ chaiscript::Boxed_Value scripting::call(const std::string& function, const unsig
 		this->push_param(argument);
 	}
 
-	*game::native::scr_numParam = *game::native::scr_numArgs;
-	*game::native::scr_numArgs = 0;
+	game::native::scr_VmPub->outparamcount = game::native::scr_VmPub->inparamcount;
+	game::native::scr_VmPub->inparamcount = 0;
 
 	if (!call_safe(function_ptr, entity))
 	{
@@ -618,18 +619,18 @@ int scripting::find_function_index(const std::string& function, const bool prefe
 
 void scripting::push_param(const chaiscript::Boxed_Value& value) const
 {
-	if (*game::native::scr_numParam)
+	if (game::native::scr_VmPub->outparamcount)
 	{
 		game::native::Scr_ClearOutParams();
 	}
 
-	if (*game::native::scr_stackPtr == *game::native::scr_stackEndPtr)
+	if (game::native::scr_VmPub->top == game::native::scr_VmPub->maxstack)
 	{
 		throw std::runtime_error("Internal script stack overflow");
 	}
 
-	game::native::VariableValue* value_ptr = ++*game::native::scr_stackPtr;
-	++*game::native::scr_numArgs;
+	game::native::VariableValue* value_ptr = ++game::native::scr_VmPub->top;
+	++game::native::scr_VmPub->inparamcount;
 
 	value_ptr->type = game::native::SCRIPT_NONE;
 	value_ptr->u.intValue = 0;
@@ -715,13 +716,13 @@ void scripting::push_param(const chaiscript::Boxed_Value& value) const
 
 chaiscript::Boxed_Value scripting::get_return_value()
 {
-	if (*game::native::scr_numArgs == 0) return {};
+	if (game::native::scr_VmPub->inparamcount == 0) return {};
 
 	game::native::Scr_ClearOutParams();
-	*game::native::scr_numParam = *game::native::scr_numArgs;
-	*game::native::scr_numArgs = 0;
+	game::native::scr_VmPub->outparamcount = game::native::scr_VmPub->inparamcount;
+	game::native::scr_VmPub->inparamcount = 0;
 
-	return this->make_boxed((*game::native::scr_stackPtr)[1 - *game::native::scr_numParam]);
+	return this->make_boxed(game::native::scr_VmPub->top[1 - game::native::scr_VmPub->outparamcount]);
 }
 
 

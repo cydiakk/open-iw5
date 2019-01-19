@@ -452,5 +452,39 @@ namespace game
 			VariableUnion u;
 			scriptType_e type;
 		};
+
+		struct function_stack_t
+		{
+			const char *pos;
+			unsigned int localId;
+			unsigned int localVarCount;
+			VariableValue *top;
+			VariableValue *startTop;
+		};
+
+		struct function_frame_t
+		{
+			function_stack_t fs;
+			int topType;
+		};
+
+		struct scrVmPub_t
+		{
+			unsigned int *localVars;
+			VariableValue *maxstack;
+			int function_count;
+			function_frame_t *function_frame;
+			VariableValue *top;
+			/*bool debugCode;
+			bool abort_on_error;
+			bool terminal_error;
+			bool block_execution;*/
+			unsigned int inparamcount;
+			unsigned int outparamcount;
+			unsigned int breakpointOutparamcount;
+			bool showError;
+			function_frame_t function_frame_start[32];
+			VariableValue stack[2048];
+		};
 	}
 }

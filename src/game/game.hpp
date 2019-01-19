@@ -52,10 +52,7 @@ namespace game
 		extern char** scrMemTreePub;
 		extern char* scrMemTreeGlob;
 
-		extern unsigned int* scr_numParam;
-		extern unsigned int* scr_numArgs;
-		extern VariableValue** scr_stackPtr;
-		extern VariableValue** scr_stackEndPtr;
+		extern scrVmPub_t* scr_VmPub;
 
 		extern scr_call_t* scr_instanceFunctions;
 		extern scr_call_t* scr_globalFunctions;

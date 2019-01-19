@@ -37,10 +37,7 @@ namespace game
 		char** scrMemTreePub;
 		char* scrMemTreeGlob;
 
-		unsigned int* scr_numParam;
-		unsigned int* scr_numArgs;
-		VariableValue** scr_stackPtr;
-		VariableValue** scr_stackEndPtr;
+		scrVmPub_t* scr_VmPub;
 
 		scr_call_t* scr_instanceFunctions;
 		scr_call_t* scr_globalFunctions;
@@ -119,14 +116,14 @@ namespace game
 
 		void Scr_ClearOutParams()
 		{
-			const auto num_params = *scr_numParam;
+			const auto num_params = scr_VmPub->outparamcount;
 			for (unsigned int i = num_params; i > 0; --i)
 			{
-				const auto value = (*scr_stackPtr)[i - 1];
+				const auto value = scr_VmPub->top[i - 1];
 				RemoveRefToValue(value.type, value.u);
 			}
 
-			*scr_stackPtr -= num_params;
+			scr_VmPub->top -= num_params;
 		}
 
 		scr_entref_t Scr_GetEntityIdRef(const unsigned int id)
@@ -220,12 +217,7 @@ namespace game
 		native::scrMemTreePub = reinterpret_cast<char**>(SELECT_VALUE(0x196FB00, 0x1E32000, 0x1C152A4));
 		native::scrMemTreeGlob = reinterpret_cast<char*>(SELECT_VALUE(0x186DA00, 0x1D6FF00, 0x1C16600));
 
-		native::scr_numParam = reinterpret_cast<unsigned int*>(SELECT_VALUE(0x1BF2598, 0x20B4A98, 0x1F5B098));
-		native::scr_numArgs = reinterpret_cast<unsigned int*>(SELECT_VALUE(0x1BF2594, 0x20B4A94, 0x1F5B094));
-		native::scr_stackPtr = reinterpret_cast<native::VariableValue**>(SELECT_VALUE(0x1BF2590, 0x20B4A90, 0x1F5B090));
-		native::scr_stackEndPtr = reinterpret_cast<native::VariableValue**>(		SELECT_VALUE(0x1BF2584, 0x20B4A84,
- 0x1F5B084
-));
+		native::scr_VmPub = reinterpret_cast<native::scrVmPub_t*>(SELECT_VALUE(0x1BF2580, 0x20B4A80, 0x1F5B080));
 
 		native::scr_instanceFunctions = reinterpret_cast<native::scr_call_t*>(			SELECT_VALUE(0x184CDB0, 0x1D4F258,
  0x1BF59C8));
