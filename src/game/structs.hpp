@@ -412,7 +412,7 @@ namespace game
 			scr_entref_raw raw;
 		};
 
-		typedef void(__cdecl * scr_call_t)(int entref);
+		typedef void (__cdecl * scr_call_t)(int entref);
 
 		enum scriptType_e
 		{
@@ -422,7 +422,8 @@ namespace game
 			SCRIPT_VECTOR = 4,
 			SCRIPT_FLOAT = 5,
 			SCRIPT_INTEGER = 6,
-			SCRIPT_END = 8, // Custom
+			SCRIPT_END = 8,
+			// Custom
 		};
 
 		struct VariableStackBuffer
@@ -455,11 +456,11 @@ namespace game
 
 		struct function_stack_t
 		{
-			const char *pos;
+			const char* pos;
 			unsigned int localId;
 			unsigned int localVarCount;
-			VariableValue *top;
-			VariableValue *startTop;
+			VariableValue* top;
+			VariableValue* startTop;
 		};
 
 		struct function_frame_t
@@ -470,11 +471,11 @@ namespace game
 
 		struct scrVmPub_t
 		{
-			unsigned int *localVars;
-			VariableValue *maxstack;
+			unsigned int* localVars;
+			VariableValue* maxstack;
 			int function_count;
-			function_frame_t *function_frame;
-			VariableValue *top;
+			function_frame_t* function_frame;
+			VariableValue* top;
 			/*bool debugCode;
 			bool abort_on_error;
 			bool terminal_error;
@@ -485,6 +486,14 @@ namespace game
 			bool showError;
 			function_frame_t function_frame_start[32];
 			VariableValue stack[2048];
+		};
+
+		struct scr_classStruct_t
+		{
+			unsigned __int16 id;
+			unsigned __int16 entArrayId;
+			char charId;
+			const char* name;
 		};
 	}
 }

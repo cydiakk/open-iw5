@@ -62,7 +62,11 @@ namespace game
 		extern int* g_script_error_level;
 		extern jmp_buf* g_script_error;
 
+		extern scr_classStruct_t* g_classMap;
+
 		void AddRefToValue(VariableValue* value);
+
+		unsigned int FindVariable(unsigned int parentId, unsigned int name);
 
 		VariableValue GetEntityFieldValue(unsigned int classnum, int entnum, int offset);
 
@@ -72,6 +76,7 @@ namespace game
 		void Scr_ClearOutParams();
 		scr_entref_t Scr_GetEntityIdRef(unsigned int id);
 		scr_call_t Scr_GetFunc(unsigned int index);
+		int Scr_SetObjectField(unsigned int classnum, int entnum, int offset);
 
 		const char* SL_ConvertToString(unsigned int stringValue);
 		unsigned int SL_GetString(const char* str, unsigned int user);

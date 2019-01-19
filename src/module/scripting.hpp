@@ -25,6 +25,9 @@ public:
 		chaiscript::Boxed_Value call(const std::string& function, const std::vector<chaiscript::Boxed_Value>& arguments) const;
 		void notify(const std::string& event, const std::vector<chaiscript::Boxed_Value>& arguments) const;
 
+		void set(const std::string& field, const chaiscript::Boxed_Value& value);
+		chaiscript::Boxed_Value get(const std::string& field);
+
 	private:
 		scripting* environment_;
 		unsigned int entity_id_;
@@ -51,6 +54,14 @@ public:
 		bool is_volatile = false;
 	};
 
+	class generic_event_listener final
+	{
+	public:
+		std::string event = {};
+		std::function<void(const entity&, const std::vector<chaiscript::Boxed_Value>&)> callback = {};
+		bool is_volatile = false;
+	};
+
 	void post_start() override;
 	void post_load() override;
 	void pre_destroy() override;
@@ -61,8 +72,26 @@ public:
 	static void propagate_error(const std::exception& e);
 
 private:
+	class stack_context final
+	{
+	public:
+		stack_context();
+		~stack_context();
+
+	private:
+		game::native::VariableValue stack_[512]{};
+
+		game::native::VariableValue *maxstack_;
+		game::native::VariableValue *top_;
+		unsigned int inparamcount_;
+		unsigned int outparamcount_;
+	};
+
 	std::unique_ptr<chaiscript::ChaiScript> chai_;
 	utils::chain<event_listener> event_listeners_;
+	utils::chain<generic_event_listener> generic_event_listeners_;
+
+	std::unordered_map<unsigned int, std::unordered_map<std::string, chaiscript::Boxed_Value>> entity_fields_;
 
 	void add_event_listener(const event_listener& listener);
 
@@ -82,7 +111,12 @@ private:
 	static void start_execution();
 	static void stop_execution();
 
-	int get_field_id(int classnum, const std::string& field) const;
+	int get_field_id(int classnum, const std::string& field);
+	void set_entity_field(const std::string& field, unsigned int entity_id, const chaiscript::Boxed_Value& value);
+	chaiscript::Boxed_Value get_entity_field(const std::string& field, unsigned int entity_id);
+
+	static bool set_entity_field_safe(game::native::scr_entref_t entref, int offset);
+	static bool get_entity_field_safe(game::native::scr_entref_t entref, int offset, game::native::VariableValue* value);
 
 	void notify(const std::string& event, unsigned int entity_id, std::vector<chaiscript::Boxed_Value> arguments);
 

@@ -75,6 +75,16 @@ void scripting::entity::notify(const std::string& event, const std::vector<chais
 	this->environment_->notify(event, this->get_entity_id(), arguments);
 }
 
+void scripting::entity::set(const std::string& field, const chaiscript::Boxed_Value& value)
+{
+	this->environment_->set_entity_field(field, this->get_entity_id(), value);
+}
+
+chaiscript::Boxed_Value scripting::entity::get(const std::string& field)
+{
+	return this->environment_->get_entity_field(field, this->get_entity_id());
+}
+
 scripting::variable::variable(game::native::VariableValue value) : value_(value)
 {
 	game::native::AddRefToValue(&value);
@@ -88,6 +98,28 @@ scripting::variable::~variable()
 scripting::variable::operator game::native::VariableValue() const
 {
 	return this->value_;
+}
+
+scripting::stack_context::stack_context()
+{
+	this->inparamcount_ = game::native::scr_VmPub->inparamcount;
+	this->outparamcount_ = game::native::scr_VmPub->outparamcount;
+	this->top_ = game::native::scr_VmPub->top;
+	this->maxstack_ = game::native::scr_VmPub->maxstack;
+
+	game::native::scr_VmPub->top = this->stack_;
+	game::native::scr_VmPub->maxstack = &this->stack_[ARRAYSIZE(this->stack_) - 1];
+	game::native::scr_VmPub->inparamcount = 0;
+	game::native::scr_VmPub->outparamcount = 0;
+}
+
+scripting::stack_context::~stack_context()
+{
+	game::native::Scr_ClearOutParams();
+	game::native::scr_VmPub->inparamcount = this->inparamcount_;
+	game::native::scr_VmPub->outparamcount = this->outparamcount_;
+	game::native::scr_VmPub->top = this->top_;
+	game::native::scr_VmPub->maxstack = this->maxstack_;
 }
 
 void scripting::post_start()
@@ -158,16 +190,16 @@ void scripting::initialize()
 
 	notification::listen([this](notification::event* event)
 	{
-		std::vector<chaiscript::Boxed_Value> arguments;
-
-		for (const auto& argument : event->arguments)
+		try
 		{
-			arguments.push_back(this->make_boxed(argument));
-		}
+			std::vector<chaiscript::Boxed_Value> arguments;
 
-		for (auto listener = this->event_listeners_.begin(); listener.is_valid(); ++listener)
-		{
-			try
+			for (const auto& argument : event->arguments)
+			{
+				arguments.push_back(this->make_boxed(argument));
+			}
+
+			for (auto listener = this->event_listeners_.begin(); listener.is_valid(); ++listener)
 			{
 				if (listener->event == event->name && listener->entity_id == event->entity_id)
 				{
@@ -179,10 +211,23 @@ void scripting::initialize()
 					listener->callback(arguments);
 				}
 			}
-			catch (chaiscript::exception::eval_error& e)
+
+			for (auto listener = this->generic_event_listeners_.begin(); listener.is_valid(); ++listener)
 			{
-				throw std::runtime_error(e.pretty_print());
+				if (listener->event == event->name)
+				{
+					if (listener->is_volatile)
+					{
+						this->generic_event_listeners_.remove(listener);
+					}
+
+					listener->callback(entity(this, event->entity_id), arguments);
+				}
 			}
+		}
+		catch (chaiscript::exception::eval_error& e)
+		{
+			throw std::runtime_error(e.pretty_print());
 		}
 	});
 }
@@ -192,6 +237,9 @@ void scripting::initialize_entity()
 	this->chai_->add(chaiscript::user_type<entity>(), "entity");
 	this->chai_->add(chaiscript::constructor<entity()>(), "entity");
 	this->chai_->add(chaiscript::constructor<entity(const entity&)>(), "entity");
+
+	this->chai_->add(chaiscript::fun(&entity::get), "get");
+	this->chai_->add(chaiscript::fun(&entity::set), "set");
 
 	this->chai_->add(chaiscript::fun(&entity::on_notify), "onNotify");
 	this->chai_->add(chaiscript::fun([](const entity& ent, const std::string& event,
@@ -205,6 +253,32 @@ void scripting::initialize_entity()
 	{
 		return lhs = rhs;
 	}), "=");
+
+	this->chai_->add(chaiscript::fun([this](const std::string& event,
+	                                        const std::function<void(const entity&,
+	                                                                 const std::vector<chaiscript::Boxed_Value>&)>&
+	                                        callback)
+	{
+		generic_event_listener listener;
+		listener.event = event;
+		listener.is_volatile = false;
+		listener.callback = callback;
+
+		this->generic_event_listeners_.add(listener);
+	}), "onNotify");
+
+	this->chai_->add(chaiscript::fun([this](const std::string& event,
+	                                        const std::function<void(const entity&,
+	                                                                 const std::vector<chaiscript::Boxed_Value>&)>&
+	                                        callback, const bool is_volatile)
+	{
+		generic_event_listener listener;
+		listener.event = event;
+		listener.is_volatile = is_volatile;
+		listener.callback = callback;
+
+		this->generic_event_listeners_.add(listener);
+	}), "onNotify");
 
 	// Notification
 	this->chai_->add(chaiscript::fun(&entity::notify), "vectorNotify");
@@ -469,45 +543,92 @@ void scripting::stop_execution()
 	}
 }
 
-int scripting::get_field_id(const int classnum, const std::string& field) const
+int scripting::get_field_id(const int classnum, const std::string& field)
 {
-	switch (classnum)
+	const auto field_name = utils::string::to_lower(field);
+	const auto class_id = game::native::g_classMap[classnum].id;
+	const auto field_str = game::native::SL_GetString(field_name.data(), 1);
+	const auto _ = gsl::finally([field_str]()
 	{
-	case 0: // Entity
-	case 1: // HudElem
-	case 2: // Pathnode
-	case 3: // VehPathNode
-	case 4: // VehTrackSegment
-	case 6: // PIPElem
+		game::native::VariableUnion u{};
+		u.stringValue = field_str;
+		game::native::RemoveRefToValue(game::native::SCRIPT_STRING, u);
+	});
 
-	default:
-		return -1;
+	const auto offset = game::native::FindVariable(class_id, field_str);
+	if (offset)
+	{
+		const auto index = 4 * (offset + 0xC800 * (class_id & 1));
+		return PINT(SELECT_VALUE(0x1A3BC80, 0x1EFE180, 0x1DC8800))[index];
 	}
+
+	return -1;
+}
+
+void scripting::set_entity_field(const std::string& field, const unsigned int entity_id,
+                                 const chaiscript::Boxed_Value& value)
+{
+	const auto entref = game::native::Scr_GetEntityIdRef(entity_id);
+	const int id = get_field_id(entref.raw.classnum, field);
+
+	if (id != -1)
+	{
+		stack_context _;
+		this->push_param(value);
+
+		game::native::scr_VmPub->outparamcount = game::native::scr_VmPub->inparamcount;
+		game::native::scr_VmPub->inparamcount = 0;
+
+		if (!set_entity_field_safe(entref, id))
+		{
+			throw std::runtime_error("Failed to set value for field '" + field + "'");
+		}
+	}
+	else
+	{
+		this->entity_fields_[entity_id][field] = value;
+	}
+}
+
+chaiscript::Boxed_Value scripting::get_entity_field(const std::string& field, const unsigned int entity_id)
+{
+	const auto entref = game::native::Scr_GetEntityIdRef(entity_id);
+	const auto id = this->get_field_id(entref.raw.classnum, field);
+
+	if (id != -1)
+	{
+		stack_context _;
+
+		game::native::VariableValue value{};
+		if (!get_entity_field_safe(entref, id, &value))
+		{
+			throw std::runtime_error("Failed to get value for field '" + field + "'");
+		}
+
+		const auto $ = gsl::finally([value]()
+		{
+			game::native::RemoveRefToValue(value.type, value.u);
+		});
+
+		return this->make_boxed(value);
+	}
+	else
+	{
+		const auto& map = this->entity_fields_[entity_id];
+		const auto value = map.find(field);
+		if (value != map.end())
+		{
+			return value->second;
+		}
+	}
+
+	return {};
 }
 
 void scripting::notify(const std::string& event, const unsigned int entity_id,
                        std::vector<chaiscript::Boxed_Value> arguments)
 {
-
-	const auto old_args = game::native::scr_VmPub->inparamcount;
-	const auto old_params = game::native::scr_VmPub->outparamcount;
-	const auto old_stack_top = game::native::scr_VmPub->top;
-	const auto old_stack_end = game::native::scr_VmPub->maxstack;
-
-	game::native::VariableValue stack[512];
-	game::native::scr_VmPub->top = stack;
-	game::native::scr_VmPub->maxstack = &stack[ARRAYSIZE(stack) - 1];
-	game::native::scr_VmPub->inparamcount = 0;
-	game::native::scr_VmPub->outparamcount = 0;
-
-	const auto cleanup = gsl::finally([=]()
-	{
-		game::native::Scr_ClearOutParams();
-		game::native::scr_VmPub->inparamcount = old_args;
-		game::native::scr_VmPub->outparamcount = old_params;
-		game::native::scr_VmPub->top = old_stack_top;
-		game::native::scr_VmPub->maxstack = old_stack_end;
-	});
+	stack_context _;
 
 	std::reverse(arguments.begin(), arguments.end());
 	for (const auto& argument : arguments)
@@ -534,25 +655,7 @@ chaiscript::Boxed_Value scripting::call(const std::string& function, const unsig
 
 	const auto function_ptr = game::native::Scr_GetFunc(function_index);
 
-	const auto old_args = game::native::scr_VmPub->inparamcount;
-	const auto old_params = game::native::scr_VmPub->outparamcount;
-	const auto old_stack_top = game::native::scr_VmPub->top;
-	const auto old_stack_end = game::native::scr_VmPub->maxstack;
-
-	game::native::VariableValue stack[512];
-	game::native::scr_VmPub->top = stack;
-	game::native::scr_VmPub->maxstack = &stack[ARRAYSIZE(stack) - 1];
-	game::native::scr_VmPub->inparamcount = 0;
-	game::native::scr_VmPub->outparamcount = 0;
-
-	const auto cleanup = gsl::finally([=]()
-	{
-		game::native::Scr_ClearOutParams();
-		game::native::scr_VmPub->inparamcount = old_args;
-		game::native::scr_VmPub->outparamcount = old_params;
-		game::native::scr_VmPub->top = old_stack_top;
-		game::native::scr_VmPub->maxstack = old_stack_end;
-	});
+	stack_context _;
 
 	std::reverse(arguments.begin(), arguments.end());
 	for (const auto& argument : arguments)
@@ -585,6 +688,38 @@ bool scripting::call_safe(const game::native::scr_call_t function, const game::n
 	}
 
 	function(entref.val);
+
+	*game::native::g_script_error_level -= 1;
+	return true;
+}
+
+bool scripting::set_entity_field_safe(game::native::scr_entref_t entref, int offset)
+{
+	*game::native::g_script_error_level += 1;
+	if (setjmp(game::native::g_script_error[*game::native::g_script_error_level]))
+	{
+		*game::native::g_script_error_level -= 1;
+		return false;
+	}
+
+	game::native::Scr_SetObjectField(entref.raw.classnum, entref.raw.entnum, offset);
+
+	*game::native::g_script_error_level -= 1;
+	return true;
+}
+
+bool scripting::get_entity_field_safe(game::native::scr_entref_t entref, int offset, game::native::VariableValue* value)
+{
+	*game::native::g_script_error_level += 1;
+	if (setjmp(game::native::g_script_error[*game::native::g_script_error_level]))
+	{
+		value->type = game::native::SCRIPT_NONE;
+		value->u.intValue = 0;
+		*game::native::g_script_error_level -= 1;
+		return false;
+	}
+
+	*value = game::native::GetEntityFieldValue(entref.raw.classnum, entref.raw.entnum, offset);
 
 	*game::native::g_script_error_level -= 1;
 	return true;
@@ -682,7 +817,7 @@ void scripting::push_param(const chaiscript::Boxed_Value& value) const
 			throw std::runtime_error("Invalid vector length. Size must be exactly 3");
 		}
 
-		const auto unbox_float = [&real_value, this](size_t index) -> float
+		const auto unbox_float = [&real_value, this](const size_t index) -> float
 		{
 			const auto value = real_value[index];
 			if (value.get_type_info() == typeid(float))

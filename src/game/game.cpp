@@ -47,6 +47,8 @@ namespace game
 		int* g_script_error_level;
 		jmp_buf* g_script_error;
 
+		scr_classStruct_t* g_classMap;
+
 		void AddRefToValue(VariableValue* value)
 		{
 			if (value->type == SCRIPT_OBJECT)
@@ -69,15 +71,42 @@ namespace game
 			}
 		}
 
+		__declspec(naked) unsigned int find_variable_dedicated(unsigned int parentId, unsigned int name)
+		{
+			static DWORD func = 0x4E7ED0;
+
+			__asm
+			{
+				mov eax, name
+				mov ecx, parentId
+				call func
+				retn
+			}
+		}
+
+		unsigned int FindVariable(const unsigned int parentId, const unsigned int name)
+		{
+			if (is_dedi())
+			{
+				return find_variable_dedicated(parentId, name);
+			}
+			else
+			{
+				return reinterpret_cast<unsigned int(*)(unsigned int, unsigned int)> //
+					(SELECT_VALUE(0x4C4E70, 0x5651F0, 0x0))(parentId, name);
+			}
+		}
+
 		__declspec(naked) VariableValue get_entity_field_value_dedicated(unsigned int classnum, int entnum, int _offset)
 		{
+			static DWORD func = 0x4F1400;
+
 			__asm
 			{
 				push _offset
 				push entnum
 				mov ecx, classnum
-				mov eax, 4F1400h
-				call eax
+				call func
 				add esp, 8h
 				retn
 			}
@@ -147,6 +176,34 @@ namespace game
 			else
 			{
 				return scr_globalFunctions[index];
+			}
+		}
+
+		__declspec(naked) int scr_set_object_field_dedicated(unsigned int classnum, int entnum, int _offset)
+		{
+			static DWORD func = 0x4B15C0;
+
+			__asm
+			{
+				mov ecx, _offset
+				mov eax, entnum
+				push classnum
+				call func
+				add esp, 4h
+				retn
+			}
+		}
+
+		int Scr_SetObjectField(const unsigned int classnum, const int entnum, const int offset)
+		{
+			if (is_dedi())
+			{
+				return scr_set_object_field_dedicated(classnum, entnum, offset);
+			}
+			else
+			{
+				return reinterpret_cast<int(*)(unsigned int, int, int)> //
+					(SELECT_VALUE(0x42CAD0, 0x52BCC0, 0x0))(classnum, entnum, offset);
 			}
 		}
 
@@ -227,6 +284,8 @@ namespace game
 
 		native::g_script_error_level = reinterpret_cast<int*>(SELECT_VALUE(0x1BEFCFC, 0x20B21FC, 0x1F5B058));
 		native::g_script_error = reinterpret_cast<jmp_buf*>(SELECT_VALUE(0x1BF1D18, 0x20B4218, 0x1F5A818));
+
+		native::g_classMap = reinterpret_cast<native::scr_classStruct_t*>(SELECT_VALUE(0x92D140, 0x8B4300, 0x7C0408));
 
 		native::levelEntityId = reinterpret_cast<unsigned int*>(SELECT_VALUE(0x1BCBCA4, 0x208E1A4, 0x1CD873C));
 	}
