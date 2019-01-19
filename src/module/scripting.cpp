@@ -408,10 +408,10 @@ chaiscript::Boxed_Value scripting::make_boxed(const game::native::VariableValue 
 	}
 	else if (value.type == game::native::SCRIPT_VECTOR)
 	{
-		std::vector<float> values;
-		values.push_back(value.u.vectorValue[0]);
-		values.push_back(value.u.vectorValue[1]);
-		values.push_back(value.u.vectorValue[2]);
+		std::vector<chaiscript::Boxed_Value> values;
+		values.push_back(chaiscript::var(value.u.vectorValue[0]));
+		values.push_back(chaiscript::var(value.u.vectorValue[1]));
+		values.push_back(chaiscript::var(value.u.vectorValue[2]));
 
 		return chaiscript::var(values);
 	}
@@ -559,6 +559,9 @@ chaiscript::Boxed_Value scripting::call(const std::string& function, const unsig
 		this->push_param(argument);
 	}
 
+	*game::native::scr_numParam = *game::native::scr_numArgs;
+	*game::native::scr_numArgs = 0;
+
 	if (!call_safe(function_ptr, entity))
 	{
 		throw std::runtime_error("Error executing function '" + function + "'");
@@ -646,6 +649,12 @@ void scripting::push_param(const chaiscript::Boxed_Value& value) const
 	else if (value.get_type_info() == typeid(int))
 	{
 		const auto real_value = this->chai_->boxed_cast<int>(value);
+		value_ptr->type = game::native::SCRIPT_INTEGER;
+		value_ptr->u.intValue = real_value;
+	}
+	else if (value.get_type_info() == typeid(bool))
+	{
+		const auto real_value = this->chai_->boxed_cast<bool>(value);
 		value_ptr->type = game::native::SCRIPT_INTEGER;
 		value_ptr->u.intValue = real_value;
 	}
