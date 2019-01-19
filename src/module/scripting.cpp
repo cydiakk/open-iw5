@@ -411,6 +411,22 @@ void scripting::stop_execution()
 	}
 }
 
+int scripting::get_field_id(const int classnum, const std::string& field) const
+{
+	switch (classnum)
+	{
+	case 0: // Entity
+	case 1: // HudElem
+	case 2: // Pathnode
+	case 3: // VehPathNode
+	case 4: // VehTrackSegment
+	case 6: // PIPElem
+
+	default:
+		return -1;
+	}
+}
+
 void scripting::notify(const std::string& event, const unsigned int entity_id,
                        std::vector<chaiscript::Boxed_Value> arguments)
 {

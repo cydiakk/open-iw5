@@ -70,12 +70,39 @@ namespace game
 			}
 		}
 
+		__declspec(naked) VariableValue get_entity_field_value_dedicated(unsigned int classnum, int entnum, int _offset)
+		{
+			__asm
+			{
+				push _offset
+				push entnum
+				mov ecx, classnum
+				mov eax, 4F1400h
+				call eax
+				add esp, 8h
+				retn
+			}
+		}
+
+		VariableValue GetEntityFieldValue(const unsigned int classnum, const int entnum, const int offset)
+		{
+			if (is_dedi())
+			{
+				return get_entity_field_value_dedicated(classnum, entnum, offset);
+			}
+			else
+			{
+				return reinterpret_cast<VariableValue(*)(unsigned int, int, int)> //
+					(SELECT_VALUE(0x530E30, 0x56AF20, 0x0))(classnum, entnum, offset);
+			}
+		}
+
 		void* MT_Alloc(const int numBytes, const int type)
 		{
 			return scrMemTreeGlob + 12 * size_t(MT_AllocIndex(numBytes, type));
 		}
 
-		const float* Scr_AllocVector(const float *v)
+		const float* Scr_AllocVector(const float* v)
 		{
 			const auto mem = static_cast<DWORD*>(MT_Alloc(16, 2));
 			*mem = 0;

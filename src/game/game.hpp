@@ -65,6 +65,8 @@ namespace game
 
 		void AddRefToValue(VariableValue* value);
 
+		VariableValue GetEntityFieldValue(unsigned int classnum, int entnum, int offset);
+
 		void* MT_Alloc(int numBytes, int type);
 
 		const float* Scr_AllocVector(const float* v);

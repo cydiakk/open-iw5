@@ -82,6 +82,8 @@ private:
 	static void start_execution();
 	static void stop_execution();
 
+	int get_field_id(int classnum, const std::string& field) const;
+
 	void notify(const std::string& event, unsigned int entity_id, std::vector<chaiscript::Boxed_Value> arguments);
 
 	void push_param(const chaiscript::Boxed_Value& value) const;
