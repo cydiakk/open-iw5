@@ -206,6 +206,7 @@ void scripting::initialize_entity()
 		return lhs = rhs;
 	}), "=");
 
+	// Notification
 	this->chai_->add(chaiscript::fun(&entity::notify), "vectorNotify");
 	this->chai_->add(chaiscript::fun([](const entity& ent, const std::string& event)
 	{
@@ -257,6 +258,7 @@ void scripting::initialize_entity()
 			                 return ent.notify(event, {a1, a2, a3, a4, a5});
 		                 }), "notify");
 
+	// Instance call
 	this->chai_->add(chaiscript::fun(&entity::call), "vectorCall");
 	this->chai_->add(chaiscript::fun([](const entity& ent, const std::string& function)
 	{
@@ -306,6 +308,62 @@ void scripting::initialize_entity()
 		                    const chaiscript::Boxed_Value& a5)
 		                 {
 			                 return ent.call(function, {a1, a2, a3, a4, a5});
+		                 }), "call");
+
+	// Global call
+	this->chai_->add(chaiscript::fun(
+		                 [this](const std::string& function, const std::vector<chaiscript::Boxed_Value>& arguments)
+		                 {
+			                 return this->call(function, 0, arguments);
+		                 }), "vectorCall");
+	this->chai_->add(chaiscript::fun([this](const std::string& function)
+	{
+		return this->call(function, 0, {});
+	}), "call");
+
+	this->chai_->add(chaiscript::fun(
+		                 [this](const std::string& function,
+		                        const chaiscript::Boxed_Value& a1)
+		                 {
+			                 return this->call(function, 0, {a1});
+		                 }), "call");
+
+	this->chai_->add(chaiscript::fun(
+		                 [this](const std::string& function,
+		                        const chaiscript::Boxed_Value& a1,
+		                        const chaiscript::Boxed_Value& a2)
+		                 {
+			                 return this->call(function, 0, {a1, a2});
+		                 }), "call");
+
+	this->chai_->add(chaiscript::fun(
+		                 [this](const std::string& function,
+		                        const chaiscript::Boxed_Value& a1,
+		                        const chaiscript::Boxed_Value& a2,
+		                        const chaiscript::Boxed_Value& a3)
+		                 {
+			                 return this->call(function, 0, {a1, a2, a3});
+		                 }), "call");
+
+	this->chai_->add(chaiscript::fun(
+		                 [this](const std::string& function,
+		                        const chaiscript::Boxed_Value& a1,
+		                        const chaiscript::Boxed_Value& a2,
+		                        const chaiscript::Boxed_Value& a3,
+		                        const chaiscript::Boxed_Value& a4)
+		                 {
+			                 return this->call(function, 0, {a1, a2, a3, a4});
+		                 }), "call");
+
+	this->chai_->add(chaiscript::fun(
+		                 [this](const std::string& function,
+		                        const chaiscript::Boxed_Value& a1,
+		                        const chaiscript::Boxed_Value& a2,
+		                        const chaiscript::Boxed_Value& a3,
+		                        const chaiscript::Boxed_Value& a4,
+		                        const chaiscript::Boxed_Value& a5)
+		                 {
+			                 return this->call(function, 0, {a1, a2, a3, a4, a5});
 		                 }), "call");
 }
 
@@ -463,7 +521,7 @@ void scripting::notify(const std::string& event, const unsigned int entity_id,
 chaiscript::Boxed_Value scripting::call(const std::string& function, const unsigned int entity_id,
                                         std::vector<chaiscript::Boxed_Value> arguments)
 {
-	const auto function_index = find_function_index(function);
+	const auto function_index = find_function_index(function, entity_id == 0);
 	if (function_index < 0)
 	{
 		throw std::runtime_error("No function found for name '" + function + "'");
@@ -529,16 +587,25 @@ bool scripting::call_safe(const game::native::scr_call_t function, const game::n
 }
 #pragma warning(pop)
 
-int scripting::find_function_index(const std::string& function)
+int scripting::find_function_index(const std::string& function, const bool prefer_global)
 {
-	auto function_entry = game::scripting::instance_function_map.find(function);
-	if (function_entry != game::scripting::instance_function_map.end())
+	const auto target = utils::string::to_lower(function);
+
+	const auto primary_map = prefer_global
+		                         ? &game::scripting::global_function_map
+		                         : &game::scripting::instance_function_map;
+	const auto secondary_map = !prefer_global
+		                           ? &game::scripting::global_function_map
+		                           : &game::scripting::instance_function_map;
+
+	auto function_entry = primary_map->find(target);
+	if (function_entry != primary_map->end())
 	{
 		return function_entry->second;
 	}
 
-	function_entry = game::scripting::global_function_map.find(function);
-	if (function_entry != game::scripting::global_function_map.end())
+	function_entry = secondary_map->find(target);
+	if (function_entry != secondary_map->end())
 	{
 		return function_entry->second;
 	}
