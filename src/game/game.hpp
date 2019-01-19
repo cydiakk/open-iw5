@@ -42,6 +42,8 @@ namespace game
 		typedef void (*VM_Notify_t)(unsigned int notifyListOwnerId, unsigned int stringValue, VariableValue* top);
 		extern VM_Notify_t VM_Notify;
 
+		extern decltype(longjmp)* _longjmp;
+
 		extern int* cmd_args;
 		extern int* cmd_argc;
 		extern const char*** cmd_argv;

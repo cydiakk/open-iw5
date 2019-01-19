@@ -13,6 +13,8 @@ public:
 		if (game::is_sp()) this->patch_sp();
 		else if (game::is_mp()) this->patch_mp();
 		else if (game::is_dedi()) this->patch_dedi();
+
+		utils::hook(game::native::_longjmp, long_jump_stub, HOOK_JUMP).install()->quick();
 	}
 
 private:
@@ -42,6 +44,17 @@ private:
 
 	void patch_dedi() const
 	{
+	}
+
+	static __declspec(noreturn) void long_jump_stub(jmp_buf buf, const int value) noexcept(false)
+	{
+#ifdef DEBUG
+		{
+			printf("Unwinding the stack...\n");
+		}
+#endif
+
+		longjmp(buf, value);
 	}
 };
 

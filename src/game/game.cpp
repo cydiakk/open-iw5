@@ -27,6 +27,8 @@ namespace game
 
 		VM_Notify_t VM_Notify;
 
+		decltype(longjmp)* _longjmp;
+
 		int* cmd_args;
 		int* cmd_argc;
 		const char*** cmd_argv;
@@ -207,6 +209,8 @@ namespace game
 		native::Sys_ShowConsole = native::Sys_ShowConsole_t(SELECT_VALUE(0x470AF0, 0x5CF590, 0));
 
 		native::VM_Notify = native::VM_Notify_t(SELECT_VALUE(0x610200, 0x569720, 0x4EF450));
+
+		native::_longjmp = reinterpret_cast<decltype(longjmp)*>(SELECT_VALUE(0x73AC20, 0x7363BC, 0x655558));
 
 		native::cmd_args = reinterpret_cast<int*>(SELECT_VALUE(0x1750750, 0x1C978D0, 0x1B455F8));
 		native::cmd_argc = reinterpret_cast<int*>(SELECT_VALUE(0x1750794, 0x1C97914, 0x1B4563C));
