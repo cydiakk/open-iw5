@@ -75,12 +75,12 @@ void scripting::entity::notify(const std::string& event, const std::vector<chais
 	this->environment_->notify(event, this->get_entity_id(), arguments);
 }
 
-void scripting::entity::set(const std::string& field, const chaiscript::Boxed_Value& value)
+void scripting::entity::set(const std::string& field, const chaiscript::Boxed_Value& value) const
 {
 	this->environment_->set_entity_field(field, this->get_entity_id(), value);
 }
 
-chaiscript::Boxed_Value scripting::entity::get(const std::string& field)
+chaiscript::Boxed_Value scripting::entity::get(const std::string& field) const
 {
 	return this->environment_->get_entity_field(field, this->get_entity_id());
 }
@@ -543,7 +543,7 @@ void scripting::stop_execution()
 	}
 }
 
-int scripting::get_field_id(const int classnum, const std::string& field)
+int scripting::get_field_id(const int classnum, const std::string& field) const
 {
 	const auto field_name = utils::string::to_lower(field);
 	const auto class_id = game::native::g_classMap[classnum].id;
@@ -626,7 +626,7 @@ chaiscript::Boxed_Value scripting::get_entity_field(const std::string& field, co
 }
 
 void scripting::notify(const std::string& event, const unsigned int entity_id,
-                       std::vector<chaiscript::Boxed_Value> arguments)
+                       std::vector<chaiscript::Boxed_Value> arguments) const
 {
 	stack_context _;
 

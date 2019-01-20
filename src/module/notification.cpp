@@ -64,7 +64,7 @@ void notification::vm_notify_stub(const unsigned int notify_id, const unsigned s
 
 		if (e.name == "touch") return; // Skip that for now
 
-		//printf("%X %X: %s\n", e.entity_id, *game::native::levelEntityId, e.name.data());
+		//printf("%X: %s\n", e.entity_id, e.name.data());
 
 		for (auto value = stack; value->type != game::native::SCRIPT_END; --value)
 		{

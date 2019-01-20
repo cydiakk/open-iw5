@@ -25,8 +25,8 @@ public:
 		chaiscript::Boxed_Value call(const std::string& function, const std::vector<chaiscript::Boxed_Value>& arguments) const;
 		void notify(const std::string& event, const std::vector<chaiscript::Boxed_Value>& arguments) const;
 
-		void set(const std::string& field, const chaiscript::Boxed_Value& value);
-		chaiscript::Boxed_Value get(const std::string& field);
+		void set(const std::string& field, const chaiscript::Boxed_Value& value) const;
+		chaiscript::Boxed_Value get(const std::string& field) const;
 
 	private:
 		scripting* environment_;
@@ -111,14 +111,14 @@ private:
 	static void start_execution();
 	static void stop_execution();
 
-	int get_field_id(int classnum, const std::string& field);
+	int get_field_id(int classnum, const std::string& field) const;
 	void set_entity_field(const std::string& field, unsigned int entity_id, const chaiscript::Boxed_Value& value);
 	chaiscript::Boxed_Value get_entity_field(const std::string& field, unsigned int entity_id);
 
 	static bool set_entity_field_safe(game::native::scr_entref_t entref, int offset);
 	static bool get_entity_field_safe(game::native::scr_entref_t entref, int offset, game::native::VariableValue* value);
 
-	void notify(const std::string& event, unsigned int entity_id, std::vector<chaiscript::Boxed_Value> arguments);
+	void notify(const std::string& event, unsigned int entity_id, std::vector<chaiscript::Boxed_Value> arguments) const;
 
 	void push_param(const chaiscript::Boxed_Value& value) const;
 	chaiscript::Boxed_Value get_return_value();
