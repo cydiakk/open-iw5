@@ -60,3 +60,5 @@
 #include "resource.hpp"
 
 using namespace std::literals;
+
+extern __declspec(thread) char tls_data[TLS_PAYLOAD_SIZE];

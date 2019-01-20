@@ -9,9 +9,6 @@
 
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-// Moved to main.cpp to enforce early linking
-//__declspec(thread) char tls_data[TLS_PAYLOAD_SIZE];
-
 #pragma bss_seg(".payload")
 char payload_data[BINARY_PAYLOAD_SIZE];
 

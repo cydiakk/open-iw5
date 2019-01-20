@@ -9,8 +9,6 @@
 
 //#define GENERATE_DIFFS
 
-__declspec(thread) char tls_data[TLS_PAYLOAD_SIZE];
-
 DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 {
 	module_loader::pre_destroy();

@@ -6,7 +6,7 @@ function chaiscript.import()
 	chaiscript.includes()
 
 	defines {
-		"CHAISCRIPT_NO_THREADS" -- :(
+		--"CHAISCRIPT_NO_THREADS" -- :(
 	}
 end
 
