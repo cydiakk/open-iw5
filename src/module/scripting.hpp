@@ -6,12 +6,8 @@
 class scripting final : public module
 {
 public:
-	void post_start() override;
 	void post_load() override;
 	void pre_destroy() override;
-
-	static void on_start(const std::function<void()>& callback);
-	static void on_stop(const std::function<void()>& callback);
 
 	static void propagate_error(const std::exception& e);
 
@@ -20,13 +16,16 @@ private:
 
 	void load_scripts();
 
+	void start_execution();
+	void stop_execution();
+
+	void dispatch(game::scripting::event* event);
+
 	static utils::hook start_hook_;
 	static utils::hook stop_hook_;
 
-	static std::mutex mutex_;
-	static std::vector<std::function<void()>> start_callbacks_;
-	static std::vector<std::function<void()>> stop_callbacks_;
-
-	static void start_execution();
-	static void stop_execution();
+	static void start_execution_stub();
+	static void stop_execution_stub();
+	static void vm_notify_stub(const unsigned int notify_id, const unsigned short type,
+                                  game::native::VariableValue* stack);
 };

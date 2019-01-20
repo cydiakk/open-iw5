@@ -1,61 +1,35 @@
 #include <std_include.hpp>
-#include "notification.hpp"
+#include "utils/hook.hpp"
 #include "utils/io.hpp"
+
 #include "scheduler.hpp"
+#include "scripting.hpp"
 
 utils::hook scripting::start_hook_;
 utils::hook scripting::stop_hook_;
 
-std::mutex scripting::mutex_;
-std::vector<std::function<void()>> scripting::start_callbacks_;
-std::vector<std::function<void()>> scripting::stop_callbacks_;
-
-void scripting::post_start()
-{
-	on_start([this]()
-	{
-		try
-		{
-			this->load_scripts();
-			notification::listen([this](game::scripting::event* event)
-			{
-				for(const auto& script : this->scripts_)
-				{
-					script->get_event_handler()->dispatch(event);
-				}
-			});
-		}
-		catch (std::exception& e)
-		{
-			propagate_error(e);
-		}
-	});
-	on_stop([this]()
-	{
-		this->scripts_.clear();
-	});
-}
-
 void scripting::post_load()
 {
-	start_hook_.initialize(SELECT_VALUE(0x50C575, 0x50D4F2, 0x48A026), []()
-	{
-		start_execution();
-		reinterpret_cast<void(*)()>(start_hook_.get_original())();
-	}, HOOK_CALL)->install()->quick();
+	start_hook_.initialize(SELECT_VALUE(0x50C575, 0x50D4F2, 0x48A026), &start_execution_stub, HOOK_CALL) //
+	           ->install() //
+	           ->quick();
 
-	stop_hook_.initialize(SELECT_VALUE(0x528B04, 0x569E46, 0x4F03FA), []()
+	stop_hook_.initialize(SELECT_VALUE(0x528B04, 0x569E46, 0x4F03FA), &stop_execution_stub, HOOK_CALL) //
+	          ->install() // 
+	          ->quick();
+
+	utils::hook(SELECT_VALUE(0x6109F3, 0x56B637, 0x4EDFF7), &vm_notify_stub, HOOK_CALL).install()->quick();
+	utils::hook(SELECT_VALUE(0x6128BE, 0x56D541, 0x4EFAF9), &vm_notify_stub, HOOK_CALL).install()->quick();
+
+	if (game::is_sp())
 	{
-		stop_execution();
-		reinterpret_cast<void(*)()>(stop_hook_.get_original())();
-	}, HOOK_CALL)->install()->quick();
+		utils::hook(0x610970, &vm_notify_stub, HOOK_JUMP).install()->quick();
+	}
 }
 
 void scripting::pre_destroy()
 {
 	this->scripts_.clear();
-	start_callbacks_.clear();
-	stop_callbacks_.clear();
 }
 
 void scripting::load_scripts()
@@ -80,16 +54,29 @@ void scripting::load_scripts()
 	}
 }
 
-void scripting::on_start(const std::function<void()>& callback)
+void scripting::start_execution()
 {
-	std::lock_guard _(mutex_);
-	start_callbacks_.push_back(callback);
+	try
+	{
+		this->load_scripts();
+	}
+	catch (std::exception& e)
+	{
+		propagate_error(e);
+	}
 }
 
-void scripting::on_stop(const std::function<void()>& callback)
+void scripting::stop_execution()
 {
-	std::lock_guard _(mutex_);
-	stop_callbacks_.push_back(callback);
+	this->scripts_.clear();
+}
+
+void scripting::dispatch(game::scripting::event* event)
+{
+	for (const auto& script : this->scripts_)
+	{
+		script->get_event_handler()->dispatch(event);
+	}
 }
 
 void scripting::propagate_error(const std::exception& e)
@@ -101,33 +88,44 @@ void scripting::propagate_error(const std::exception& e)
 	scheduler::error("Script execution error\n(see console for actual details)\n", 5);
 }
 
-void scripting::start_execution()
+void scripting::start_execution_stub()
 {
-	decltype(start_callbacks_) copy;
-	{
-		std::lock_guard _(mutex_);
-		copy = start_callbacks_;
-	}
-
-	for (const auto& callback : copy)
-	{
-		callback();
-	}
+	module_loader::get<scripting>()->start_execution();
+	reinterpret_cast<void(*)()>(start_hook_.get_original())();
 }
 
-void scripting::stop_execution()
+void scripting::stop_execution_stub()
 {
-	decltype(stop_callbacks_) copy;
+	module_loader::get<scripting>()->stop_execution();
+	reinterpret_cast<void(*)()>(stop_hook_.get_original())();
+}
+
+void scripting::vm_notify_stub(const unsigned int notify_id, const unsigned short type,
+                               game::native::VariableValue* stack)
+{
+	try
 	{
-		std::lock_guard _(mutex_);
-		copy = stop_callbacks_;
-		std::reverse(copy.begin(), copy.end());
+		game::scripting::event e;
+		e.name = game::native::SL_ConvertToString(type);
+		e.entity_id = notify_id;
+
+		if (e.name == "touch") return; // Skip that for now
+
+		//printf("%X: %s\n", e.entity_id, e.name.data());
+
+		for (auto value = stack; value->type != game::native::SCRIPT_END; --value)
+		{
+			e.arguments.emplace_back(*value);
+		}
+
+		module_loader::get<scripting>()->dispatch(&e);
+	}
+	catch (std::exception& e)
+	{
+		propagate_error(e);
 	}
 
-	for (const auto& callback : copy)
-	{
-		callback();
-	}
+	game::native::VM_Notify(notify_id, type, stack);
 }
 
 REGISTER_MODULE(scripting)

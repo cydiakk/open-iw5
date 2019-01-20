@@ -24,6 +24,20 @@ public:
 		}
 	};
 
+	template<typename T>
+	static T* get()
+	{
+		for(const auto& module_ : *modules_)
+		{
+			if(typeid(*module_.get()) == typeid(T))
+			{
+				return reinterpret_cast<T*>(module_.get());
+			}
+		}
+
+		return nullptr;
+	}
+
 	static void register_module(std::unique_ptr<module>&& module);
 
 	static bool post_start();
