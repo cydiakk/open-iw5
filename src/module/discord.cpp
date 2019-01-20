@@ -20,7 +20,7 @@ public:
 		handlers.spectateGame = nullptr;
 		handlers.joinRequest = nullptr;
 
-		Discord_Initialize("531526691319971880", &handlers, 1, nullptr);
+		Discord_Initialize("531526691319971880", &handlers, 1, nullptr, 0);
 
 		scheduler::on_frame(Discord_RunCallbacks);
 	}
