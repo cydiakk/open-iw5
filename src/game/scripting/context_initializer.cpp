@@ -15,6 +15,11 @@ namespace game
 				chai->add(chaiscript::constructor<entity()>(), "entity");
 				chai->add(chaiscript::constructor<entity(const entity&)>(), "entity");
 
+				chai->add(chaiscript::fun([](entity& lhs, const entity& rhs) -> entity&
+				{
+					return lhs = rhs;
+				}), "=");
+
 				chai->add(chaiscript::fun(&entity::get), "get");
 				chai->add(chaiscript::fun(&entity::set), "set");
 
@@ -26,11 +31,6 @@ namespace game
 				{
 					return ent.on_notify(event, callback, false);
 				}), "onNotify");
-
-				chai->add(chaiscript::fun([](entity& lhs, const entity& rhs) -> entity&
-				{
-					return lhs = rhs;
-				}), "=");
 
 				chai->add(chaiscript::fun([context](const std::string& event,
 				                                        const std::function<void(const entity&,

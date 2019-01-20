@@ -35,6 +35,7 @@
 #include <mutex>
 #include <queue>
 #include <regex>
+#include <chrono>
 #include <thread>
 #include <fstream>
 #include <utility>

@@ -1,10 +1,12 @@
+#pragma once
+
 namespace utils
 {
 	template <typename T>
-	class chain
+	class chain final
 	{
 	public:
-		class entry
+		class entry final
 		{
 		private:
 			std::shared_ptr<T> object_;
@@ -23,7 +25,7 @@ namespace utils
 			
 			void set(T object)
 			{
-				this->object_ = std::shared_ptr<T>(new T());
+				this->object_ = std::make_shared<T>();
 				*this->object_.get() = object;
 			}
 
@@ -85,7 +87,7 @@ namespace utils
 			if (!this->empty())
 			{
 				// Create new chain entry
-				std::shared_ptr<entry> current_object = std::shared_ptr<entry>(new entry);
+				std::shared_ptr<entry> current_object = std::make_shared<entry>();
 				*current_object.get() = this->object_;
 
 				// Add it to the chain
