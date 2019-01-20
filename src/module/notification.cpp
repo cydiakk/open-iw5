@@ -4,7 +4,7 @@
 #include "utils/hook.hpp"
 
 std::mutex notification::mutex_;
-std::vector<std::function<void(notification::event*)>> notification::callbacks_;
+std::vector<std::function<void(game::scripting::event*)>> notification::callbacks_;
 
 void notification::post_load()
 {
@@ -25,7 +25,7 @@ void notification::pre_destroy()
 	cleanup();
 }
 
-void notification::listen(const std::function<void(event*)>& callback)
+void notification::listen(const std::function<void(game::scripting::event*)>& callback)
 {
 	std::lock_guard _(mutex_);
 	callbacks_.push_back(callback);
@@ -37,7 +37,7 @@ void notification::cleanup()
 	callbacks_.clear();
 }
 
-void notification::dispatch(event* event)
+void notification::dispatch(game::scripting::event* event)
 {
 	decltype(callbacks_) copy;
 	{
@@ -56,7 +56,7 @@ void notification::vm_notify_stub(const unsigned int notify_id, const unsigned s
 {
 	try
 	{
-		event e;
+		game::scripting::event e;
 		e.name = game::native::SL_ConvertToString(type);
 		e.entity_id = notify_id;
 
