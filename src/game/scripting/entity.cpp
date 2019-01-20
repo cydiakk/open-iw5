@@ -32,7 +32,7 @@ namespace game
 			}
 		}
 
-		void entity::on_notify(const std::string& event,
+		event_listener_handle entity::on_notify(const std::string& event,
 		                       const std::function<void(const std::vector<chaiscript::Boxed_Value>&)>&
 		                       callback,
 		                       const bool is_volatile)
@@ -44,7 +44,7 @@ namespace game
 			listener.entity_id = this->entity_id_;
 			listener.is_volatile = is_volatile;
 
-			this->context_->get_event_handler()->add_event_listener(listener);
+			return this->context_->get_event_handler()->add_event_listener(listener);
 		}
 
 		unsigned int entity::get_entity_id() const

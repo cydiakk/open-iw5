@@ -1,5 +1,6 @@
 #pragma once
 #include "loader/module_loader.hpp"
+#include "utils/concurrent_list.hpp"
 
 class scheduler final : public module
 {
@@ -15,8 +16,8 @@ public:
 private:
 	static std::mutex mutex_;
 	static std::queue<std::pair<std::string, int>> errors_;
-	static std::vector<std::function<void()>> callbacks_;
-	static std::vector<std::function<void()>> single_callbacks_;
+	static utils::concurrent_list<std::function<void()>> callbacks_;
+	static utils::concurrent_list<std::function<void()>> single_callbacks_;
 
 	static void execute_safe();
 	static void execute_error();

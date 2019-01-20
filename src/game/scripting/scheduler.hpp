@@ -1,5 +1,5 @@
 #pragma once
-#include "utils/chain.hpp"
+#include "utils/concurrent_list.hpp"
 
 namespace game
 {
@@ -32,7 +32,7 @@ namespace game
 		private:
 			context* context_;
 
-			utils::chain<task> tasks_;
+			utils::concurrent_list<task> tasks_;
 			std::atomic_int64_t current_task_id_ = 0;
 
 			task_handle add(const std::function<void()>& callback, long long milliseconds, bool is_volatile);

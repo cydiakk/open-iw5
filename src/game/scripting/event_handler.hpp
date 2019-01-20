@@ -1,5 +1,5 @@
 #pragma once
-#include "utils/chain.hpp"
+#include "utils/concurrent_list.hpp"
 #include "entity.hpp"
 #include "event.hpp"
 
@@ -9,7 +9,13 @@ namespace game
 	{
 		class context;
 
-		class event_listener final
+		class event_listener_handle
+		{
+		public:
+			unsigned long long id = 0;
+		};
+
+		class event_listener final : public event_listener_handle
 		{
 		public:
 			std::string event = {};
@@ -18,7 +24,7 @@ namespace game
 			bool is_volatile = false;
 		};
 
-		class generic_event_listener final
+		class generic_event_listener final : public event_listener_handle
 		{
 		public:
 			std::string event = {};
@@ -31,20 +37,22 @@ namespace game
 		public:
 			explicit event_handler(context* context);
 
-			void run_frame();
 			void dispatch(event* event);
 
-			void add_event_listener(const event_listener& listener);
-			void add_event_listener(const generic_event_listener& listener);
+			event_listener_handle add_event_listener(event_listener listener);
+			event_listener_handle add_event_listener(generic_event_listener listener);
 
 		private:
 			context* context_;
+			std::atomic_int64_t current_listener_id_ = 0;
+
+utils::concurrent_list<event_listener> event_listeners_;
+			utils::concurrent_list<generic_event_listener> generic_event_listeners_;
 
 			void dispatch_to_specific_listeners(event* event, const std::vector<chaiscript::Boxed_Value>& arguments);
 			void dispatch_to_generic_listeners(event* event, const std::vector<chaiscript::Boxed_Value>& arguments);
 
-			utils::chain<event_listener> event_listeners_;
-			utils::chain<generic_event_listener> generic_event_listeners_;
+			void remove(const event_listener_handle& handle);
 		};
 	}
 }

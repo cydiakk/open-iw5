@@ -3,30 +3,26 @@
 namespace utils
 {
 	template <typename T>
-	class chain final
+	class concurrent_list final
 	{
 	public:
 		class entry final
 		{
-		private:
-			std::shared_ptr<T> object_;
-			std::shared_ptr<entry> next_;
-
 		public:
+
 			bool has_next()
 			{
-				return (this->next_.use_count() > 0);
+				return this->next_.operator bool();
 			}
 
 			bool is_valid()
 			{
-				return (this->object_.use_count() > 0);
+				return this->object_.operator bool();
 			}
-			
-			void set(T object)
+
+			void set(const std::shared_ptr<T>& object)
 			{
-				this->object_ = std::make_shared<T>();
-				*this->object_.get() = object;
+				this->object_ = object;
 			}
 
 			std::shared_ptr<T> get()
@@ -38,7 +34,7 @@ namespace utils
 			{
 				if (this->has_next())
 				{
-					return *(this->next_.get());
+					return *this->next_;
 				}
 				else
 				{
@@ -56,67 +52,85 @@ namespace utils
 				this->next_ = entry;
 			}
 
-			T *operator->()
+			T* operator->()
 			{
-				return (this->object_.get());
+				return this->object_.get();
 			}
 
-			entry& operator++ ()
+			std::shared_ptr<T> operator*()
+			{
+				return this->object_;
+			}
+
+			explicit operator bool()
+			{
+				return this->is_valid();
+			}
+
+			bool operator==(const entry& other)
+			{
+				return this->object_.get() == other.object_.get();
+			}
+
+			bool operator!=(const entry& other)
+			{
+				return !(*this == other);
+			}
+
+			entry& operator++()
 			{
 				*this = this->get_next();
 				return *this;
 			}
 
-			entry operator++ (int)
+			entry operator++(int)
 			{
 				entry result = *this;
 				this->operator++();
 				return result;
 			}
+
+		private:
+			std::shared_ptr<T> object_;
+			std::shared_ptr<entry> next_;
 		};
 
-	private:
-		std::mutex mutex_;
-		entry object_;
-
-	public:
 		void add(const T& object)
 		{
 			std::lock_guard _(this->mutex_);
-			
+
 			if (!this->empty())
 			{
-				// Create new chain entry
 				std::shared_ptr<entry> current_object = std::make_shared<entry>();
-				*current_object.get() = this->object_;
+				current_object->set(this->object_.get());
 
-				// Add it to the chain
 				this->object_ = entry();
 				this->object_.set_next_entry(current_object);
 			}
 
-			this->object_.set(object);
+			const auto obj_ptr = std::make_shared<T>(object);
+			this->object_.set(obj_ptr);
 		}
 
-		void remove(std::shared_ptr<T> object)
+		void remove(const std::shared_ptr<T>& object)
 		{
 			std::lock_guard _(this->mutex_);
-			
+
 			if (!this->empty())
 			{
-				if (this->object_.get().get() == object.get())
+				if (this->object_.get() == object)
 				{
 					this->object_ = this->object_.get_next();
 				}
-				else if(this->object_.has_next())
+				else if (this->object_.has_next())
 				{
 					for (auto entry = this->object_; entry.is_valid(); ++entry)
 					{
 						auto next = entry.get_next();
 
-						if (next.is_valid() && next.get().get() == object.get())
+						if (next.is_valid() && next.get() == object)
 						{
-							*entry.get_next_entry().get() = next.get_next();
+							entry.set_next_entry(next.get_next_entry());
 						}
 					}
 				}
@@ -133,7 +147,7 @@ namespace utils
 
 		bool empty()
 		{
-			return !this->object_.is_valid();
+			return !this->object_;
 		}
 
 		entry begin()
@@ -141,9 +155,18 @@ namespace utils
 			return this->object_;
 		}
 
+		entry end()
+		{
+			return entry();
+		}
+
 		void clear()
 		{
 			this->object_ = entry();
 		}
+
+	private:
+		std::mutex mutex_;
+		entry object_;
 	};
 }

@@ -40,7 +40,7 @@ namespace game
 
 		void scheduler::run_frame()
 		{
-			for (auto task = this->tasks_.begin(); task.is_valid(); ++task)
+			for (const auto& task : this->tasks_)
 			{
 				const auto now = std::chrono::steady_clock::now();
 				if ((now - task->last_execution) > task->delay)
@@ -79,7 +79,7 @@ namespace game
 
 		void scheduler::remove(const task_handle& handle)
 		{
-			for (auto task = this->tasks_.begin(); task.is_valid(); ++task)
+			for (const auto task : this->tasks_)
 			{
 				if(task->id == handle.id)
 				{

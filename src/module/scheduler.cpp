@@ -6,19 +6,19 @@
 
 std::mutex scheduler::mutex_;
 std::queue<std::pair<std::string, int>> scheduler::errors_;
-std::vector<std::function<void()>> scheduler::callbacks_;
-std::vector<std::function<void()>> scheduler::single_callbacks_;
+utils::concurrent_list<std::function<void()>> scheduler::callbacks_;
+utils::concurrent_list<std::function<void()>> scheduler::single_callbacks_;
 
 void scheduler::on_frame(const std::function<void()>& callback)
 {
 	std::lock_guard _(mutex_);
-	callbacks_.push_back(callback);
+	callbacks_.add(callback);
 }
 
 void scheduler::once(const std::function<void()>& callback)
 {
 	std::lock_guard _(mutex_);
-	single_callbacks_.push_back(callback);
+	single_callbacks_.add(callback);
 }
 
 void scheduler::error(const std::string& message, int level)
@@ -39,24 +39,14 @@ __declspec(naked) void scheduler::execute()
 
 void scheduler::execute_safe()
 {
-	std::vector<std::function<void()>> callbacks_copy;
-	std::vector<std::function<void()>> single_callbacks_copy;
-
+	for (const auto& callback : callbacks_)
 	{
-		std::lock_guard _(mutex_);
-		callbacks_copy = callbacks_;
-		single_callbacks_copy = single_callbacks_;
-		single_callbacks_.clear();
+		(*callback)();
 	}
 
-	for (const auto& callback : callbacks_copy)
+	for (const auto& callback : single_callbacks_)
 	{
-		callback();
-	}
-
-	for (const auto& callback : single_callbacks_copy)
-	{
-		callback();
+		(*callback)();
 	}
 }
 

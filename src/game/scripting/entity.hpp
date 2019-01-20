@@ -6,6 +6,7 @@ namespace game
 	namespace scripting
 	{
 		class context;
+		class event_listener_handle;
 
 		class entity final
 		{
@@ -15,7 +16,7 @@ namespace game
 			entity(context* context, unsigned int entity_id);
 			~entity();
 
-			void on_notify(const std::string& event,
+			event_listener_handle on_notify(const std::string& event,
 			               const std::function<void(const std::vector<chaiscript::Boxed_Value>&)>& callback,
 			               bool is_volatile) const;
 

@@ -43,7 +43,7 @@ namespace game
 					listener.is_volatile = false;
 					listener.callback = callback;
 
-					context->get_event_handler()->add_event_listener(listener);
+					return context->get_event_handler()->add_event_listener(listener);
 				}), "onNotify");
 
 				chai->add(chaiscript::fun([context](const std::string& event,
@@ -57,7 +57,7 @@ namespace game
 					listener.is_volatile = is_volatile;
 					listener.callback = callback;
 
-					context->get_event_handler()->add_event_listener(listener);
+					return context->get_event_handler()->add_event_listener(listener);
 				}), "onNotify");
 
 				// Notification
