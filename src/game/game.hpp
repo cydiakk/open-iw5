@@ -21,6 +21,9 @@ namespace game
 		typedef void (*DB_LoadXAssets_t)(XZoneInfo* zoneInfo, unsigned int zoneCount, int sync);
 		extern DB_LoadXAssets_t DB_LoadXAssets;
 
+		typedef int (*G_RunFrame_t)(int, int);
+		extern G_RunFrame_t G_RunFrame;
+
 		typedef void (*MSG_ReadData_t)(msg_t* msg, void* data, int len);
 		extern MSG_ReadData_t MSG_ReadData;
 
@@ -29,9 +32,6 @@ namespace game
 
 		typedef void (*RemoveRefToValue_t)(scriptType_e type, VariableUnion u);
 		extern RemoveRefToValue_t RemoveRefToValue;
-
-		typedef void (*Scr_NotifyId_t)(unsigned int id, unsigned int stringValue, unsigned int paramcount);
-		extern Scr_NotifyId_t Scr_NotifyId;
 
 		typedef unsigned int (*SL_GetStringOfSize_t)(const char* str, unsigned int user, unsigned int len, int type);
 		extern SL_GetStringOfSize_t SL_GetStringOfSize;
@@ -76,6 +76,7 @@ namespace game
 		void Scr_ClearOutParams();
 		scr_entref_t Scr_GetEntityIdRef(unsigned int id);
 		scr_call_t Scr_GetFunc(unsigned int index);
+		void Scr_NotifyId(unsigned int id, unsigned int stringValue, unsigned int paramcount);
 		int Scr_SetObjectField(unsigned int classnum, int entnum, int offset);
 
 		const char* SL_ConvertToString(unsigned int stringValue);

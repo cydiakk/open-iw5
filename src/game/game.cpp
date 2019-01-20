@@ -13,13 +13,13 @@ namespace game
 
 		DB_LoadXAssets_t DB_LoadXAssets;
 
+		G_RunFrame_t G_RunFrame;
+
 		MSG_ReadData_t MSG_ReadData;
 
 		MT_AllocIndex_t MT_AllocIndex;
 
 		RemoveRefToValue_t RemoveRefToValue;
-
-		Scr_NotifyId_t Scr_NotifyId;
 
 		SL_GetStringOfSize_t SL_GetStringOfSize;
 
@@ -179,6 +179,54 @@ namespace game
 			}
 		}
 
+		__declspec(naked) void scr_notify_id_multiplayer(unsigned int id, unsigned int stringValue,
+		                                                 unsigned int paramcount)
+		{
+			static DWORD func = 0x56B5E0;
+
+			__asm
+			{
+				mov eax, paramcount
+				push stringValue
+				push id
+				call func
+				add esp, 8h
+				retn
+			}
+		}
+
+		__declspec(naked) void scr_notify_id_singleplayer(unsigned int id, unsigned int stringValue,
+		                                                  unsigned int paramcount)
+		{
+			static DWORD func = 0x610980;
+
+			__asm
+			{
+				mov eax, paramcount
+				push stringValue
+				push id
+				call func
+				add esp, 8h
+				retn
+			}
+		}
+
+		void Scr_NotifyId(unsigned int id, unsigned int stringValue, unsigned int paramcount)
+		{
+			if (is_mp())
+			{
+				return scr_notify_id_multiplayer(id, stringValue, paramcount);
+			}
+			else if (is_sp())
+			{
+				return scr_notify_id_singleplayer(id, stringValue, paramcount);
+			}
+			else
+			{
+				return reinterpret_cast<void(*)(unsigned int, unsigned int, unsigned int)>(0x4EFAA0)(id, stringValue, paramcount);
+			}
+		}
+
 		__declspec(naked) int scr_set_object_field_dedicated(unsigned int classnum, int entnum, int _offset)
 		{
 			static DWORD func = 0x4B15C0;
@@ -250,13 +298,13 @@ namespace game
 
 		native::DB_LoadXAssets = native::DB_LoadXAssets_t(SELECT_VALUE(0x48A8E0, 0x4CD020, 0x44F770));
 
+		native::G_RunFrame = native::G_RunFrame_t(SELECT_VALUE(0x52EAA0, 0x50CB70, 0x48AD60));
+
 		native::MSG_ReadData = native::MSG_ReadData_t(SELECT_VALUE(0, 0x5592A0, 0));
 
 		native::MT_AllocIndex = native::MT_AllocIndex_t(SELECT_VALUE(0x4B9610, 0x562080, 0x4E6C30));
 
 		native::RemoveRefToValue = native::RemoveRefToValue_t(SELECT_VALUE(0x477EA0, 0x565730, 0x4E8A40));
-
-		native::Scr_NotifyId = native::Scr_NotifyId_t(SELECT_VALUE(0x610980, 0x56B5E0, 0x4EFAA0));
 
 		native::SL_GetStringOfSize = native::SL_GetStringOfSize_t(SELECT_VALUE(0x4E13F0, 0x564650, 0x4E7490));
 

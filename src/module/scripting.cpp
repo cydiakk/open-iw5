@@ -18,15 +18,20 @@ public:
 		          ->install() //
 		          ->quick();
 
+		utils::hook(SELECT_VALUE(0x4F9706, 0x5772A0, 0x4FAB88), &frame_stub, HOOK_CALL).install()->quick();
+		utils::hook(SELECT_VALUE(0x4FFA48, 0x5774AB, 0x4FEFD7), &frame_stub, HOOK_CALL).install()->quick(); // Only relevant one?
+
 		utils::hook(SELECT_VALUE(0x6109F3, 0x56B637, 0x4EDFF7), &vm_notify_stub, HOOK_CALL).install()->quick();
 		utils::hook(SELECT_VALUE(0x6128BE, 0x56D541, 0x4EFAF9), &vm_notify_stub, HOOK_CALL).install()->quick();
 
 		if (game::is_sp())
 		{
+			utils::hook(0x50C57E, &frame_stub, HOOK_CALL).install()->quick();
+			utils::hook(0x6523A3, &frame_stub, HOOK_CALL).install()->quick();
+			utils::hook(0x5145D2, &frame_stub, HOOK_CALL).install()->quick();
+
 			utils::hook(0x610970, &vm_notify_stub, HOOK_JUMP).install()->quick();
 		}
-
-		scheduler::on_frame(std::bind(&scripting::run_frame, this));
 	}
 
 	void pre_destroy() override
@@ -142,6 +147,12 @@ private:
 		}
 
 		game::native::VM_Notify(notify_id, type, stack);
+	}
+
+	static int frame_stub(int a1, int a2)
+	{
+		module_loader::get<scripting>()->run_frame();
+		return game::native::G_RunFrame(a1, a2);
 	}
 };
 
