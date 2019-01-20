@@ -5,7 +5,7 @@ namespace game
 {
 	namespace scripting
 	{
-		context::context() : executer_(this), parameters_(this), event_handler_(this)
+		context::context() : executer_(this), scheduler_(this), parameters_(this), event_handler_(this)
 		{
 			context_initializer::initialize(this);
 		}
@@ -13,6 +13,11 @@ namespace game
 		executer* context::get_executer()
 		{
 			return &this->executer_;
+		}
+
+		scheduler* context::get_scheduler()
+		{
+			return &this->scheduler_;
 		}
 
 		parameters* context::get_parameters()

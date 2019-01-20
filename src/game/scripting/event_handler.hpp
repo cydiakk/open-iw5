@@ -31,6 +31,7 @@ namespace game
 		public:
 			explicit event_handler(context* context);
 
+			void run_frame();
 			void dispatch(event* event);
 
 			void add_event_listener(const event_listener& listener);

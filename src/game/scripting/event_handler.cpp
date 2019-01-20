@@ -9,6 +9,11 @@ namespace game
 		{
 		}
 
+		void event_handler::run_frame()
+		{
+
+		}
+
 		void event_handler::dispatch(event* event)
 		{
 			try
