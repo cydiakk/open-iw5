@@ -4,6 +4,10 @@ chaiscript = {
 
 function chaiscript.import()
 	chaiscript.includes()
+
+	defines {
+		"CHAISCRIPT_NO_THREADS" -- :(
+	}
 end
 
 function chaiscript.includes()

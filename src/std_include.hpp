@@ -18,6 +18,7 @@
 #include <corecrt_io.h>
 #include <fcntl.h>
 #include <shellapi.h>
+#include <csetjmp>
 
 // min and max is required by gdi, therefore NOMINMAX won't work
 #ifdef max
