@@ -68,8 +68,7 @@ namespace demonware
 
 		static void server_thread();
 
-		static void bd_logger_stub(int /*type*/, const char* const /*channelName*/, const char*,
-		                           const char* const /*file*/,
-		                           const char* const function, const unsigned int /*line*/, const char* const msg, ...);
+		static void bd_logger_stub(int /*type*/, const char* /*channelName*/, const char*, const char* /*file*/,
+		                           const char* function, unsigned int /*line*/, const char* msg, ...);
 	};
 }

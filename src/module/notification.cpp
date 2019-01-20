@@ -2,20 +2,18 @@
 #include "loader/module_loader.hpp"
 #include "notification.hpp"
 #include "utils/hook.hpp"
-#include "utils/string.hpp"
-#include "scheduler.hpp"
 
 std::mutex notification::mutex_;
 std::vector<std::function<void(notification::event*)>> notification::callbacks_;
 
 void notification::post_load()
 {
-	utils::hook(SELECT_VALUE(0x6109F3, 0x56B637, 0x4EDFF7), vm_notify_stub, HOOK_CALL).install()->quick();
-	utils::hook(SELECT_VALUE(0x6128BE, 0x56D541, 0x4EFAF9), vm_notify_stub, HOOK_CALL).install()->quick();
+	utils::hook(SELECT_VALUE(0x6109F3, 0x56B637, 0x4EDFF7), &vm_notify_stub, HOOK_CALL).install()->quick();
+	utils::hook(SELECT_VALUE(0x6128BE, 0x56D541, 0x4EFAF9), &vm_notify_stub, HOOK_CALL).install()->quick();
 
 	if (game::is_sp())
 	{
-		utils::hook(0x610970, vm_notify_stub, HOOK_JUMP).install()->quick();
+		utils::hook(0x610970, &vm_notify_stub, HOOK_JUMP).install()->quick();
 	}
 
 	//scripting::on_start(cleanup);

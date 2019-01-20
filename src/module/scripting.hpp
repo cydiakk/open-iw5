@@ -81,10 +81,10 @@ private:
 	private:
 		game::native::VariableValue stack_[512]{};
 
-		game::native::VariableValue *maxstack_;
+		game::native::VariableValue *max_stack_;
 		game::native::VariableValue *top_;
-		unsigned int inparamcount_;
-		unsigned int outparamcount_;
+		unsigned int in_param_count_;
+		unsigned int out_param_count_;
 	};
 
 	std::unique_ptr<chaiscript::ChaiScript> chai_;

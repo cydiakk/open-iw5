@@ -25,7 +25,7 @@ scripting::entity::entity(scripting* environment, const unsigned int entity_id) 
 {
 	if (this->entity_id_)
 	{
-		game::native::VariableValue value;
+		game::native::VariableValue value{};
 		value.type = game::native::SCRIPT_OBJECT;
 		value.u.entityId = this->entity_id_;
 		game::native::AddRefToValue(&value);
@@ -102,10 +102,10 @@ scripting::variable::operator game::native::VariableValue() const
 
 scripting::stack_context::stack_context()
 {
-	this->inparamcount_ = game::native::scr_VmPub->inparamcount;
-	this->outparamcount_ = game::native::scr_VmPub->outparamcount;
+	this->in_param_count_ = game::native::scr_VmPub->inparamcount;
+	this->out_param_count_ = game::native::scr_VmPub->outparamcount;
 	this->top_ = game::native::scr_VmPub->top;
-	this->maxstack_ = game::native::scr_VmPub->maxstack;
+	this->max_stack_ = game::native::scr_VmPub->maxstack;
 
 	game::native::scr_VmPub->top = this->stack_;
 	game::native::scr_VmPub->maxstack = &this->stack_[ARRAYSIZE(this->stack_) - 1];
@@ -116,10 +116,10 @@ scripting::stack_context::stack_context()
 scripting::stack_context::~stack_context()
 {
 	game::native::Scr_ClearOutParams();
-	game::native::scr_VmPub->inparamcount = this->inparamcount_;
-	game::native::scr_VmPub->outparamcount = this->outparamcount_;
+	game::native::scr_VmPub->inparamcount = this->in_param_count_;
+	game::native::scr_VmPub->outparamcount = this->out_param_count_;
 	game::native::scr_VmPub->top = this->top_;
-	game::native::scr_VmPub->maxstack = this->maxstack_;
+	game::native::scr_VmPub->maxstack = this->max_stack_;
 }
 
 void scripting::post_start()
@@ -146,13 +146,13 @@ void scripting::post_load()
 	start_hook_.initialize(SELECT_VALUE(0x50C575, 0x50D4F2, 0x48A026), []()
 	{
 		start_execution();
-		static_cast<void(*)()>(start_hook_.get_original())();
+		reinterpret_cast<void(*)()>(start_hook_.get_original())();
 	}, HOOK_CALL)->install()->quick();
 
 	stop_hook_.initialize(SELECT_VALUE(0x528B04, 0x569E46, 0x4F03FA), []()
 	{
 		stop_execution();
-		static_cast<void(*)()>(stop_hook_.get_original())();
+		reinterpret_cast<void(*)()>(stop_hook_.get_original())();
 	}, HOOK_CALL)->install()->quick();
 }
 
@@ -550,9 +550,7 @@ int scripting::get_field_id(const int classnum, const std::string& field) const
 	const auto field_str = game::native::SL_GetString(field_name.data(), 1);
 	const auto _ = gsl::finally([field_str]()
 	{
-		game::native::VariableUnion u{};
-		u.stringValue = field_str;
-		game::native::RemoveRefToValue(game::native::SCRIPT_STRING, u);
+		game::native::RemoveRefToValue(game::native::SCRIPT_STRING, {int(field_str)});
 	});
 
 	const auto offset = game::native::FindVariable(class_id, field_str);
