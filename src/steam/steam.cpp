@@ -53,14 +53,14 @@ namespace steam
 	{
 		std::lock_guard _(mutex_);
 
-		for (auto result : results_)
+		for (const auto& result : results_)
 		{
 			if (result_handlers_.find(result.call) != result_handlers_.end())
 			{
 				result_handlers_[result.call]->run(result.data, false, result.call);
 			}
 
-			for (auto callback : callback_list_)
+			for (const auto& callback : callback_list_)
 			{
 				if (callback && callback->get_i_callback() == result.type)
 				{
