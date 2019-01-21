@@ -9,9 +9,9 @@ namespace game
 		{
 			const auto chai = this->context_->get_chai();
 
-			chai->add(chaiscript::user_type<event_listener_handle>(), "event_listener_handle");
-			chai->add(chaiscript::constructor<event_listener_handle()>(), "event_listener_handle");
-			chai->add(chaiscript::constructor<event_listener_handle(const event_listener_handle&)>(), "event_listener_handle");
+			chai->add(chaiscript::user_type<event_listener_handle>(), "_event_listener_handle");
+			chai->add(chaiscript::constructor<event_listener_handle()>(), "_event_listener_handle");
+			chai->add(chaiscript::constructor<event_listener_handle(const event_listener_handle&)>(), "_event_listener_handle");
 
 			chai->add(chaiscript::fun([](event_listener_handle& lhs, const event_listener_handle& rhs) -> event_listener_handle&
 			{

@@ -13,8 +13,12 @@ namespace game
 		public:
 			entity();
 			entity(const entity& other);
+			entity(entity&& other) noexcept;
 			entity(context* context, unsigned int entity_id);
 			~entity();
+
+			entity& operator=(const entity& other);
+			entity& operator=(entity&& other) noexcept;
 
 			event_listener_handle on_notify(const std::string& event,
 			               const std::function<void(const std::vector<chaiscript::Boxed_Value>&)>& callback,
@@ -33,6 +37,9 @@ namespace game
 		private:
 			context* context_;
 			unsigned int entity_id_;
+
+			void add() const;
+			void release() const;
 		};
 	}
 }

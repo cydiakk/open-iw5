@@ -11,9 +11,9 @@ namespace game
 			{
 				const auto chai = context->get_chai();
 
-				chai->add(chaiscript::user_type<entity>(), "entity");
-				chai->add(chaiscript::constructor<entity()>(), "entity");
-				chai->add(chaiscript::constructor<entity(const entity&)>(), "entity");
+				chai->add(chaiscript::user_type<entity>(), "_entity");
+				chai->add(chaiscript::constructor<entity()>(), "_entity");
+				chai->add(chaiscript::constructor<entity(const entity&)>(), "_entity");
 
 				chai->add(chaiscript::fun([](entity& lhs, const entity& rhs) -> entity&
 				{

@@ -9,9 +9,9 @@ namespace game
 		{
 			const auto chai = this->context_->get_chai();
 
-			chai->add(chaiscript::user_type<task_handle>(), "task_handle");
-			chai->add(chaiscript::constructor<task_handle()>(), "task_handle");
-			chai->add(chaiscript::constructor<task_handle(const task_handle&)>(), "task_handle");
+			chai->add(chaiscript::user_type<task_handle>(), "_task_handle");
+			chai->add(chaiscript::constructor<task_handle()>(), "_task_handle");
+			chai->add(chaiscript::constructor<task_handle(const task_handle&)>(), "_task_handle");
 
 			chai->add(chaiscript::fun([](task_handle& lhs, const task_handle& rhs) -> task_handle&
 			{
