@@ -53,6 +53,8 @@ namespace game
 		{
 			if (&other != this)
 			{
+				this->release();
+
 				this->context_ = other.context_;
 				this->entity_id_ = other.entity_id_;
 

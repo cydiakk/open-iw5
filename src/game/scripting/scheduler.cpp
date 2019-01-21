@@ -79,7 +79,7 @@ namespace game
 
 		void scheduler::remove(const task_handle& handle)
 		{
-			for (const auto task : this->tasks_)
+			for (const auto& task : this->tasks_)
 			{
 				if(task->id == handle.id)
 				{
