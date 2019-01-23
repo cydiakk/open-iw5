@@ -21,7 +21,7 @@ public:
 	html_frame();
 	virtual ~html_frame();
 
-	void initialize(const HWND window);
+	void initialize(HWND window);
 
 	void resize(DWORD width, DWORD height) const;
 	bool load_url(const std::string& url) const;

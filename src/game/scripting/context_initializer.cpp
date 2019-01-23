@@ -26,17 +26,16 @@ namespace game
 				chai->add(chaiscript::fun(&entity::on_notify), "onNotify");
 				chai->add(chaiscript::fun([](const entity& ent, const std::string& event,
 				                             const std::function<void(
-					                             const std::vector<chaiscript::Boxed_Value>&)>&
+					                             std::vector<chaiscript::Boxed_Value>)>&
 				                             callback)
 				{
 					return ent.on_notify(event, callback, false);
 				}), "onNotify");
 
 				chai->add(chaiscript::fun([context](const std::string& event,
-				                                        const std::function<void(const entity&,
-				                                                                 const std::vector<chaiscript::
-					                                                                 Boxed_Value>&)>&
-				                                        callback)
+				                                    const std::function<void(
+					                                    entity, std::vector<chaiscript::Boxed_Value>)>&
+				                                    callback)
 				{
 					generic_event_listener listener;
 					listener.event = event;
@@ -47,10 +46,9 @@ namespace game
 				}), "onNotify");
 
 				chai->add(chaiscript::fun([context](const std::string& event,
-				                                        const std::function<void(const entity&,
-				                                                                 const std::vector<chaiscript::
-					                                                                 Boxed_Value>&)>&
-				                                        callback, const bool is_volatile)
+				                                    const std::function<void(
+					                                    entity, std::vector<chaiscript::Boxed_Value>)>&
+				                                    callback, const bool is_volatile)
 				{
 					generic_event_listener listener;
 					listener.event = event;
@@ -68,49 +66,49 @@ namespace game
 				}), "notify");
 
 				chai->add(chaiscript::fun(
-					                 [](const entity& ent, const std::string& event,
-					                    const chaiscript::Boxed_Value& a1)
-					                 {
-						                 return ent.notify(event, {a1});
-					                 }), "notify");
+					          [](const entity& ent, const std::string& event,
+					             const chaiscript::Boxed_Value& a1)
+					          {
+						          return ent.notify(event, {a1});
+					          }), "notify");
 
 				chai->add(chaiscript::fun(
-					                 [](const entity& ent, const std::string& event,
-					                    const chaiscript::Boxed_Value& a1,
-					                    const chaiscript::Boxed_Value& a2)
-					                 {
-						                 return ent.notify(event, {a1, a2});
-					                 }), "notify");
+					          [](const entity& ent, const std::string& event,
+					             const chaiscript::Boxed_Value& a1,
+					             const chaiscript::Boxed_Value& a2)
+					          {
+						          return ent.notify(event, {a1, a2});
+					          }), "notify");
 
 				chai->add(chaiscript::fun(
-					                 [](const entity& ent, const std::string& event,
-					                    const chaiscript::Boxed_Value& a1,
-					                    const chaiscript::Boxed_Value& a2,
-					                    const chaiscript::Boxed_Value& a3)
-					                 {
-						                 return ent.notify(event, {a1, a2, a3});
-					                 }), "notify");
+					          [](const entity& ent, const std::string& event,
+					             const chaiscript::Boxed_Value& a1,
+					             const chaiscript::Boxed_Value& a2,
+					             const chaiscript::Boxed_Value& a3)
+					          {
+						          return ent.notify(event, {a1, a2, a3});
+					          }), "notify");
 
 				chai->add(chaiscript::fun(
-					                 [](const entity& ent, const std::string& event,
-					                    const chaiscript::Boxed_Value& a1,
-					                    const chaiscript::Boxed_Value& a2,
-					                    const chaiscript::Boxed_Value& a3,
-					                    const chaiscript::Boxed_Value& a4)
-					                 {
-						                 return ent.notify(event, {a1, a2, a3, a4});
-					                 }), "notify");
+					          [](const entity& ent, const std::string& event,
+					             const chaiscript::Boxed_Value& a1,
+					             const chaiscript::Boxed_Value& a2,
+					             const chaiscript::Boxed_Value& a3,
+					             const chaiscript::Boxed_Value& a4)
+					          {
+						          return ent.notify(event, {a1, a2, a3, a4});
+					          }), "notify");
 
 				chai->add(chaiscript::fun(
-					                 [](const entity& ent, const std::string& event,
-					                    const chaiscript::Boxed_Value& a1,
-					                    const chaiscript::Boxed_Value& a2,
-					                    const chaiscript::Boxed_Value& a3,
-					                    const chaiscript::Boxed_Value& a4,
-					                    const chaiscript::Boxed_Value& a5)
-					                 {
-						                 return ent.notify(event, {a1, a2, a3, a4, a5});
-					                 }), "notify");
+					          [](const entity& ent, const std::string& event,
+					             const chaiscript::Boxed_Value& a1,
+					             const chaiscript::Boxed_Value& a2,
+					             const chaiscript::Boxed_Value& a3,
+					             const chaiscript::Boxed_Value& a4,
+					             const chaiscript::Boxed_Value& a5)
+					          {
+						          return ent.notify(event, {a1, a2, a3, a4, a5});
+					          }), "notify");
 
 				// Instance call
 				chai->add(chaiscript::fun(&entity::call), "vectorCall");
@@ -120,106 +118,106 @@ namespace game
 				}), "call");
 
 				chai->add(chaiscript::fun(
-					                 [](const entity& ent, const std::string& function,
-					                    const chaiscript::Boxed_Value& a1)
-					                 {
-						                 return ent.call(function, {a1});
-					                 }), "call");
+					          [](const entity& ent, const std::string& function,
+					             const chaiscript::Boxed_Value& a1)
+					          {
+						          return ent.call(function, {a1});
+					          }), "call");
 
 				chai->add(chaiscript::fun(
-					                 [](const entity& ent, const std::string& function,
-					                    const chaiscript::Boxed_Value& a1,
-					                    const chaiscript::Boxed_Value& a2)
-					                 {
-						                 return ent.call(function, {a1, a2});
-					                 }), "call");
+					          [](const entity& ent, const std::string& function,
+					             const chaiscript::Boxed_Value& a1,
+					             const chaiscript::Boxed_Value& a2)
+					          {
+						          return ent.call(function, {a1, a2});
+					          }), "call");
 
 				chai->add(chaiscript::fun(
-					                 [](const entity& ent, const std::string& function,
-					                    const chaiscript::Boxed_Value& a1,
-					                    const chaiscript::Boxed_Value& a2,
-					                    const chaiscript::Boxed_Value& a3)
-					                 {
-						                 return ent.call(function, {a1, a2, a3});
-					                 }), "call");
+					          [](const entity& ent, const std::string& function,
+					             const chaiscript::Boxed_Value& a1,
+					             const chaiscript::Boxed_Value& a2,
+					             const chaiscript::Boxed_Value& a3)
+					          {
+						          return ent.call(function, {a1, a2, a3});
+					          }), "call");
 
 				chai->add(chaiscript::fun(
-					                 [](const entity& ent, const std::string& function,
-					                    const chaiscript::Boxed_Value& a1,
-					                    const chaiscript::Boxed_Value& a2,
-					                    const chaiscript::Boxed_Value& a3,
-					                    const chaiscript::Boxed_Value& a4)
-					                 {
-						                 return ent.call(function, {a1, a2, a3, a4});
-					                 }), "call");
+					          [](const entity& ent, const std::string& function,
+					             const chaiscript::Boxed_Value& a1,
+					             const chaiscript::Boxed_Value& a2,
+					             const chaiscript::Boxed_Value& a3,
+					             const chaiscript::Boxed_Value& a4)
+					          {
+						          return ent.call(function, {a1, a2, a3, a4});
+					          }), "call");
 
 				chai->add(chaiscript::fun(
-					                 [](const entity& ent, const std::string& function,
-					                    const chaiscript::Boxed_Value& a1,
-					                    const chaiscript::Boxed_Value& a2,
-					                    const chaiscript::Boxed_Value& a3,
-					                    const chaiscript::Boxed_Value& a4,
-					                    const chaiscript::Boxed_Value& a5)
-					                 {
-						                 return ent.call(function, {a1, a2, a3, a4, a5});
-					                 }), "call");
+					          [](const entity& ent, const std::string& function,
+					             const chaiscript::Boxed_Value& a1,
+					             const chaiscript::Boxed_Value& a2,
+					             const chaiscript::Boxed_Value& a3,
+					             const chaiscript::Boxed_Value& a4,
+					             const chaiscript::Boxed_Value& a5)
+					          {
+						          return ent.call(function, {a1, a2, a3, a4, a5});
+					          }), "call");
 
 				// Global call
 				chai->add(chaiscript::fun(
-					                 [context](const std::string& function,
-					                        const std::vector<chaiscript::Boxed_Value>& arguments)
-					                 {
-						                 return context->get_executer()->call(function, 0, arguments);
-					                 }), "vectorCall");
+					          [context](const std::string& function,
+					                    const std::vector<chaiscript::Boxed_Value>& arguments)
+					          {
+						          return context->get_executer()->call(function, 0, arguments);
+					          }), "vectorCall");
 				chai->add(chaiscript::fun([context](const std::string& function)
 				{
 					return context->get_executer()->call(function, 0, {});
 				}), "call");
 
 				chai->add(chaiscript::fun(
-					                 [context](const std::string& function,
-					                        const chaiscript::Boxed_Value& a1)
-					                 {
-						                 return context->get_executer()->call(function, 0, {a1});
-					                 }), "call");
+					          [context](const std::string& function,
+					                    const chaiscript::Boxed_Value& a1)
+					          {
+						          return context->get_executer()->call(function, 0, {a1});
+					          }), "call");
 
 				chai->add(chaiscript::fun(
-					                 [context](const std::string& function,
-					                        const chaiscript::Boxed_Value& a1,
-					                        const chaiscript::Boxed_Value& a2)
-					                 {
-						                 return context->get_executer()->call(function, 0, {a1, a2});
-					                 }), "call");
+					          [context](const std::string& function,
+					                    const chaiscript::Boxed_Value& a1,
+					                    const chaiscript::Boxed_Value& a2)
+					          {
+						          return context->get_executer()->call(function, 0, {a1, a2});
+					          }), "call");
 
 				chai->add(chaiscript::fun(
-					                 [context](const std::string& function,
-					                        const chaiscript::Boxed_Value& a1,
-					                        const chaiscript::Boxed_Value& a2,
-					                        const chaiscript::Boxed_Value& a3)
-					                 {
-						                 return context->get_executer()->call(function, 0, {a1, a2, a3});
-					                 }), "call");
+					          [context](const std::string& function,
+					                    const chaiscript::Boxed_Value& a1,
+					                    const chaiscript::Boxed_Value& a2,
+					                    const chaiscript::Boxed_Value& a3)
+					          {
+						          return context->get_executer()->call(function, 0, {a1, a2, a3});
+					          }), "call");
 
 				chai->add(chaiscript::fun(
-					                 [context](const std::string& function,
-					                        const chaiscript::Boxed_Value& a1,
-					                        const chaiscript::Boxed_Value& a2,
-					                        const chaiscript::Boxed_Value& a3,
-					                        const chaiscript::Boxed_Value& a4)
-					                 {
-						                 return context->get_executer()->call(function, 0, {a1, a2, a3, a4});
-					                 }), "call");
+					          [context](const std::string& function,
+					                    const chaiscript::Boxed_Value& a1,
+					                    const chaiscript::Boxed_Value& a2,
+					                    const chaiscript::Boxed_Value& a3,
+					                    const chaiscript::Boxed_Value& a4)
+					          {
+						          return context->get_executer()->call(function, 0, {a1, a2, a3, a4});
+					          }), "call");
 
 				chai->add(chaiscript::fun(
-					                 [context](const std::string& function,
-					                        const chaiscript::Boxed_Value& a1,
-					                        const chaiscript::Boxed_Value& a2,
-					                        const chaiscript::Boxed_Value& a3,
-					                        const chaiscript::Boxed_Value& a4,
-					                        const chaiscript::Boxed_Value& a5)
-					                 {
-						                 return context->get_executer()->call(function, 0, {a1, a2, a3, a4, a5});
-					                 }), "call");
+					          [context](const std::string& function,
+					                    const chaiscript::Boxed_Value& a1,
+					                    const chaiscript::Boxed_Value& a2,
+					                    const chaiscript::Boxed_Value& a3,
+					                    const chaiscript::Boxed_Value& a4,
+					                    const chaiscript::Boxed_Value& a5)
+					          {
+						          return context->get_executer()->call(function, 0, {a1, a2, a3, a4, a5});
+					          }), "call");
 			}
 
 			void initialize(context* context)

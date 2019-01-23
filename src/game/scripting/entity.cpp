@@ -66,7 +66,7 @@ namespace game
 		}
 
 		event_listener_handle entity::on_notify(const std::string& event,
-		                                        const std::function<void(const std::vector<chaiscript::Boxed_Value>&)>&
+		                                        const std::function<void(std::vector<chaiscript::Boxed_Value>)>&
 		                                        callback,
 		                                        const bool is_volatile)
 		const

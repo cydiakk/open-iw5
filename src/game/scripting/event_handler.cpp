@@ -11,12 +11,14 @@ namespace game
 
 			chai->add(chaiscript::user_type<event_listener_handle>(), "_event_listener_handle");
 			chai->add(chaiscript::constructor<event_listener_handle()>(), "_event_listener_handle");
-			chai->add(chaiscript::constructor<event_listener_handle(const event_listener_handle&)>(), "_event_listener_handle");
+			chai->add(chaiscript::constructor<event_listener_handle(const event_listener_handle&)>(),
+			          "_event_listener_handle");
 
-			chai->add(chaiscript::fun([](event_listener_handle& lhs, const event_listener_handle& rhs) -> event_listener_handle&
-			{
-				return lhs = rhs;
-			}), "=");
+			chai->add(chaiscript::fun(
+				          [](event_listener_handle& lhs, const event_listener_handle& rhs) -> event_listener_handle&
+				          {
+					          return lhs = rhs;
+				          }), "=");
 
 			chai->add(chaiscript::fun([this](const event_listener_handle& handle)
 			{
@@ -82,14 +84,14 @@ namespace game
 		{
 			listener.id = ++this->current_listener_id_;
 			this->event_listeners_.add(listener);
-			return { listener.id };
+			return {listener.id};
 		}
 
 		event_listener_handle event_handler::add_event_listener(generic_event_listener listener)
 		{
 			listener.id = ++this->current_listener_id_;
 			this->generic_event_listeners_.add(listener);
-			return { listener.id };
+			return {listener.id};
 		}
 
 		void event_handler::remove(const event_listener_handle& handle)

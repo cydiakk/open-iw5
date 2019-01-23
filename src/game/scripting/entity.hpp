@@ -21,8 +21,8 @@ namespace game
 			entity& operator=(entity&& other) noexcept;
 
 			event_listener_handle on_notify(const std::string& event,
-			               const std::function<void(const std::vector<chaiscript::Boxed_Value>&)>& callback,
-			               bool is_volatile) const;
+			                                const std::function<void(std::vector<chaiscript::Boxed_Value>)>& callback,
+			                                bool is_volatile) const;
 
 			unsigned int get_entity_id() const;
 			game::native::scr_entref_t get_entity_reference() const;
