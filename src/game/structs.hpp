@@ -495,5 +495,56 @@ namespace game
 			char charId;
 			const char* name;
 		};
+
+		union DvarValue
+		{
+			bool enabled;
+			int integer;
+			unsigned int unsignedInt;
+			float value;
+			float vector[4];
+			const char* string;
+			char color[4];
+		};
+
+		struct enum_limit
+		{
+			int stringCount;
+			const char** strings;
+		};
+
+		struct int_limit
+		{
+			int min;
+			int max;
+		};
+
+		struct float_limit
+		{
+			float min;
+			float max;
+		};
+
+		union DvarLimits
+		{
+			enum_limit enumeration;
+			int_limit integer;
+			float_limit value;
+			float_limit vector;
+		};
+
+		struct dvar_t
+		{
+			const char* name;
+			unsigned int flags;
+			char type;
+			bool modified;
+			DvarValue current;
+			DvarValue latched;
+			DvarValue reset;
+			DvarLimits domain;
+			bool (__cdecl *domainFunc)(dvar_t*, DvarValue);
+			dvar_t* hashNext;
+		};
 	}
 }

@@ -21,6 +21,9 @@ namespace game
 		typedef void (*DB_LoadXAssets_t)(XZoneInfo* zoneInfo, unsigned int zoneCount, int sync);
 		extern DB_LoadXAssets_t DB_LoadXAssets;
 
+		typedef void (*Dvar_SetFromStringByName_t)(const char *dvarName, const char *string);
+		extern Dvar_SetFromStringByName_t Dvar_SetFromStringByName;
+
 		typedef int (*G_RunFrame_t)(int, int);
 		extern G_RunFrame_t G_RunFrame;
 

@@ -13,6 +13,8 @@ namespace game
 
 		DB_LoadXAssets_t DB_LoadXAssets;
 
+		Dvar_SetFromStringByName_t Dvar_SetFromStringByName;
+
 		G_RunFrame_t G_RunFrame;
 
 		MSG_ReadData_t MSG_ReadData;
@@ -297,6 +299,8 @@ namespace game
 		native::Conbuf_AppendText = native::Conbuf_AppendText_t(SELECT_VALUE(0x4C84E0, 0x5CF610, 0x53C790));
 
 		native::DB_LoadXAssets = native::DB_LoadXAssets_t(SELECT_VALUE(0x48A8E0, 0x4CD020, 0x44F770));
+
+		native::Dvar_SetFromStringByName = native::Dvar_SetFromStringByName_t(SELECT_VALUE(0x4DD090, 0x5BF740, 0x518DF0));
 
 		native::G_RunFrame = native::G_RunFrame_t(SELECT_VALUE(0x52EAA0, 0x50CB70, 0x48AD60));
 
