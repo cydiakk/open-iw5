@@ -100,7 +100,7 @@ namespace game
 			stack_isolation _;
 
 			std::reverse(arguments.begin(), arguments.end());
-			for (const auto& argument : arguments)
+			for (auto argument : arguments)
 			{
 				this->context_->get_parameters()->push(argument);
 			}

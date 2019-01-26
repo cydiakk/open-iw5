@@ -32,7 +32,7 @@ namespace game
 			{
 				std::vector<chaiscript::Boxed_Value> arguments;
 
-				for (const auto& argument : event->arguments)
+				for (auto argument : event->arguments)
 				{
 					arguments.push_back(this->context_->get_parameters()->load(argument));
 				}
@@ -49,7 +49,7 @@ namespace game
 		void event_handler::dispatch_to_specific_listeners(event* event,
 		                                                   const std::vector<chaiscript::Boxed_Value>& arguments)
 		{
-			for (const auto& listener : this->event_listeners_)
+			for (auto listener : this->event_listeners_)
 			{
 				if (listener->event == event->name && listener->entity_id == event->entity_id)
 				{
@@ -66,7 +66,7 @@ namespace game
 		void event_handler::dispatch_to_generic_listeners(event* event,
 		                                                  const std::vector<chaiscript::Boxed_Value>& arguments)
 		{
-			for (const auto& listener : this->generic_event_listeners_)
+			for (auto listener : this->generic_event_listeners_)
 			{
 				if (listener->event == event->name)
 				{
@@ -96,7 +96,7 @@ namespace game
 
 		void event_handler::remove(const event_listener_handle& handle)
 		{
-			for (const auto& task : this->event_listeners_)
+			for (auto task : this->event_listeners_)
 			{
 				if (task->id == handle.id)
 				{
@@ -105,7 +105,7 @@ namespace game
 				}
 			}
 
-			for (const auto& task : this->generic_event_listeners_)
+			for (auto task : this->generic_event_listeners_)
 			{
 				if (task->id == handle.id)
 				{

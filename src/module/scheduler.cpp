@@ -39,13 +39,14 @@ __declspec(naked) void scheduler::execute()
 
 void scheduler::execute_safe()
 {
-	for (const auto& callback : callbacks_)
+	for (auto callback : callbacks_)
 	{
 		(*callback)();
 	}
 
-	for (const auto& callback : single_callbacks_)
+	for (auto callback : single_callbacks_)
 	{
+		single_callbacks_.remove(callback);
 		(*callback)();
 	}
 }
