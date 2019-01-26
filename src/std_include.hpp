@@ -4,8 +4,17 @@
 #define TLS_PAYLOAD_SIZE 0x2000
 
 #pragma warning(push)
+#pragma warning(disable: 4244)
 #pragma warning(disable: 4458)
 #pragma warning(disable: 4702)
+#pragma warning(disable: 6297)
+#pragma warning(disable: 6385)
+#pragma warning(disable: 6386)
+#pragma warning(disable: 26451)
+#pragma warning(disable: 26444)
+#pragma warning(disable: 26451)
+#pragma warning(disable: 26495)
+#pragma warning(disable: 28020)
 
 #define WIN32_LEAN_AND_MEAN
 

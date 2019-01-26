@@ -16,10 +16,10 @@ namespace game
 		class task final : public task_handle
 		{
 		public:
-			std::chrono::steady_clock::time_point last_execution;
-			std::function<void()> callback;
-			std::chrono::milliseconds delay;
-			bool is_volatile;
+			std::chrono::steady_clock::time_point last_execution{};
+			std::function<void()> callback{};
+			std::chrono::milliseconds delay{};
+			bool is_volatile = false;
 		};
 
 		class scheduler final
