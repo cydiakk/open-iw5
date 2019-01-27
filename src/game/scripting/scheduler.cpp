@@ -56,6 +56,11 @@ namespace game
 			}
 		}
 
+		void scheduler::clear()
+		{
+			this->tasks_.clear();
+		}
+
 		task_handle scheduler::add(const std::function<void()>& callback, const long long milliseconds,
 		                           const bool is_volatile)
 		{

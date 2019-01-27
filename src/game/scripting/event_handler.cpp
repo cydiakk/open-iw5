@@ -94,6 +94,12 @@ namespace game
 			return {listener.id};
 		}
 
+		void event_handler::clear()
+		{
+			this->event_listeners_.clear();
+			this->generic_event_listeners_.clear();
+		}
+
 		void event_handler::remove(const event_listener_handle& handle)
 		{
 			for (auto task : this->event_listeners_)

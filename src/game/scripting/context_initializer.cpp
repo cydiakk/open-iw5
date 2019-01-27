@@ -236,7 +236,7 @@ namespace game
 					MessageBoxA(nullptr, string.data(), nullptr, 0);
 				}), "alert");
 
-				const auto level_id = *game::native::levelEntityId;
+				const auto level_id = *native::levelEntityId;
 				chai->add_global(chaiscript::var(entity(context, level_id)), "level");
 			}
 		}

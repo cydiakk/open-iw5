@@ -28,6 +28,7 @@ namespace game
 			explicit scheduler(context* context);
 
 			void run_frame();
+			void clear();
 
 		private:
 			context* context_;

@@ -42,6 +42,8 @@ namespace game
 			event_listener_handle add_event_listener(event_listener listener);
 			event_listener_handle add_event_listener(generic_event_listener listener);
 
+			void clear();
+
 		private:
 			context* context_;
 			std::atomic_int64_t current_listener_id_ = 0;
