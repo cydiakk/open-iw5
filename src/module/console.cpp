@@ -42,9 +42,10 @@ public:
 
 	void post_load() override
 	{
-		if (game::is_dedi()) return;
-
-		game::native::Sys_ShowConsole();
+		if (!game::is_dedi())
+		{
+			game::native::Sys_ShowConsole();
+		}
 
 		std::lock_guard _(this->mutex_);
 		this->console_initialized_ = true;

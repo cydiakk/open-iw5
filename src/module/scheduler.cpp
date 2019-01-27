@@ -3,6 +3,7 @@
 #include "utils/string.hpp"
 #include "game/structs.hpp"
 #include "game/game.hpp"
+#include "utils/hook.hpp"
 
 std::mutex scheduler::mutex_;
 std::queue<std::pair<std::string, int>> scheduler::errors_;
@@ -25,6 +26,12 @@ void scheduler::error(const std::string& message, int level)
 {
 	std::lock_guard _(mutex_);
 	errors_.emplace(message, level);
+}
+
+void scheduler::frame_stub()
+{
+	execute();
+	reinterpret_cast<void(*)()>(SELECT_VALUE(0x458600, 0x556470, 0x4DB070))();
 }
 
 __declspec(naked) void scheduler::execute()
@@ -78,6 +85,11 @@ bool scheduler::get_next_error(const char** error_message, int* error_level)
 	*error_message = utils::string::va("%s", error.first.data());
 
 	return true;
+}
+
+void scheduler::post_load()
+{
+	utils::hook(SELECT_VALUE(0x44C7DB, 0x55688E, 0x4DB324), frame_stub, HOOK_CALL).install()->quick();
 }
 
 void scheduler::pre_destroy()

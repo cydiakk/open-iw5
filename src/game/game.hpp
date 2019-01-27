@@ -17,9 +17,6 @@ namespace game
 		typedef void (*Com_Error_t)(int code, const char* fmt, ...);
 		extern Com_Error_t Com_Error;
 
-		typedef void (*Conbuf_AppendText_t)(const char* message);
-		extern Conbuf_AppendText_t Conbuf_AppendText;
-
 		typedef void (*DB_LoadXAssets_t)(XZoneInfo* zoneInfo, unsigned int zoneCount, int sync);
 		extern DB_LoadXAssets_t DB_LoadXAssets;
 
@@ -70,6 +67,8 @@ namespace game
 		extern scr_classStruct_t* g_classMap;
 
 		void AddRefToValue(VariableValue* value);
+
+		void Conbuf_AppendText(const char* message);
 
 		unsigned int FindVariable(unsigned int parentId, unsigned int name);
 

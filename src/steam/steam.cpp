@@ -136,7 +136,6 @@ namespace steam
 	void SteamAPI_RunCallbacks()
 	{
 		callbacks::run_callbacks();
-		scheduler::execute();
 	}
 
 	void SteamAPI_Shutdown()

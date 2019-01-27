@@ -9,8 +9,6 @@ namespace game
 
 		Com_Error_t Com_Error;
 
-		Conbuf_AppendText_t Conbuf_AppendText;
-
 		DB_LoadXAssets_t DB_LoadXAssets;
 
 		Dvar_SetFromStringByName_t Dvar_SetFromStringByName;
@@ -70,6 +68,30 @@ namespace game
 				{
 					++*PWORD(value->u.vectorValue - 4);
 				}
+			}
+		}
+
+		__declspec(naked) unsigned int conbuf_append_text_dedicated(const char* message)
+		{
+			static DWORD func = 0x53C790;
+
+			__asm
+			{
+				mov ecx, message
+				call func
+				retn
+			}
+		}
+
+		void Conbuf_AppendText(const char* message)
+		{
+			if(is_dedi())
+			{
+				conbuf_append_text_dedicated(message);
+			}
+			else
+			{
+				reinterpret_cast<void(*)(const char*)>(SELECT_VALUE(0x4C84E0, 0x5CF610, 0))(message);
 			}
 		}
 
@@ -273,19 +295,29 @@ namespace game
 
 	launcher::mode mode = launcher::mode::none;
 
+	launcher::mode get_mode()
+	{
+		if(mode == launcher::mode::none)
+		{
+			throw std::runtime_error("Launcher mode not valid. Something must be wrong.");
+		}
+
+		return mode;
+	}
+
 	bool is_mp()
 	{
-		return mode == launcher::mode::multiplayer;
+		return get_mode() == launcher::mode::multiplayer;
 	}
 
 	bool is_sp()
 	{
-		return mode == launcher::mode::singleplayer;
+		return get_mode() == launcher::mode::singleplayer;
 	}
 
 	bool is_dedi()
 	{
-		return mode == launcher::mode::server;
+		return get_mode() == launcher::mode::server;
 	}
 
 	void initialize(const launcher::mode _mode)
@@ -295,8 +327,6 @@ namespace game
 		native::Cmd_AddCommand = native::Cmd_AddCommand_t(SELECT_VALUE(0x558820, 0x545DF0, 0));
 
 		native::Com_Error = native::Com_Error_t(SELECT_VALUE(0x425540, 0x555450, 0x4D93F0));
-
-		native::Conbuf_AppendText = native::Conbuf_AppendText_t(SELECT_VALUE(0x4C84E0, 0x5CF610, 0x53C790));
 
 		native::DB_LoadXAssets = native::DB_LoadXAssets_t(SELECT_VALUE(0x48A8E0, 0x4CD020, 0x44F770));
 
