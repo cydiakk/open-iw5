@@ -39,6 +39,15 @@ namespace utils
 			static bool verify_message(key key, const std::string& message, const std::string& signature);
 		};
 
+		class rsa final
+		{
+		public:
+			static std::string encrypt(const std::string& data, const std::string& hash, const std::string& key);
+
+		private:
+			static void initialize();
+		};
+
 		class des3 final
 		{
 		public:

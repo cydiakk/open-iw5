@@ -7,8 +7,10 @@
 
 #include "game/demonware/services/bdLSGHello.hpp"       // 7
 #include "game/demonware/services/bdStorage.hpp"        // 10
+#include "game/demonware/services/bdDediAuth.hpp"       // 12
 #include "game/demonware/services/bdTitleUtilities.hpp" // 12
 #include "game/demonware/services/bdDML.hpp"            // 27
+#include "game/demonware/services/bdDediRSAAuth.hpp"    // 26
 #include "game/demonware/services/bdSteamAuth.hpp"      // 28
 
 namespace demonware
@@ -375,7 +377,9 @@ namespace demonware
 		auto lsg_server = register_server("mw3-pc-lobby.prod.demonware.net");
 		auto auth_server = register_server("mw3-pc-auth.prod.demonware.net");
 
+		auth_server->register_service<bdDediAuth>();
 		auth_server->register_service<bdSteamAuth>();
+		auth_server->register_service<bdDediRSAAuth>();
 
 		lsg_server->register_service<bdLSGHello>();
 		lsg_server->register_service<bdStorage>();

@@ -127,6 +127,54 @@ namespace utils
  reinterpret_cast<const uint8_t*>(message.data()), message.size(), &result, key.get()) == CRYPT_OK && result != 0);
 		}
 
+		std::string rsa::encrypt(const std::string& data, const std::string& hash, const std::string& key)
+		{
+			initialize();
+
+			const auto prng_id = find_prng("yarrow");
+
+			rsa_key new_key;
+			rsa_import(PBYTE(key.data()), key.size(), &new_key);
+
+			prng_state yarrow;
+			rng_make_prng(128, prng_id, &yarrow, nullptr);
+
+			unsigned char buffer[0x80];
+			unsigned long length = sizeof(buffer);
+
+			const auto rsa_result =	rsa_encrypt_key( //
+				PBYTE(data.data()), //
+				data.size(), //
+				buffer, //
+				&length, //
+				PBYTE(hash.data()), //
+				hash.size(), //
+				&yarrow, //
+				prng_id, //
+				find_hash("sha1"), //
+				&new_key);
+
+			rsa_free(&new_key);
+
+			if (rsa_result == CRYPT_OK)
+			{
+				return std::string(PCHAR(buffer), length);
+			}
+
+			return {};
+		}
+
+		void rsa::initialize()
+		{
+			static auto initialized = false;
+			if (initialized) return;
+			initialized = true;
+
+			ltc_mp = ltm_desc;
+			register_hash(&sha1_desc);
+			register_prng(&yarrow_desc);
+		}
+
 		std::string des3::encrypt(const std::string& data, const std::string& iv, const std::string& key)
 		{
 			initialize();

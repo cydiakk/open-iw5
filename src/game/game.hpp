@@ -5,6 +5,8 @@
 
 #define SELECT_VALUE(sp, mp, dedi) (game::is_sp() ? (sp) : (game::is_mp() ? (mp) : (dedi)))
 
+#define SERVER_CD_KEY "Open-IW5-CD-Key"
+
 namespace game
 {
 	namespace native
