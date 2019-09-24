@@ -12,17 +12,16 @@ class steam_proxy final : public module
 public:
 	void post_start() override
 	{
-		if (game::is_dedi()) return;
-
 		this->run_mod();
-		this->load_client();
-
-		this->clean_up_on_error();
 	}
 
 	void post_load() override
 	{
 		if (game::is_dedi()) return;
+
+		this->load_client();
+
+		this->clean_up_on_error();
 
 		try
 		{
@@ -116,10 +115,8 @@ private:
 
 		this->steam_pipe_ = this->steam_client_module_.invoke<void*>("Steam_CreateSteamPipe");
 		this->global_user_ = this->steam_client_module_.invoke<void*>("Steam_ConnectToGlobalUser", this->steam_pipe_);
-		this->client_user_ = this->client_engine_.invoke<void*>(8, this->steam_pipe_, this->global_user_,
-		                                                        "CLIENTUSER_INTERFACE_VERSION001"); // GetIClientUser
-		this->client_utils_ = this->client_engine_.invoke<void*>(13, this->steam_pipe_,
-		                                                         "CLIENTUTILS_INTERFACE_VERSION001"); // GetIClientUtils
+		this->client_user_ = this->client_engine_.invoke<void*>(8, this->steam_pipe_, this->global_user_); // GetIClientUser
+		this->client_utils_ = this->client_engine_.invoke<void*>(13, this->steam_pipe_); // GetIClientUtils
 	}
 
 	void start_mod(const std::string& title, size_t app_id)
@@ -175,4 +172,4 @@ private:
 	}
 };
 
-//REGISTER_MODULE(steam_proxy)
+REGISTER_MODULE(steam_proxy)
