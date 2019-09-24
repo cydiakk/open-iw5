@@ -85,7 +85,7 @@ namespace game
 
 		void Conbuf_AppendText(const char* message)
 		{
-			if(is_dedi())
+			if (is_dedi())
 			{
 				conbuf_append_text_dedicated(message);
 			}
@@ -247,7 +247,8 @@ namespace game
 			}
 			else
 			{
-				return reinterpret_cast<void(*)(unsigned int, unsigned int, unsigned int)>(0x4EFAA0)(id, stringValue, paramcount);
+				return reinterpret_cast<void(*)(unsigned int, unsigned int, unsigned int)>(0x4EFAA0)(
+					id, stringValue, paramcount);
 			}
 		}
 
@@ -297,7 +298,7 @@ namespace game
 
 	launcher::mode get_mode()
 	{
-		if(mode == launcher::mode::none)
+		if (mode == launcher::mode::none)
 		{
 			throw std::runtime_error("Launcher mode not valid. Something must be wrong.");
 		}
@@ -330,7 +331,8 @@ namespace game
 
 		native::DB_LoadXAssets = native::DB_LoadXAssets_t(SELECT_VALUE(0x48A8E0, 0x4CD020, 0x44F770));
 
-		native::Dvar_SetFromStringByName = native::Dvar_SetFromStringByName_t(SELECT_VALUE(0x4DD090, 0x5BF740, 0x518DF0));
+		native::Dvar_SetFromStringByName = native::Dvar_SetFromStringByName_t(
+			SELECT_VALUE(0x4DD090, 0x5BF740, 0x518DF0));
 
 		native::G_RunFrame = native::G_RunFrame_t(SELECT_VALUE(0x52EAA0, 0x50CB70, 0x48AD60));
 
@@ -358,11 +360,11 @@ namespace game
 
 		native::scr_VmPub = reinterpret_cast<native::scrVmPub_t*>(SELECT_VALUE(0x1BF2580, 0x20B4A80, 0x1F5B080));
 
-		native::scr_instanceFunctions = reinterpret_cast<native::scr_call_t*>(			SELECT_VALUE(0x184CDB0, 0x1D4F258,
- 0x1BF59C8));
-		native::scr_globalFunctions = reinterpret_cast<native::scr_call_t*>(		SELECT_VALUE(0x186C68C, 0x1D6EB34,
- 0x1C152A4
-));
+		native::scr_instanceFunctions = reinterpret_cast<native::scr_call_t*>(SELECT_VALUE(0x184CDB0, 0x1D4F258,
+		                                                                                   0x1BF59C8));
+		native::scr_globalFunctions = reinterpret_cast<native::scr_call_t*>(SELECT_VALUE(0x186C68C, 0x1D6EB34,
+		                                                                                 0x1C152A4
+		));
 
 		native::g_script_error_level = reinterpret_cast<int*>(SELECT_VALUE(0x1BEFCFC, 0x20B21FC, 0x1F5B058));
 		native::g_script_error = reinterpret_cast<jmp_buf*>(SELECT_VALUE(0x1BF1D18, 0x20B4218, 0x1F5A818));

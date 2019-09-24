@@ -46,7 +46,7 @@ namespace demonware
 		return this->write_bytes(bytes, reinterpret_cast<const unsigned char*>(data));
 	}
 
-	bool bit_buffer::write_bytes(unsigned int bytes, const unsigned char* data)
+	bool bit_buffer::write_bytes(const unsigned int bytes, const unsigned char* data)
 	{
 		return this->write(bytes * 8, data);
 	}

@@ -111,7 +111,7 @@ namespace utils
 			ltc_mp = ltm_desc;
 			register_prng(&sprng_desc);
 			ecc_sign_hash(reinterpret_cast<const uint8_t*>(message.data()), message.size(), buffer, &length, nullptr,
- find_prng("sprng"), key.get());
+			              find_prng("sprng"), key.get());
 
 			return std::string(reinterpret_cast<char*>(buffer), length);
 		}
@@ -123,8 +123,9 @@ namespace utils
 			ltc_mp = ltm_desc;
 
 			auto result = 0;
-			return (				ecc_verify_hash(reinterpret_cast<const uint8_t*>(signature.data()), signature.size(),
- reinterpret_cast<const uint8_t*>(message.data()), message.size(), &result, key.get()) == CRYPT_OK && result != 0);
+			return (ecc_verify_hash(reinterpret_cast<const uint8_t*>(signature.data()), signature.size(),
+			                        reinterpret_cast<const uint8_t*>(message.data()), message.size(), &result,
+			                        key.get()) == CRYPT_OK && result != 0);
 		}
 
 		std::string rsa::encrypt(const std::string& data, const std::string& hash, const std::string& key)
@@ -142,7 +143,7 @@ namespace utils
 			unsigned char buffer[0x80];
 			unsigned long length = sizeof(buffer);
 
-			const auto rsa_result =	rsa_encrypt_key( //
+			const auto rsa_result = rsa_encrypt_key( //
 				PBYTE(data.data()), //
 				data.size(), //
 				buffer, //
@@ -247,7 +248,7 @@ namespace utils
 			return compute(reinterpret_cast<const uint8_t*>(data.data()), data.size(), hex);
 		}
 
-		std::string sha1::compute(const uint8_t* data, size_t length, const bool hex)
+		std::string sha1::compute(const uint8_t* data, const size_t length, const bool hex)
 		{
 			uint8_t buffer[20] = {0};
 
@@ -262,12 +263,12 @@ namespace utils
 			return string::dump_hex(hash, "");
 		}
 
-		std::string sha256::compute(const std::string& data, bool hex)
+		std::string sha256::compute(const std::string& data, const bool hex)
 		{
 			return compute(reinterpret_cast<const uint8_t*>(data.data()), data.size(), hex);
 		}
 
-		std::string sha256::compute(const uint8_t* data, size_t length, bool hex)
+		std::string sha256::compute(const uint8_t* data, const size_t length, const bool hex)
 		{
 			uint8_t buffer[32] = {0};
 
@@ -282,12 +283,12 @@ namespace utils
 			return string::dump_hex(hash, "");
 		}
 
-		std::string sha512::compute(const std::string& data, bool hex)
+		std::string sha512::compute(const std::string& data, const bool hex)
 		{
 			return compute(reinterpret_cast<const uint8_t*>(data.data()), data.size(), hex);
 		}
 
-		std::string sha512::compute(const uint8_t* data, size_t length, bool hex)
+		std::string sha512::compute(const uint8_t* data, const size_t length, const bool hex)
 		{
 			uint8_t buffer[64] = {0};
 

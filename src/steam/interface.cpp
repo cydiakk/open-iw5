@@ -2,7 +2,6 @@
 #include "interface.hpp"
 #include "utils/memory.hpp"
 #include "utils/nt.hpp"
-#include <minwinbase.h>
 
 namespace steam
 {

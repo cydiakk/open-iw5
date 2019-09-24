@@ -1,5 +1,4 @@
 #pragma once
-#include "memory.hpp"
 
 namespace utils
 {
@@ -24,7 +23,7 @@ namespace utils
 
 				void deserialize(const std::string& key);
 
-				std::string serialize(const int type = PK_PRIVATE) const;
+				std::string serialize(int type = PK_PRIVATE) const;
 
 				void free();
 

@@ -133,7 +133,7 @@ private:
 
 		this->client_utils_.invoke<void>("SetAppIDForCurrentPipe", app_id, false);
 
-		utils::nt::module self;
+		const utils::nt::module self;
 		const auto path = self.get_path();
 
 		char our_directory[MAX_PATH] = {0};

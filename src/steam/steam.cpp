@@ -1,6 +1,5 @@
 #include <std_include.hpp>
 #include "steam/steam.hpp"
-#include "module/scheduler.hpp"
 
 namespace steam
 {
@@ -37,8 +36,7 @@ namespace steam
 	{
 		std::lock_guard _(mutex_);
 
-		result result{};
-
+		result result;
 		result.call = call;
 		result.data = data;
 		result.size = size;

@@ -16,39 +16,39 @@ namespace demonware
 		return this->address_;
 	}
 
-	void stun_server::ip_discovery(SOCKET s, const sockaddr* to, int tolen) const
+	void stun_server::ip_discovery(SOCKET s, const sockaddr* to, const int tolen) const
 	{
 		const uint32_t ip = 0x0100007f;
 
 		byte_buffer buffer;
 		buffer.set_use_data_types(false);
-		buffer.write_byte(31);     // type
-		buffer.write_byte(2);      // version
-		buffer.write_byte(0);      // version
-		buffer.write_uint32(ip);   // external ip
+		buffer.write_byte(31); // type
+		buffer.write_byte(2); // version
+		buffer.write_byte(0); // version
+		buffer.write_uint32(ip); // external ip
 		buffer.write_uint16(3074); // port
 
 		dw::send_datagram_packet(s, buffer.get_buffer(), to, tolen);
 	}
 
-	void stun_server::nat_discovery(SOCKET s, const sockaddr* to, int tolen) const
+	void stun_server::nat_discovery(SOCKET s, const sockaddr* to, const int tolen) const
 	{
 		const uint32_t ip = 0x0100007f;
 
 		byte_buffer buffer;
 		buffer.set_use_data_types(false);
-		buffer.write_byte(21);                   // type
-		buffer.write_byte(2);                    // version
-		buffer.write_byte(0);                    // version
-		buffer.write_uint32(ip);                 // external ip
-		buffer.write_uint16(3074);               // port
+		buffer.write_byte(21); // type
+		buffer.write_byte(2); // version
+		buffer.write_byte(0); // version
+		buffer.write_uint32(ip); // external ip
+		buffer.write_uint16(3074); // port
 		buffer.write_uint32(this->get_address()); // server ip
-		buffer.write_uint16(3074);               // server port
+		buffer.write_uint16(3074); // server port
 
 		dw::send_datagram_packet(s, buffer.get_buffer(), to, tolen);
 	}
 
-	int stun_server::send(const SOCKET s, const char* buf, int len, const sockaddr* to, int tolen) const
+	int stun_server::send(const SOCKET s, const char* buf, const int len, const sockaddr* to, const int tolen) const
 	{
 		uint8_t type, version, padding;
 

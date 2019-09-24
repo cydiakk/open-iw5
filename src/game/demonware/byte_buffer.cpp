@@ -254,7 +254,7 @@ namespace demonware
 		return result;
 	}
 
-	bool byte_buffer::read(int bytes, void* output)
+	bool byte_buffer::read(const int bytes, void* output)
 	{
 		if (bytes + this->current_byte_ > this->buffer_.size()) return false;
 
@@ -276,9 +276,9 @@ namespace demonware
 		return this->write(data.size(), data.data());
 	}
 
-	void byte_buffer::set_use_data_types(bool _useDataTypes)
+	void byte_buffer::set_use_data_types(const bool use_data_types)
 	{
-		this->use_data_types_ = _useDataTypes;
+		this->use_data_types_ = use_data_types;
 	}
 
 	size_t byte_buffer::size() const

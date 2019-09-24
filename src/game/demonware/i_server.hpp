@@ -15,7 +15,10 @@ namespace demonware
 	{
 	public:
 		raw_reply() = default;
-		explicit raw_reply(std::string data) : buffer_(std::move(data)) {}
+
+		explicit raw_reply(std::string data) : buffer_(std::move(data))
+		{
+		}
 
 		virtual std::string get_data() override
 		{
@@ -29,7 +32,9 @@ namespace demonware
 	class typed_reply : public raw_reply
 	{
 	public:
-		typed_reply(uint8_t _type) : type_(_type) {}
+		typed_reply(uint8_t _type) : type_(_type)
+		{
+		}
 
 	protected:
 		uint8_t get_type() const { return this->type_; }
@@ -45,6 +50,7 @@ namespace demonware
 		{
 			this->buffer_.append(bbuffer->get_buffer());
 		}
+
 		encrypted_reply(const uint8_t type, byte_buffer* bbuffer) : typed_reply(type)
 		{
 			this->buffer_.append(bbuffer->get_buffer());
@@ -60,6 +66,7 @@ namespace demonware
 		{
 			this->buffer_.append(bbuffer->get_buffer());
 		}
+
 		unencrypted_reply(uint8_t _type, byte_buffer* bbuffer) : typed_reply(_type)
 		{
 			this->buffer_.append(bbuffer->get_buffer());
@@ -86,7 +93,8 @@ namespace demonware
 			return reply;
 		}
 
-		virtual std::shared_ptr<service_reply> create_reply(uint8_t type, uint32_t error = 0 /*Game::bdLobbyErrorCode::BD_NO_ERROR*/)
+		virtual std::shared_ptr<service_reply> create_reply(uint8_t type,
+		                                                    uint32_t error = 0 /*Game::bdLobbyErrorCode::BD_NO_ERROR*/)
 		{
 			auto reply = std::make_shared<service_reply>(this, type, error);
 			return reply;
@@ -96,7 +104,9 @@ namespace demonware
 	class remote_reply final
 	{
 	public:
-		remote_reply(i_server* server, uint8_t _type) : type_(_type), server_(server) {}
+		remote_reply(i_server* server, uint8_t _type) : type_(_type), server_(server)
+		{
+		}
 
 		template <typename BufferType>
 		void send(BufferType* buffer, const bool encrypted)
@@ -104,7 +114,7 @@ namespace demonware
 			std::unique_ptr<typed_reply> reply;
 
 			if (encrypted) reply = std::make_unique<encrypted_reply>(this->type_, buffer);
-			else           reply = std::make_unique<unencrypted_reply>(this->type_, buffer);
+			else reply = std::make_unique<unencrypted_reply>(this->type_, buffer);
 			this->server_->send_reply(reply.get());
 		}
 
@@ -119,14 +129,23 @@ namespace demonware
 	{
 	public:
 		virtual ~i_serializable() = default;
-		virtual void serialize(byte_buffer* /*buffer*/) {}
-		virtual void deserialize(byte_buffer* /*buffer*/) {}
+
+		virtual void serialize(byte_buffer* /*buffer*/)
+		{
+		}
+
+		virtual void deserialize(byte_buffer* /*buffer*/)
+		{
+		}
 	};
 
 	class service_reply final
 	{
 	public:
-		service_reply(i_server* _server, uint8_t _type, uint32_t _error) : type_(_type), error_(_error), reply_(_server, 1) {}
+		service_reply(i_server* _server, uint8_t _type, uint32_t _error) : type_(_type), error_(_error),
+		                                                                   reply_(_server, 1)
+		{
+		}
 
 		uint64_t send()
 		{

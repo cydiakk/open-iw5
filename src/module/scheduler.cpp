@@ -63,7 +63,7 @@ void scheduler::execute_error()
 	const char* message;
 	int level;
 
-	if(get_next_error(&message, &level) && message)
+	if (get_next_error(&message, &level) && message)
 	{
 		game::native::Com_Error(level, "%s", message);
 	}
@@ -72,7 +72,7 @@ void scheduler::execute_error()
 bool scheduler::get_next_error(const char** error_message, int* error_level)
 {
 	std::lock_guard _(mutex_);
-	if(errors_.empty())
+	if (errors_.empty())
 	{
 		*error_message = nullptr;
 		return false;

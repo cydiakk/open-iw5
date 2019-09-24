@@ -100,7 +100,8 @@ namespace game
 			else if (value.get_type_info() == typeid(std::vector<chaiscript::Boxed_Value>))
 			{
 				float values[3];
-				const auto real_value = this->context_->get_chai()->boxed_cast<std::vector<chaiscript::Boxed_Value>>(value);
+				const auto real_value = this->context_->get_chai()->boxed_cast<std::vector<chaiscript::Boxed_Value>
+				>(value);
 				if (real_value.size() != 3)
 				{
 					throw std::runtime_error("Invalid vector length. Size must be exactly 3");

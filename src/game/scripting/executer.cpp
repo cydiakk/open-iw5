@@ -35,7 +35,7 @@ namespace game
 		}
 
 		void executer::set_entity_field(const std::string& field, const unsigned int entity_id,
-		                                 const chaiscript::Boxed_Value& value)
+		                                const chaiscript::Boxed_Value& value)
 		{
 			const auto entref = native::Scr_GetEntityIdRef(entity_id);
 			const int id = get_field_id(entref.raw.classnum, field);
@@ -95,7 +95,7 @@ namespace game
 		}
 
 		void executer::notify(const std::string& event, const unsigned int entity_id,
-		                       std::vector<chaiscript::Boxed_Value> arguments) const
+		                      std::vector<chaiscript::Boxed_Value> arguments) const
 		{
 			stack_isolation _;
 
@@ -110,7 +110,7 @@ namespace game
 		}
 
 		chaiscript::Boxed_Value executer::call(const std::string& function, const unsigned int entity_id,
-		                                        std::vector<chaiscript::Boxed_Value> arguments) const
+		                                       std::vector<chaiscript::Boxed_Value> arguments) const
 		{
 			const auto function_index = find_function_index(function, entity_id == 0);
 			if (function_index < 0)

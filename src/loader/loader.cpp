@@ -12,7 +12,7 @@ FARPROC loader::load(const utils::nt::module& module) const
 	const auto buffer = binary_loader::load(this->mode_);
 	if (buffer.empty()) return nullptr;
 
-	utils::nt::module source(HMODULE(buffer.data()));
+	const utils::nt::module source(HMODULE(buffer.data()));
 	if (!source) return nullptr;
 
 	this->load_sections(module, source);
@@ -58,8 +58,8 @@ FARPROC loader::load(const utils::nt::module& module) const
 	                                                                            .get_optional_header()->DataDirectory[
 		IMAGE_DIRECTORY_ENTRY_IMPORT];
 	std::memmove(module.get_nt_headers(), source.get_nt_headers(),
-	             sizeof(IMAGE_NT_HEADERS) + (source.get_nt_headers()->FileHeader.NumberOfSections * (sizeof(
-		             IMAGE_SECTION_HEADER))));
+	             sizeof(IMAGE_NT_HEADERS) + source.get_nt_headers()->FileHeader.NumberOfSections * sizeof(
+		             IMAGE_SECTION_HEADER));
 
 	return FARPROC(module.get_ptr() + source.get_relative_entry_point());
 }

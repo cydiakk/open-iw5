@@ -102,7 +102,7 @@ namespace game
 
 		void event_handler::remove(const event_listener_handle& handle)
 		{
-			for (auto task : this->event_listeners_)
+			for (const auto task : this->event_listeners_)
 			{
 				if (task->id == handle.id)
 				{
@@ -111,7 +111,7 @@ namespace game
 				}
 			}
 
-			for (auto task : this->generic_event_listeners_)
+			for (const auto task : this->generic_event_listeners_)
 			{
 				if (task->id == handle.id)
 				{

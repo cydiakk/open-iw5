@@ -9,7 +9,8 @@ namespace utils
 		class element final
 		{
 		public:
-			explicit element(std::recursive_mutex* mutex, std::shared_ptr<T> entry = {}, std::shared_ptr<element> next = {}) :
+			explicit element(std::recursive_mutex* mutex, std::shared_ptr<T> entry = {},
+			                 std::shared_ptr<element> next = {}) :
 				mutex_(mutex),
 				entry_(std::move(entry)),
 				next_(std::move(next))

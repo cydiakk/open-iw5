@@ -43,6 +43,6 @@ int html_argument::get_number() const
 
 bool html_argument::get_bool() const
 {
-	if(!this->is_bool()) return false;
+	if (!this->is_bool()) return false;
 	return this->value_->boolVal != FALSE;
 }

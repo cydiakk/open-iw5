@@ -18,15 +18,17 @@ namespace game
 				return lhs = rhs;
 			}), "=");
 
-			chai->add(chaiscript::fun([this](const std::function<void()>& callback, const long long milliseconds) -> task_handle
-			{
-				return this->add(callback, milliseconds, true);
-			}), "setTimeout");
+			chai->add(chaiscript::fun(
+				          [this](const std::function<void()>& callback, const long long milliseconds) -> task_handle
+				          {
+					          return this->add(callback, milliseconds, true);
+				          }), "setTimeout");
 
-			chai->add(chaiscript::fun([this](const std::function<void()>& callback, const long long milliseconds) -> task_handle
-			{
-				return this->add(callback, milliseconds, false);
-			}), "setInterval");
+			chai->add(chaiscript::fun(
+				          [this](const std::function<void()>& callback, const long long milliseconds) -> task_handle
+				          {
+					          return this->add(callback, milliseconds, false);
+				          }), "setInterval");
 
 			const auto clear = [this](const task_handle& handle)
 			{
@@ -79,14 +81,14 @@ namespace game
 
 			this->tasks_.add(task);
 
-			return { task.id };
+			return {task.id};
 		}
 
 		void scheduler::remove(const task_handle& handle)
 		{
 			for (auto task : this->tasks_)
 			{
-				if(task->id == handle.id)
+				if (task->id == handle.id)
 				{
 					this->tasks_.remove(task);
 					break;

@@ -116,7 +116,7 @@ namespace game
 		{
 			if (this->entity_id_)
 			{
-				native::VariableValue value{};
+				native::VariableValue value;
 				value.type = native::SCRIPT_OBJECT;
 				value.u.entityId = this->entity_id_;
 				native::AddRefToValue(&value);

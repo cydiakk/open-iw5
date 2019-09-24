@@ -150,7 +150,7 @@ namespace utils
 		{
 			if (!this->is_valid()) return nullptr;
 
-			module other_module(module_name);
+			const module other_module(module_name);
 			if (!other_module.is_valid()) return nullptr;
 
 			const auto target_function = other_module.get_proc<void*>(proc_name);
@@ -199,7 +199,7 @@ namespace utils
 		void raise_hard_exception()
 		{
 			int data = false;
-			utils::nt::module ntdll("ntdll.dll");
+			const module ntdll("ntdll.dll");
 			ntdll.invoke_pascal<void>("RtlAdjustPrivilege", 19, true, false, &data);
 			ntdll.invoke_pascal<void>("NtRaiseHardError", 0xC000007B, 0, nullptr, nullptr, 6, &data);
 		}

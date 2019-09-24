@@ -19,7 +19,8 @@ public:
 		          ->quick();
 
 		utils::hook(SELECT_VALUE(0x4F9706, 0x5772A0, 0x4FAB88), &frame_stub, HOOK_CALL).install()->quick();
-		utils::hook(SELECT_VALUE(0x4FFA48, 0x5774AB, 0x4FEFD7), &frame_stub, HOOK_CALL).install()->quick(); // Only relevant one?
+		utils::hook(SELECT_VALUE(0x4FFA48, 0x5774AB, 0x4FEFD7), &frame_stub, HOOK_CALL).install()->quick();
+		// Only relevant one?
 
 		utils::hook(SELECT_VALUE(0x6109F3, 0x56B637, 0x4EDFF7), &vm_notify_stub, HOOK_CALL).install()->quick();
 		utils::hook(SELECT_VALUE(0x6128BE, 0x56D541, 0x4EFAF9), &vm_notify_stub, HOOK_CALL).install()->quick();
@@ -149,7 +150,7 @@ private:
 		game::native::VM_Notify(notify_id, type, stack);
 	}
 
-	static int frame_stub(int a1, int a2)
+	static int frame_stub(const int a1, const int a2)
 	{
 		module_loader::get<scripting>()->run_frame();
 		return game::native::G_RunFrame(a1, a2);

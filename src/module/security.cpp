@@ -8,7 +8,7 @@ class security final : public module
 public:
 	void post_load() override
 	{
-		if(game::is_mp())
+		if (game::is_mp())
 		{
 			utils::hook(0x4AECD4, read_p2p_auth_ticket_stub, HOOK_JUMP).install()->quick();
 		}

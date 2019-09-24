@@ -27,7 +27,7 @@ bool module_loader::post_start()
 			module_->post_start();
 		}
 	}
-	catch(premature_shutdown_trigger&)
+	catch (premature_shutdown_trigger&)
 	{
 		return false;
 	}
@@ -75,7 +75,7 @@ void* module_loader::load_import(const std::string& module, const std::string& f
 	for (const auto& module_ : *modules_)
 	{
 		const auto module_function_ptr = module_->load_import(module, function);
-		if(module_function_ptr)
+		if (module_function_ptr)
 		{
 			function_ptr = module_function_ptr;
 		}

@@ -105,7 +105,7 @@ int main()
 			auto mode = detect_mode_from_arguments();
 			if (mode == launcher::mode::none)
 			{
-				launcher launcher;
+				const launcher launcher;
 				mode = launcher.run();
 				if (mode == launcher::mode::none) return 0;
 			}
