@@ -57,7 +57,6 @@ workspace "open-iw5"
 	editandcontinue "Off"
 	warnings "Extra"
 	characterset "ASCII"
-	toolset "v142"
 
 	flags {
 		"NoIncrementalLink",
