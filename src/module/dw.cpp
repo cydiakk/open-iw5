@@ -405,7 +405,7 @@ namespace demonware
 		io::register_hook("ioctlsocket", io::ioctl_socket);
 		io::register_hook("gethostbyname", io::get_host_by_name);
 
-		//utils::hook(SELECT_VALUE(0x6F40A0, 0x6EE1C0, 0x611310), bd_logger_stub, HOOK_JUMP).install()->quick();
+		utils::hook(SELECT_VALUE(0x6F40A0, 0x6EE1C0, 0x611310), bd_logger_stub, HOOK_JUMP).install()->quick();
 	}
 
 	void dw::bd_logger_stub(int /*type*/, const char* const /*channelName*/, const char*, const char* const /*file*/,
