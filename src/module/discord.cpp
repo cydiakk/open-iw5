@@ -47,4 +47,4 @@ private:
 	}
 };
 
-//REGISTER_MODULE(discord)
+REGISTER_MODULE(discord)
