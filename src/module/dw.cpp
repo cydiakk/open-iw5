@@ -254,7 +254,7 @@ namespace demonware
 		auto queue = datagram_packets_.find(s);
 		if (queue != datagram_packets_.end())
 		{
-			const bool blocking = is_blocking_socket(s, UDP_BLOCKING);
+			const auto blocking = is_blocking_socket(s, UDP_BLOCKING);
 
 			lock.unlock();
 			while (blocking && queue->second.empty())

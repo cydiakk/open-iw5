@@ -2,72 +2,69 @@
 #include "memory.hpp"
 #include "compression.hpp"
 
-namespace utils
+namespace utils::compression
 {
-	namespace compression
+	std::string zlib::compress(const std::string& data)
 	{
-		std::string zlib::compress(const std::string& data)
+		memory::allocator allocator;
+		unsigned long length = (data.size() * 2);
+		if (!length) length = 2;
+
+		if (length < 100) length *= 10;
+
+		const auto buffer = allocator.allocate_array<char>(length);
+		if (compress2(reinterpret_cast<Bytef*>(buffer), &length,
+		              reinterpret_cast<Bytef*>(const_cast<char*>(data.data())), data.size(),
+		              Z_BEST_COMPRESSION) != Z_OK)
 		{
-			memory::allocator allocator;
-			unsigned long length = (data.size() * 2);
-			if (!length) length = 2;
-
-			if (length < 100) length *= 10;
-
-			const auto buffer = allocator.allocate_array<char>(length);
-			if (compress2(reinterpret_cast<Bytef*>(buffer), &length,
-			              reinterpret_cast<Bytef*>(const_cast<char*>(data.data())), data.size(),
-			              Z_BEST_COMPRESSION) != Z_OK)
-			{
-				return {};
-			}
-
-			return std::string(buffer, length);
+			return {};
 		}
 
-		std::string zlib::decompress(const std::string& data)
+		return std::string(buffer, length);
+	}
+
+	std::string zlib::decompress(const std::string& data)
+	{
+		z_stream stream;
+		ZeroMemory(&stream, sizeof(stream));
+		std::string buffer;
+
+		if (inflateInit(&stream) != Z_OK)
 		{
-			z_stream stream;
-			ZeroMemory(&stream, sizeof(stream));
-			std::string buffer;
+			return {};
+		}
 
-			if (inflateInit(&stream) != Z_OK)
-			{
-				return {};
-			}
+		int ret;
+		memory::allocator allocator;
 
-			int ret;
-			memory::allocator allocator;
+		const auto dest = allocator.allocate_array<uint8_t>(CHUNK);
+		auto data_ptr = data.data();
 
-			const auto dest = allocator.allocate_array<uint8_t>(CHUNK);
-			auto data_ptr = data.data();
+		do
+		{
+			stream.avail_in = std::min(static_cast<size_t>(CHUNK), data.size() - (data_ptr - data.data()));
+			stream.next_in = reinterpret_cast<const uint8_t*>(data_ptr);
+			data_ptr += stream.avail_in;
 
 			do
 			{
-				stream.avail_in = std::min(static_cast<size_t>(CHUNK), data.size() - (data_ptr - data.data()));
-				stream.next_in = reinterpret_cast<const uint8_t*>(data_ptr);
-				data_ptr += stream.avail_in;
+				stream.avail_out = CHUNK;
+				stream.next_out = dest;
 
-				do
+				ret = inflate(&stream, Z_NO_FLUSH);
+				if (ret != Z_OK && ret != Z_STREAM_END)
 				{
-					stream.avail_out = CHUNK;
-					stream.next_out = dest;
-
-					ret = inflate(&stream, Z_NO_FLUSH);
-					if (ret != Z_OK && ret != Z_STREAM_END)
-					{
-						inflateEnd(&stream);
-						return {};
-					}
-
-					buffer.append(reinterpret_cast<const char*>(dest), CHUNK - stream.avail_out);
+					inflateEnd(&stream);
+					return {};
 				}
-				while (stream.avail_out == 0);
-			}
-			while (ret != Z_STREAM_END);
 
-			inflateEnd(&stream);
-			return buffer;
+				buffer.append(reinterpret_cast<const char*>(dest), CHUNK - stream.avail_out);
+			}
+			while (stream.avail_out == 0);
 		}
+		while (ret != Z_STREAM_END);
+
+		inflateEnd(&stream);
+		return buffer;
 	}
 }

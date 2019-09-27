@@ -1,16 +1,13 @@
 #pragma once
 #include "game/game.hpp"
 
-namespace game
+namespace game::scripting
 {
-	namespace scripting
+	class event final
 	{
-		class event final
-		{
-		public:
-			std::string name;
-			unsigned int entity_id;
-			std::vector<native::VariableValue> arguments;
-		};
-	}
+	public:
+		std::string name;
+		unsigned int entity_id;
+		std::vector<native::VariableValue> arguments;
+	};
 }

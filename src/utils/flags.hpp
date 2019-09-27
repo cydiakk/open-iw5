@@ -1,9 +1,6 @@
 #pragma once
 
-namespace utils
+namespace utils::flags
 {
-	namespace flags
-	{
-		bool has_flag(const std::string& flag);
-	}
+	bool has_flag(const std::string& flag);
 }

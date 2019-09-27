@@ -1,23 +1,20 @@
 #include "std_include.hpp"
 #include "variable_value.hpp"
 
-namespace game
+namespace game::scripting
 {
-	namespace scripting
+	variable_value::variable_value(native::VariableValue value) : value_(value)
 	{
-		variable_value::variable_value(native::VariableValue value) : value_(value)
-		{
-			native::AddRefToValue(&value);
-		}
+		native::AddRefToValue(&value);
+	}
 
-		variable_value::~variable_value()
-		{
-			native::RemoveRefToValue(this->value_.type, this->value_.u);
-		}
+	variable_value::~variable_value()
+	{
+		native::RemoveRefToValue(this->value_.type, this->value_.u);
+	}
 
-		variable_value::operator native::VariableValue() const
-		{
-			return this->value_;
-		}
+	variable_value::operator native::VariableValue() const
+	{
+		return this->value_;
 	}
 }

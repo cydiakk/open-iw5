@@ -1,20 +1,17 @@
 #pragma once
 #include "game/game.hpp"
 
-namespace game
+namespace game::scripting
 {
-	namespace scripting
+	class variable_value final
 	{
-		class variable_value final
-		{
-		public:
-			explicit variable_value(native::VariableValue value);
-			~variable_value();
+	public:
+		explicit variable_value(native::VariableValue value);
+		~variable_value();
 
-			explicit operator native::VariableValue() const;
+		explicit operator native::VariableValue() const;
 
-		private:
-			native::VariableValue value_;
-		};
-	}
+	private:
+		native::VariableValue value_;
+	};
 }

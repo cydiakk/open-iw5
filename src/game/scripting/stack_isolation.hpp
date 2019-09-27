@@ -1,23 +1,20 @@
 #pragma once
 #include "game/game.hpp"
 
-namespace game
+namespace game::scripting
 {
-	namespace scripting
+	class stack_isolation final
 	{
-		class stack_isolation final
-		{
-		public:
-			stack_isolation();
-			~stack_isolation();
+	public:
+		stack_isolation();
+		~stack_isolation();
 
-		private:
-			native::VariableValue stack_[512]{};
+	private:
+		native::VariableValue stack_[512]{};
 
-			native::VariableValue* max_stack_;
-			native::VariableValue* top_;
-			unsigned int in_param_count_;
-			unsigned int out_param_count_;
-		};
-	}
+		native::VariableValue* max_stack_;
+		native::VariableValue* top_;
+		unsigned int in_param_count_;
+		unsigned int out_param_count_;
+	};
 }

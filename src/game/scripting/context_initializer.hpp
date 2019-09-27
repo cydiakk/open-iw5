@@ -1,13 +1,7 @@
 #pragma once
 #include "context.hpp"
 
-namespace game
+namespace game::scripting::context_initializer
 {
-	namespace scripting
-	{
-		namespace context_initializer
-		{
-			void initialize(context* context);
-		}
-	}
+	void initialize(context* context);
 }

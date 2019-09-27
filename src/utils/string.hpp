@@ -1,84 +1,81 @@
 #pragma once
 #include "memory.hpp"
 
-namespace utils
+namespace utils::string
 {
-	namespace string
+	template <size_t Buffers, size_t MinBufferSize>
+	class va_provider final
 	{
-		template <size_t Buffers, size_t MinBufferSize>
-		class va_provider final
+	public:
+		static_assert(Buffers != 0 && MinBufferSize != 0, "Buffers and MinBufferSize mustn't be 0");
+
+		va_provider() : current_buffer_(0)
+		{
+		}
+
+		char* get(const char* format, const va_list ap)
+		{
+			++this->current_buffer_ %= ARRAYSIZE(this->string_pool_);
+			auto entry = &this->string_pool_[this->current_buffer_];
+
+			if (!entry->size || !entry->buffer)
+			{
+				throw std::runtime_error("String pool not initialized");
+			}
+
+			while (true)
+			{
+				const int res = vsnprintf_s(entry->buffer, entry->size, _TRUNCATE, format, ap);
+				if (res > 0) break; // Success
+				if (res == 0) return nullptr; // Error
+
+				entry->double_size();
+			}
+
+			return entry->buffer;
+		}
+
+	private:
+		class entry final
 		{
 		public:
-			static_assert(Buffers != 0 && MinBufferSize != 0, "Buffers and MinBufferSize mustn't be 0");
-
-			va_provider() : current_buffer_(0)
+			explicit entry(size_t _size = MinBufferSize) : size(_size), buffer(nullptr)
 			{
+				if (this->size < MinBufferSize) this->size = MinBufferSize;
+				this->allocate();
 			}
 
-			char* get(const char* format, const va_list ap)
+			~entry()
 			{
-				++this->current_buffer_ %= ARRAYSIZE(this->string_pool_);
-				auto entry = &this->string_pool_[this->current_buffer_];
-
-				if (!entry->size || !entry->buffer)
-				{
-					throw std::runtime_error("String pool not initialized");
-				}
-
-				while (true)
-				{
-					const int res = vsnprintf_s(entry->buffer, entry->size, _TRUNCATE, format, ap);
-					if (res > 0) break; // Success
-					if (res == 0) return nullptr; // Error
-
-					entry->double_size();
-				}
-
-				return entry->buffer;
+				if (this->buffer) memory::get_allocator()->free(this->buffer);
+				this->size = 0;
+				this->buffer = nullptr;
 			}
 
-		private:
-			class entry final
+			void allocate()
 			{
-			public:
-				explicit entry(size_t _size = MinBufferSize) : size(_size), buffer(nullptr)
-				{
-					if (this->size < MinBufferSize) this->size = MinBufferSize;
-					this->allocate();
-				}
+				if (this->buffer) memory::get_allocator()->free(this->buffer);
+				this->buffer = memory::get_allocator()->allocate_array<char>(this->size + 1);
+			}
 
-				~entry()
-				{
-					if (this->buffer) memory::get_allocator()->free(this->buffer);
-					this->size = 0;
-					this->buffer = nullptr;
-				}
+			void double_size()
+			{
+				this->size *= 2;
+				this->allocate();
+			}
 
-				void allocate()
-				{
-					if (this->buffer) memory::get_allocator()->free(this->buffer);
-					this->buffer = memory::get_allocator()->allocate_array<char>(this->size + 1);
-				}
-
-				void double_size()
-				{
-					this->size *= 2;
-					this->allocate();
-				}
-
-				size_t size;
-				char* buffer;
-			};
-
-			size_t current_buffer_;
-			entry string_pool_[Buffers];
+			size_t size;
+			char* buffer;
 		};
 
-		const char* va(const char* fmt, ...);
+		size_t current_buffer_;
+		entry string_pool_[Buffers];
+	};
 
-		std::string to_lower(std::string text);
-		std::string to_upper(std::string text);
+	const char* va(const char* fmt, ...);
 
-		std::string dump_hex(const std::string& data, const std::string& separator = " ");
-	}
+	std::string to_lower(std::string text);
+	std::string to_upper(std::string text);
+
+	std::string dump_hex(const std::string& data, const std::string& separator = " ");
 }

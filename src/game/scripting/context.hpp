@@ -4,29 +4,26 @@
 #include "parameters.hpp"
 #include "event_handler.hpp"
 
-namespace game
+namespace game::scripting
 {
-	namespace scripting
+	class context final
 	{
-		class context final
-		{
-		public:
-			context();
+	public:
+		context();
 
-			chaiscript::ChaiScript* get_chai();
+		chaiscript::ChaiScript* get_chai();
 
-			executer* get_executer();
-			scheduler* get_scheduler();
-			parameters* get_parameters();
-			event_handler* get_event_handler();
+		executer* get_executer();
+		scheduler* get_scheduler();
+		parameters* get_parameters();
+		event_handler* get_event_handler();
 
-		private:
-			chaiscript::ChaiScript chai_;
+	private:
+		chaiscript::ChaiScript chai_;
 
-			executer executer_;
-			scheduler scheduler_;
-			parameters parameters_;
-			event_handler event_handler_;
-		};
-	}
+		executer executer_;
+		scheduler scheduler_;
+		parameters parameters_;
+		event_handler event_handler_;
+	};
 }
