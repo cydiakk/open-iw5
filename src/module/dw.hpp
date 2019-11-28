@@ -25,7 +25,7 @@ namespace demonware
 			return server;
 		}
 
-		static std::shared_ptr<stun_server> register_stun_server(std::string name)
+		static std::shared_ptr<stun_server> register_stun_server(const std::string& name)
 		{
 			std::lock_guard _(server_mutex_);
 			auto server = std::make_shared<stun_server>(name);

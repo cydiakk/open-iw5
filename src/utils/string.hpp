@@ -39,7 +39,7 @@ namespace utils::string
 		class entry final
 		{
 		public:
-			explicit entry(size_t _size = MinBufferSize) : size(_size), buffer(nullptr)
+			explicit entry(const size_t _size = MinBufferSize) : size(_size), buffer(nullptr)
 			{
 				if (this->size < MinBufferSize) this->size = MinBufferSize;
 				this->allocate();
