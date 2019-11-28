@@ -27,11 +27,11 @@ public:
 		{
 			if (game::is_sp())
 			{
-				this->start_mod("Open-IW5 Singleplayer", 42680);
+				this->start_mod("\xF0\x9F\x90\x8D Open-IW5 Singleplayer", 42680);
 			}
 			else if (game::is_mp())
 			{
-				this->start_mod("Open-IW5 Multiplayer", 42690);
+				this->start_mod("\xF0\x9F\x90\x8D Open-IW5 Multiplayer", 42690);
 			}
 		}
 		catch (std::exception& e)

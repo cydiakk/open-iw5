@@ -45,7 +45,14 @@ private:
 
 	void load_scripts()
 	{
-		const auto scripts = utils::io::list_files("open-iw5/scripts/");
+		const auto script_dir = "open-iw5/scripts/"s;
+
+		if(!utils::io::directory_exists(script_dir))
+		{
+			return;
+		}
+
+		const auto scripts = utils::io::list_files(script_dir);
 
 		for (const auto& script : scripts)
 		{
