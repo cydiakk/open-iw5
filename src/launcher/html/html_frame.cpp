@@ -82,7 +82,7 @@ std::shared_ptr<IWebBrowser2> html_frame::get_web_browser() const
 	if (!this->browser_object_) return {};
 
 	IWebBrowser2* web_browser = nullptr;
-	if (this->browser_object_->QueryInterface(IID_IWebBrowser2, reinterpret_cast<void**>(&web_browser)) || !web_browser)
+	if (FAILED(this->browser_object_->QueryInterface(IID_IWebBrowser2, reinterpret_cast<void**>(&web_browser))) || !web_browser)
 		return {};
 
 	return std::shared_ptr<IWebBrowser2>(web_browser, object_deleter);
@@ -94,7 +94,7 @@ std::shared_ptr<IDispatch> html_frame::get_dispatch() const
 	if (!web_browser) return {};
 
 	IDispatch* dispatch = nullptr;
-	if (web_browser->get_Document(&dispatch) || !dispatch) return {};
+	if (FAILED(web_browser->get_Document(&dispatch)) || !dispatch) return {};
 
 	return std::shared_ptr<IDispatch>(dispatch, object_deleter);
 }
@@ -105,7 +105,7 @@ std::shared_ptr<IHTMLDocument2> html_frame::get_document() const
 	if (!dispatch) return {};
 
 	IHTMLDocument2* document = nullptr;
-	if (dispatch->QueryInterface(IID_IHTMLDocument2, reinterpret_cast<void**>(&document)) || !document) return {};
+	if (FAILED(dispatch->QueryInterface(IID_IHTMLDocument2, reinterpret_cast<void**>(&document))) || !document) return {};
 
 	return std::shared_ptr<IHTMLDocument2>(document, object_deleter);
 }
@@ -122,8 +122,8 @@ void html_frame::initialize(const HWND window)
 void html_frame::create_browser()
 {
 	LPCLASSFACTORY class_factory = nullptr;
-	if (CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER, nullptr, IID_IClassFactory,
-	                     reinterpret_cast<void **>(&class_factory)) || !class_factory)
+	if (FAILED(CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER, nullptr, IID_IClassFactory,
+	                     reinterpret_cast<void **>(&class_factory))) || !class_factory)
 	{
 		throw std::runtime_error("Unable to get the class factory");
 	}
@@ -221,7 +221,7 @@ bool html_frame::load_html(const std::string& html) const
 	const auto _ = gsl::finally([safe_array]() { SafeArrayDestroy(safe_array); });
 
 	VARIANT* variant = nullptr;
-	if (SafeArrayAccessData(safe_array, reinterpret_cast<void**>(&variant)) || !variant) return false;
+	if (FAILED(SafeArrayAccessData(safe_array, reinterpret_cast<void**>(&variant))) || !variant) return false;
 
 	std::wstring wide_html(html.begin(), html.end());
 
