@@ -31,17 +31,21 @@ void command::pre_destroy()
 
 void command::dispatcher()
 {
-	if (game::native::cmd_argc[*game::native::cmd_args] < 1) return;
+	const auto cmd_index = *game::native::cmd_args;
+	const auto arg_count = game::native::cmd_argc[cmd_index];
 
-	const auto command = utils::string::to_lower(game::native::cmd_argv[*game::native::cmd_args][0]);
+	if (arg_count < 1) return;
+
+	const auto command = utils::string::to_lower(game::native::cmd_argv[cmd_index][0]);
 	const auto handler = callbacks_.find(command);
 	if (handler == callbacks_.end()) return;
 
 	std::vector<std::string> arguments;
+	arguments.reserve(arg_count);
 
-	for (auto i = 0; i < game::native::cmd_argc[*game::native::cmd_args]; ++i)
+	for (auto i = 0; i < game::native::cmd_argc[cmd_index]; ++i)
 	{
-		arguments.emplace_back(game::native::cmd_argv[*game::native::cmd_args][i]);
+		arguments.emplace_back(game::native::cmd_argv[cmd_index][i]);
 	}
 
 	handler->second(arguments);
