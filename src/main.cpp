@@ -17,7 +17,7 @@ DECLSPEC_NORETURN void WINAPI exit_hook(const int code)
 
 void verify_tls()
 {
-	utils::nt::module self;
+	const utils::nt::module self;
 	const auto self_tls = reinterpret_cast<PIMAGE_TLS_DIRECTORY>(self.get_ptr() + self
 	                                                                              .get_optional_header()
 	                                                                              ->
