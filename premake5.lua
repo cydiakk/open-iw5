@@ -73,6 +73,7 @@ workspace "open-iw5"
 
 	configuration "Release"
 		optimize "Full"
+		buildoptions "/Os"
 
 		defines {
 			"NDEBUG",
