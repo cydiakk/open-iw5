@@ -97,7 +97,6 @@ DW_IOTD_TXT RCDATA "resources/dw/iotd-english.txt"
 DW_IOTD_IMG RCDATA "resources/dw/iotd-english.jpg"
 
 MENU_MAIN     RCDATA "resources/main.html"
-MENU_SETTINGS RCDATA "resources/settings.html"
 
 
 #endif    // English (United States) resources

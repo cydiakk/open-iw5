@@ -4,12 +4,22 @@
 
 launcher::launcher()
 {
-	this->create_settings_menu();
 	this->create_main_menu();
 }
 
 void launcher::create_main_menu()
 {
+	this->main_window_.register_callback("openUrl", [](html_frame::callback_params* params)
+	{
+		if (params->arguments.empty()) return;
+
+		const auto param = params->arguments[0];
+		if (!param.is_string()) return;
+
+		const auto url = param.get_string();
+		ShellExecuteA(nullptr, "open", url.data(), nullptr, nullptr, SW_SHOWNORMAL);
+	});
+
 	this->main_window_.register_callback("selectMode", [this](html_frame::callback_params* params)
 	{
 		if (params->arguments.empty()) return;
@@ -24,11 +34,6 @@ void launcher::create_main_menu()
 		}
 	});
 
-	this->main_window_.register_callback("showSettings", [this](html_frame::callback_params*)
-	{
-		this->settings_window_.show();
-	});
-
 	this->main_window_.set_callback(
 		[](window* window, const UINT message, const WPARAM w_param, const LPARAM l_param) -> LRESULT
 		{
@@ -40,27 +45,9 @@ void launcher::create_main_menu()
 			return DefWindowProcA(*window, message, w_param, l_param);
 		});
 
-	this->main_window_.create("Open-IW5", 615, 300);
+	this->main_window_.create("Open-IW5", 750, 430);
 	this->main_window_.load_html(load_content(MENU_MAIN));
 	this->main_window_.show();
-}
-
-void launcher::create_settings_menu()
-{
-	this->settings_window_.set_callback(
-		[](window* window, const UINT message, const WPARAM w_param, const LPARAM l_param) -> LRESULT
-		{
-			if (message == WM_CLOSE)
-			{
-				window->hide();
-				return TRUE;
-			}
-
-			return DefWindowProcA(*window, message, w_param, l_param);
-		});
-
-	this->settings_window_.create("Open-IW5 Settings", 400, 200, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU);
-	this->settings_window_.load_html(load_content(MENU_SETTINGS));
 }
 
 launcher::mode launcher::run() const
@@ -72,7 +59,6 @@ launcher::mode launcher::run() const
 void launcher::select_mode(const mode mode)
 {
 	this->mode_ = mode;
-	this->settings_window_.close();
 	this->main_window_.close();
 }
 

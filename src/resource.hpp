@@ -13,4 +13,3 @@
 #define DW_IOTD_IMG 309
 
 #define MENU_MAIN     310
-#define MENU_SETTINGS 311
