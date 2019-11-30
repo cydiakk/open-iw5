@@ -70,7 +70,7 @@ namespace binary_loader
 
 		std::string result(reinterpret_cast<char*>(diff.data()), diff.size());
 		result.append(reinterpret_cast<const char*>(&size), sizeof(size));
-		result = utils::compression::zlib::compress(result);
+		result = utils::compression::zstd::compress(result);
 
 		utils::io::write_file(file + ".diff", result);
 	}
@@ -115,7 +115,7 @@ namespace binary_loader
 		}
 
 		auto delta = load_delta(mode);
-		delta = utils::compression::zlib::decompress(delta);
+		delta = utils::compression::zstd::decompress(delta);
 		return build_binary(base, delta);
 	}
 }

@@ -51,6 +51,7 @@
 #include <filesystem>
 
 #include <zlib.h>
+#include <zstd.h>
 #include <diff.h>
 #include <patch.h>
 #include <tomcrypt.h>
