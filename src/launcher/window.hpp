@@ -27,6 +27,8 @@ protected:
 	virtual LRESULT processor(UINT message, WPARAM w_param, LPARAM l_param);
 
 private:
+	uint32_t last_dpi_ = 96;
+
 	WNDCLASSEX wc_{};
 	HWND handle_ = nullptr;
 	std::string classname_;

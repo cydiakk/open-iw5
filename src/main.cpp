@@ -81,6 +81,7 @@ FARPROC load_binary(const launcher::mode mode)
 int main()
 {
 	FARPROC entry_point;
+	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
 	{
 		auto premature_shutdown = true;

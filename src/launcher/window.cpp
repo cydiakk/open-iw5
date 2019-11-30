@@ -34,6 +34,8 @@ void window::create(const std::string& title, const int width, const int height,
 
 	this->handle_ = CreateWindowExA(NULL, this->wc_.lpszClassName, title.data(), flags, x, y, width, height, nullptr,
 	                                nullptr, this->wc_.hInstance, this);
+
+	SendMessageA(this->handle_, WM_DPICHANGED, 0, 0);
 }
 
 window::~window()
@@ -131,6 +133,24 @@ void window::set_callback(const std::function<LRESULT(window*, UINT, WPARAM, LPA
 
 LRESULT window::processor(const UINT message, const WPARAM w_param, const LPARAM l_param)
 {
+	if (message == WM_DPICHANGED)
+	{
+		const auto dpi = GetDpiForWindow(*this);
+		if (dpi != this->last_dpi_)
+		{
+			RECT rect;
+			GetWindowRect(*this, &rect);
+
+			const auto scale = dpi * 1.0 / this->last_dpi_;
+			this->last_dpi_ = dpi;
+
+			const auto width = rect.right - rect.left;
+			const auto height = rect.bottom - rect.top;
+
+			MoveWindow(*this, rect.left, rect.top, int(width * scale), int(height * scale), TRUE);
+		}
+	}
+
 	if (message == WM_DESTROY)
 	{
 		remove_window(this);
