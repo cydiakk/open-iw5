@@ -30,3 +30,6 @@
 	path = deps/ChaiScript
 	url = https://github.com/ChaiScript/ChaiScript.git
 	branch = master
+[submodule "deps/zstd"]
+	path = deps/zstd
+	url = https://github.com/facebook/zstd.git
