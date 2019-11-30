@@ -52,25 +52,65 @@ namespace binary_loader
 		return data;
 	}
 
-	void create_for_file(const std::string& file, const std::string& base)
+	std::string compress_with_match_score(const std::string& data, const std::string& base, int match_score)
 	{
-		std::string data;
-		if (!utils::io::read_file(file, &data))
-		{
-			throw std::runtime_error(utils::string::va("Unable to load file %s!", file.data()));
-		}
-
 		const auto new_data = reinterpret_cast<const unsigned char*>(data.data());
 		const auto old_data = reinterpret_cast<const unsigned char*>(base.data());
 
 		std::vector<unsigned char> diff;
-		create_diff(new_data, new_data + data.size(), old_data, old_data + base.size(), diff);
+		create_diff(new_data, new_data + data.size(), old_data, old_data + base.size(), diff, match_score);
 
 		const unsigned long long size = data.size();
 
 		std::string result(reinterpret_cast<char*>(diff.data()), diff.size());
 		result.append(reinterpret_cast<const char*>(&size), sizeof(size));
 		result = utils::compression::zstd::compress(result);
+
+		return result;
+	}
+
+	void create_for_file(const std::string& file, const std::string& base)
+	{
+		std::string data;
+		std::string result;
+		std::vector<std::string> results;
+
+		if (!utils::io::read_file(file, &data))
+		{
+			throw std::runtime_error(utils::string::va("Unable to load file %s!", file.data()));
+		}
+
+		{
+			std::mutex mutex;
+			std::vector<std::thread> threads;
+
+			for (auto i = 0; i <= 9; ++i)
+			{
+				threads.emplace_back([&mutex, &results, &data, &base, i]()
+				{
+					const auto result = compress_with_match_score(data, base, i);
+
+					std::lock_guard _(mutex);
+					results.push_back(result);
+				});
+			}
+
+			for (auto& t : threads)
+			{
+				if (t.joinable())
+				{
+					t.join();
+				}
+			}
+		}
+
+		for (const auto& current_result : results)
+		{
+			if (result.empty() || current_result.size() < result.size())
+			{
+				result = current_result;
+			}
+		}
 
 		utils::io::write_file(file + ".diff", result);
 	}
